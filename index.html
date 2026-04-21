@@ -377,7 +377,7 @@ function applyBF(){
 document.addEventListener('DOMContentLoaded',async()=>{
   g('kk-oc').href=KK_OC; g('kk-ch').href=KK_CH;
   const {data:{session}}=await db.auth.getSession();
-  if(session){const ok=await loadMember(session.user);if(오케이)showApp();}
+  if(session){try{const ok=await loadMember(session.user);if(오케이)showApp();else showLogin();}catch(e){console.error(e);showLogin();}}
   else showLogin();
   db.auth.onAuthStateChange(async(ev,session)=>{
     if(ev==='SIGNED_IN'&&session){try{const ok=await loadMember(session.user);if(오케이)showApp();}catch(e){console.error('loadMember error',e);showLogin();}}
@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 async function loadMember(user){
   App.user=user;
   const {data,error}=await db.from('members').select('*').eq('user_id',user.id).eq('is_active',true).single();
-  if(error||!data){setLerr('계정이 등록되지 않았습니다. 협회 관리자에게 문의하세요.');await db.auth.signOut();return false;}
+  if(error||!data){setLerr('계정이 등록되지 않았습니다. 협회 관리자에게 문의하세요.');return false;}
   App.member=data;App.role=data.role;return true;
 }
 async function loginKakao(){
