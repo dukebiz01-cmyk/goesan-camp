@@ -377,10 +377,10 @@ function applyBF(){
 document.addEventListener('DOMContentLoaded',async()=>{
   g('kk-oc').href=KK_OC; g('kk-ch').href=KK_CH;
   const {data:{session}}=await db.auth.getSession();
-  if(session){try{const ok=await loadMember(session.user);if(오케이)showApp();else showLogin();}catch(e){console.error(e);showLogin();}}
+  if(session){try{const r1=await loadMember(session.user);if(r1)showApp();else showLogin();}catch(e){console.error(e);showLogin();}}
   else showLogin();
   db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session){try{const ok=await loadMember(session.user);if(오케이)showApp();}catch(e){console.error('loadMember error',e);showLogin();}}
+    if(ev==='SIGNED_IN'&&session){try{const r2=await loadMember(session.user);if(r2)showApp();else showLogin();}catch(e){console.error('auth error',e);showLogin();}}
     else if(ev==='SIGNED_OUT'){Object.assign(App,{user:null,member:null,role:null});showLogin();}
   });
 });
@@ -400,8 +400,9 @@ async function loginEmail(){
   const e=g('ei').value.trim(),p=g('pi').value;
   if(!e||!p){setLerr('이메일과 비밀번호를 입력하세요');return;}
   load(true);
-  const {error}=await db.auth.signInWithPassword({email:e,password:p});
-  load(false);if(error)setLerr('로그인 실패: '+error.message);
+  const {data:authData,error:authErr}=await db.auth.signInWithPassword({email:e,password:p});
+  load(false);if(authErr){setLerr('로그인 실패: '+authErr.message);return;}
+  if(authData?.user){try{const r3=await loadMember(authData.user);if(r3)showApp();else setLerr('계정이 등록되지 않았습니다.');}catch(e){setLerr('오류: '+e.message);}}
 }
 async function logout(){if(!confirm('로그아웃 하시겠습니까?'))return;await db.auth.signOut();}
 function setLerr(msg){const el=g('lerr');el.textContent=msg;el.style.display='block';}
