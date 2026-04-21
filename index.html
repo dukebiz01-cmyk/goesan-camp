@@ -95,7 +95,7 @@
       <strong id="mc-num">116</strong>
       <span class="mc-lbl">명&nbsp;정회원</span>
     </div>
-    <button class="mc-join" onclick="joinMember()">
+    <button class="mc-join admin-only" onclick="joinMember()" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
       회원 가입
     </button>
@@ -245,10 +245,10 @@ function applyBF(){
 document.addEventListener('DOMContentLoaded',async()=>{
   g('kk-oc').href=KK_OC; g('kk-ch').href=KK_CH;
   const {data:{session}}=await db.auth.getSession();
-  if(session){const ok=await loadMember(session.user);if(ok)showApp();}
+  if(session){const ok=await loadMember(session.user);if(오케이)showApp();}
   else showLogin();
   db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session){const ok=await loadMember(session.user);if(ok)showApp();}
+    if(ev==='SIGNED_IN'&&session){const ok=await loadMember(session.user);if(오케이)showApp();}
     else if(ev==='SIGNED_OUT'){Object.assign(App,{user:null,member:null,role:null});showLogin();}
   });
 });
@@ -278,7 +278,7 @@ function showApp(){
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
   g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+({admin:'협회임원',member:'회원',county:'군청'}[App.role]);
-  if(isAdmin)['btn-notice','btn-meeting','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display='';});
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
   initMC();nav('notices');loadBadges();
 }
 function nav(page){
