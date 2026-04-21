@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#185c42">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="괴산캠핑장">
+<meta name="mobile-web-app-capable" content="yes">
+<script>!function(){var c=document.createElement('canvas');c.width=c.height=192;var x=c.getContext('2d');x.fillStyle='#185c42';x.beginPath();if(x.roundRect)x.roundRect(0,0,192,192,40);else x.rect(0,0,192,192);x.fill();x.strokeStyle='rgba(255,255,255,.88)';x.lineWidth=11;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(24,152);x.lineTo(96,36);x.lineTo(168,152);x.stroke();x.beginPath();x.moveTo(66,120);x.lineTo(96,68);x.lineTo(126,120);x.stroke();x.strokeStyle='rgba(255,255,255,.38)';x.lineWidth=7;x.beginPath();x.moveTo(24,152);x.lineTo(168,152);x.stroke();var ico=c.toDataURL();['apple-touch-icon','apple-touch-icon-precomposed'].forEach(function(r){var l=document.createElement('link');l.rel=r;l.href=ico;document.head.appendChild(l);});var fl=document.createElement('link');fl.rel='icon';fl.type='image/png';fl.href=ico;document.head.appendChild(fl);var mf={name:'괴산캠핑장협회',short_name:'괴산캠핑장',description:'괴산캠핑장협회 운영 시스템',start_url:'.',display:'standalone',orientation:'portrait',background_color:'#f6f8f4',theme_color:'#185c42',icons:[{src:ico,sizes:'192x192',type:'image/png'},{src:ico,sizes:'512x512',type:'image/png'}]};var bl=new Blob([JSON.stringify(mf)],{type:'application/manifest+json'});var ml=document.createElement('link');ml.rel='manifest';ml.href=URL.createObjectURL(bl);document.head.appendChild(ml);}();</script>
+
+<title>괴산캠핑장협회</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+:root{--g:#185c42;--gm:#104531;--gl:#3f8a67;--gp:#dceadf;--amber:#a86e13;--ab:#fbf1dc;--red:#b33a38;--rb:#f8e5e4;--green:#2e7a4d;--gb:#dff1e7;--blue:#1d4ed8;--bb:#dbeafe;--cream:#f6f8f4;--cd:#e8efe6;--bdr:#d6dfd3;--ch:#18211a;--mid:#5e6d61;--w:#fdfefb;--kk:#FEE500;--kkt:#3C1E1E;--fd:'Pretendard','Noto Sans KR',sans-serif;--fh:'Manrope','Pretendard',sans-serif;--r1:10px;--r2:14px;--r3:18px;--r4:24px;--tr:180ms cubic-bezier(.16,1,.3,1);--s1:0 2px 8px rgba(24,33,26,.04);--s2:0 12px 30px rgba(24,33,26,.06);--s3:0 24px 60px rgba(24,33,26,.12)}*{box-sizing:border-box;margin:0;padding:0}html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth}body{font-family:var(--fd);background:radial-gradient(circle at top right,rgba(24,92,66,.05),transparent 20%),var(--cream);color:var(--ch);min-height:100vh;line-height:1.85;word-break:keep-all}button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}img,svg{display:block;max-width:100%}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#091d10,#12442d 55%,#185c42)}.lcard{background:rgba(253,254,251,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.16);border-radius:28px;padding:42px 36px;width:400px;max-width:94vw;box-shadow:0 30px 80px rgba(0,0,0,.28);animation:fu .45s ease}.llogo{text-align:center;margin-bottom:28px}.llogo .ic{width:56px;height:56px;background:linear-gradient(145deg,var(--g),#3a8a66);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:var(--s2)}.llogo .ic svg{width:24px;height:24px;stroke:#fff}.llogo h1{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--ch);line-height:1.4}.llogo p{font-size:12px;color:var(--mid);margin-top:4px}.kkbtn,.ebtn{width:100%;min-height:52px;border:none;border-radius:14px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:all var(--tr)}.kkbtn{background:var(--kk);color:var(--kkt);margin-bottom:12px}.kkbtn:hover,.ebtn:hover{transform:translateY(-1px)}.divd{text-align:center;font-size:12px;color:var(--mid);margin:14px 0;position:relative}.divd:before,.divd:after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--bdr)}.divd:before{left:0}.divd:after{right:0}.lf{margin-bottom:12px}.lf label{display:block;font-size:11px;font-weight:800;color:var(--mid);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}.lf input{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:12px 14px;font-size:14px;background:#f3f7f2;outline:none;transition:all var(--tr)}.lf input:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(24,92,66,.08);background:var(--w)}.ebtn{background:var(--g);color:var(--w)}.lerr{background:var(--rb);color:var(--red);border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px;display:none}@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#app{display:none}.topbar{position:sticky;top:0;z-index:50;background:rgba(246,248,244,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(24,33,26,.08);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}.tb-title{font-family:var(--fh);font-size:15px;font-weight:800;letter-spacing:-.02em}.tb-right{display:flex;align-items:center;gap:8px}.uchip{background:var(--gp);color:var(--g);border-radius:999px;padding:5px 10px;font-size:11px;font-weight:800}.lobtn{border:none;background:var(--w);border:1px solid var(--bdr);border-radius:10px;padding:7px 10px;color:var(--mid);font-size:12px;font-weight:700}
+.page{display:none;padding:18px 14px 88px;min-height:calc(100vh - 56px);animation:fi .2s}.page.active{display:block}@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}.ph-title{font-family:var(--fh);font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1.15}.ph-sub{font-size:13px;color:var(--mid);margin-top:6px;max-width:50ch}.btn{padding:9px 14px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;border:none;transition:all var(--tr);display:inline-flex;align-items:center;gap:6px}.bp{background:var(--g);color:var(--w);box-shadow:var(--s1)}.bo{background:var(--w);color:var(--g);border:1.5px solid var(--bdr)}.br{background:var(--red);color:var(--w)}.bk{background:var(--kk);color:var(--kkt);border:none}.btn-sm{padding:7px 11px;font-size:12px;border-radius:10px}.bp:hover,.bo:hover,.bk:hover,.br:hover{transform:translateY(-1px)}
+.card{background:var(--w);border-radius:18px;border:1px solid rgba(24,33,26,.08);overflow:hidden;margin-bottom:12px;box-shadow:var(--s1)}.row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--cd);gap:10px;cursor:pointer;transition:background var(--tr),transform var(--tr),box-shadow var(--tr)}.row:hover{background:#f8fbf8;transform:translateY(-1px)}.row:last-child{border-bottom:none}.row.unread{border-left:4px solid var(--g);padding-left:12px}.rdot{width:8px;height:8px;border-radius:50%;background:var(--gl);flex-shrink:0}.rdot.read{background:transparent;border:2px solid var(--bdr)}.rmain{flex:1;min-width:0}.rt{font-size:15px;font-weight:700;line-height:1.45;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.rm{font-size:12px;color:var(--mid);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}.tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800}.tg{background:var(--gb);color:var(--green)}.tr{background:var(--rb);color:var(--red)}.ta{background:var(--ab);color:var(--amber)}.tb{background:var(--bb);color:var(--blue)}.tgr{background:var(--cd);color:var(--mid)}
+.infobar{background:var(--ab);border:1px solid #f5d58b;border-radius:12px;padding:10px 12px;font-size:12px;color:var(--amber);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:10px 12px;margin-bottom:14px;box-shadow:var(--s1)}.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{padding:8px 11px;border-radius:999px;border:1px solid transparent;background:#f2f5f1;color:var(--mid);font-size:12px;font-weight:800;transition:all var(--tr)}.seg button.active{background:var(--g);color:#fff;box-shadow:0 8px 20px rgba(24,92,66,.18)}.search{display:flex;align-items:center;gap:8px;min-width:min(100%,240px)}.search input{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:10px 12px;background:#f4f7f3;outline:none}.search input:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(24,92,66,.08)}
+.pc{background:var(--w);border-radius:20px;border:1px solid var(--bdr);padding:16px;margin-bottom:12px;box-shadow:var(--s1);position:relative;overflow:hidden;transition:all var(--tr)}.pc:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}.pc.voting:before{background:#d6a020}.pc.approved:before{background:var(--green)}.pc.rejected:before{background:var(--red)}.pc.closed:before,.pc.draft:before{background:#94a197}.pc.voting{background:linear-gradient(180deg,#fffdf5,#fff)}.pc.approved{background:linear-gradient(180deg,#f3fcf6,#fff)}.pc.rejected{background:linear-gradient(180deg,#fff7f7,#fff)}.pc.closed,.pc.draft{background:linear-gradient(180deg,#f7faf7,#fff)}.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.pc-title{font-size:16px;font-weight:800;line-height:1.38;letter-spacing:-.02em}.pc-amount{font-size:20px;font-weight:800;color:var(--red);flex-shrink:0}.pc-meta{font-size:12px;color:var(--mid);margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap}.rule-note{background:#fff8e6;border-radius:10px;padding:8px 11px;font-size:11px;color:#a16207;font-weight:700;margin-bottom:10px}.qbar{background:#e7ece6;border-radius:999px;height:10px;overflow:hidden;margin:6px 0}.qfill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--gl),var(--g));transition:width .6s}.qfill.low{background:linear-gradient(90deg,#f87171,#ef4444)}.vrow{display:flex;justify-content:space-between;font-size:12px;color:var(--mid);margin-bottom:10px;gap:8px;flex-wrap:wrap}.vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.vby,.vbn{padding:11px;border-radius:12px;font-size:14px;font-weight:800}.vby{border:none;background:var(--g);color:#fff}.vbn{border:1.5px solid #f2b5b5;background:#fff;color:var(--red)}.vdone{background:#eefaf1;border:1px solid #bde4c8;border-radius:12px;padding:10px;text-align:center;font-size:12px;font-weight:800;color:var(--g)}.pc-extra{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--cd)}.pc.open .pc-extra{display:block}.pc-open{margin-top:10px;font-size:12px;font-weight:800;color:var(--g);display:inline-flex;align-items:center;gap:6px}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(253,254,251,.94);backdrop-filter:blur(18px);border-top:1px solid rgba(24,33,26,.08);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -10px 30px rgba(24,33,26,.05)}.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 8px;cursor:pointer;color:#8b968d;font-size:10px;gap:4px;position:relative;transition:color var(--tr)}.bn.active{color:var(--g)}.bn:after{content:'';position:absolute;bottom:6px;left:50%;width:5px;height:5px;background:transparent;border-radius:50%;transform:translateX(-50%);transition:all var(--tr)}.bn.active:after{background:var(--g)}.bni{width:22px;height:22px;display:flex;align-items:center;justify-content:center}.bni svg{width:21px;height:21px;stroke:currentColor}.bnb{position:absolute;top:5px;right:calc(50% - 15px);background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:20px;min-width:14px;text-align:center}
+.pover{position:fixed;inset:0;background:rgba(16,20,16,.42);z-index:199;display:none}.pover.open{display:block}.pan{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-radius:24px 24px 0 0;z-index:200;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -24px 60px rgba(0,0,0,.2)}.pan.open{transform:translateY(0)}.panh{width:40px;height:5px;background:var(--bdr);border-radius:999px;margin:13px auto 0}.panhd{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:10px}.panhd-title{font-family:var(--fh);font-size:20px;font-weight:800;line-height:1.25;letter-spacing:-.02em}.panclose{width:30px;height:30px;border-radius:9px;border:none;background:#f3f6f2;cursor:pointer;font-size:16px}.panb{padding:18px}.p-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.p-meta span{font-size:11px;color:var(--mid);background:#f3f6f2;padding:5px 9px;border-radius:999px}.p-content{font-size:15px;color:var(--ch);line-height:1.92}.p-sec{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}.p-sec-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.file-row{display:flex;align-items:center;padding:10px 12px;border:1px solid var(--cd);border-radius:12px;gap:8px;margin-bottom:8px;background:#fbfdfb}.fext{padding:3px 6px;border-radius:6px;font-size:10px;font-weight:800}.fe-pdf{background:#fee2e2;color:#b91c1c}.fe-hwp{background:#dbeafe;color:#1d4ed8}.fe-xlsx,.fe-xls{background:#dcfce7;color:#15803d}.fe-pptx{background:#fff3e0;color:#e65100}.fe-zip{background:#f3e5f5;color:#6a1b9a}.fe-def{background:var(--cd);color:var(--mid)}
+.mover{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:flex-end;justify-content:center}.mover.open{display:flex}.mo{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;padding:20px 18px 30px;animation:su .25s ease}@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}.moh{width:36px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 14px}.mot{font-family:var(--fh);font-size:18px;font-weight:800;margin-bottom:14px}.ff{margin-bottom:12px}.ff label{display:block;font-size:11px;font-weight:800;color:var(--mid);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}.ff input,.ff textarea,.ff select{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:11px 12px;font-size:14px;outline:none;background:#f4f7f3;transition:all var(--tr)}.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(24,92,66,.08);background:var(--w)}.ff textarea{height:100px;resize:vertical}.ffrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.moa{display:flex;gap:8px;margin-top:14px}.moa .btn{flex:1;justify-content:center}
+.loading,.empty{text-align:center;padding:34px 18px;color:var(--mid);font-size:13px}.emptyic{font-size:30px;margin-bottom:7px}.errm{color:var(--red);font-size:12px;padding:14px;text-align:center}.lovo{position:fixed;inset:0;background:rgba(245,247,241,.76);backdrop-filter:blur(10px);z-index:600;display:none;align-items:center;justify-content:center}.lovo.show{display:flex}.spin{width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(0,0,0,.84);color:#fff;padding:10px 16px;border-radius:20px;font-size:12px;z-index:500;opacity:0;transition:all .25s;white-space:nowrap;max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 회원 카운터 바 */
+.mc-bar{position:sticky;top:56px;z-index:40;background:linear-gradient(90deg,var(--g),var(--gm));color:#e8f7ee;padding:8px 14px;display:flex;align-items:center;gap:10px}
+.mc-bar strong{font-family:'Instrument Sans','Pretendard',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;line-height:1;display:inline-block;min-width:44px;transition:transform .15s}
+.mc-bar strong.bump{transform:scale(1.14)}
+.mc-bar .mc-lbl{font-size:11px;opacity:.78;letter-spacing:.01em}
+.mc-join{margin-left:auto;padding:5px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:rgba(255,255,255,.92);font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .18s;white-space:nowrap}
+.mc-join:hover{background:rgba(255,255,255,.22)}
+.mc-join svg{width:13px;height:13px;stroke:currentColor;flex-shrink:0}
+/* 예산 툴바 */
+.budget-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:10px 12px;margin-bottom:12px;box-shadow:var(--s1);display:flex;flex-direction:column;gap:9px}
+.seg{display:flex;gap:5px;flex-wrap:wrap}
+.seg button{padding:7px 11px;border-radius:999px;border:1.5px solid transparent;background:#f2f5f1;color:var(--mid);font-size:12px;font-weight:800;transition:all var(--tr)}
+.seg button.active{background:var(--g);color:#fff;border-color:var(--g);box-shadow:0 6px 16px rgba(24,92,66,.2)}
+.bsearch{display:flex;align-items:center;gap:7px;background:#f4f7f3;border:1.5px solid var(--bdr);border-radius:12px;padding:8px 11px}
+.bsearch svg{width:15px;height:15px;stroke:var(--mid);flex-shrink:0}
+.bsearch input{border:none;outline:none;background:transparent;font-size:13px;width:100%;color:var(--ch)}
+/* 공지 핀 고정 */
+.row.pinned{background:linear-gradient(90deg,rgba(24,92,66,.05),transparent)}
+/* adm-acts */
+.adm-acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--cd)}
+/* 하단 탭 pill active */
+.bn-inner{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 16px;border-radius:13px;transition:background var(--tr)}
+.bn.active .bn-inner{background:var(--gp)}
+.bn:after{display:none}
+/* 로그인 ic SVG */
+.llogo .ic{display:inline-flex;align-items:center;justify-content:center}
+.llogo .ic svg{width:26px;height:26px;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ph-title{font-family:'Instrument Sans','Pretendard',sans-serif}
+
+@media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.tb-right .uchip{display:none}}
+</style></head>
+<body>
+<div class="lovo" id="lovo"><div class="spin"></div></div>
+
+<div id="login-screen">
+  <div class="lcard">
+    <div class="llogo">
+      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18L12 5l9 13H3z"/><path d="M9.5 14l2.5-4 2.5 4"/></svg></div>
+      <h1>괴산캠핑장협회</h1>
+      <p>투명한 협회 운영 시스템</p>
+    </div>
+    <button class="kkbtn" onclick="loginKakao()">
+      <svg width="16" height="16" viewBox="0 0 18 18"><path fill="#3C1E1E" d="M9 1.5C4.86 1.5 1.5 4.19 1.5 7.5c0 2.09 1.23 3.93 3.1 5.04L3.87 15l3.06-1.47C7.27 13.66 8.12 13.8 9 13.8c4.14 0 7.5-2.69 7.5-6s-3.36-6-7.5-6z"/></svg>
+      카카오로 로그인
+    </button>
+    <div class="divd">또는</div>
+    <div class="lf"><label>이메일</label><input type="email" id="ei" placeholder="이메일"></div>
+    <div class="lf"><label>비밀번호</label><input type="password" id="pi" placeholder="비밀번호" onkeydown="if(event.key==='Enter')loginEmail()"></div>
+    <button class="ebtn" onclick="loginEmail()">로그인</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">괴산캠핑장협회</div>
+    <div class="tb-right">
+      <span class="uchip" id="uchip"></span>
+      <button class="lobtn" onclick="logout()">나가기</button>
+    </div>
+  </div>
+
+  <div class="mc-bar" id="mc-bar">
+    <div>
+      <strong id="mc-num">116</strong>
+      <span class="mc-lbl">명&nbsp;정회원</span>
+    </div>
+    <button class="mc-join" onclick="joinMember()">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
+      회원 가입
+    </button>
+  </div>
+
+  <div class="page active" id="page-notices">
+    <div class="ph"><div class="ph-title">공지사항</div>
+      <button class="btn bp btn-sm" id="btn-notice" style="display:none" onclick="openModal('notice')">+ 작성</button>
+    </div>
+    <div id="notice-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <div class="page" id="page-meetings">
+    <div class="ph"><div class="ph-title">회의</div>
+      <button class="btn bp btn-sm" id="btn-meeting" style="display:none" onclick="openModal('meeting')">+ 등록</button>
+    </div>
+    <div style="display:flex;gap:7px;margin-bottom:12px">
+      <a id="kk-oc" href="#" target="_blank" class="btn bk btn-sm">💬 오픈채팅</a>
+      <a id="kk-ch" href="#" target="_blank" class="btn bk btn-sm">📣 협회채널</a>
+    </div>
+    <div id="meeting-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <div class="page" id="page-budget">
+    <div class="ph">
+      <div>
+        <div class="ph-title">예산안 투표</div>
+        <div class="ph-sub" style="font-size:12px;color:var(--mid);margin-top:4px">정관 제18조·33조 — 예산·결산은 이사회 의결 후 총회 승인을 받아야 합니다</div>
+      </div>
+      <button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button>
+    </div>
+    <div class="budget-toolbar">
+      <div class="seg" id="bf-seg">
+        <button class="active" data-bf="all">전체</button>
+        <button data-bf="voting">진행중</button>
+        <button data-bf="approved">가결</button>
+        <button data-bf="rejected">반려</button>
+        <button data-bf="draft">초안</button><!-- 주의: DB status에 draft 없음 -->
+      </div>
+      <label class="bsearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="budget-search" type="search" placeholder="예산안 제목 검색">
+      </label>
+    </div>
+    <div id="budget-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <div class="page" id="page-library">
+    <div class="ph"><div class="ph-title">📁 자료실</div></div>
+    <div class="card" id="library-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <nav class="bnav">
+    <div class="bn active" data-page="notices" onclick="nav('notices')">
+      <div class="bn-inner">
+        <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+        <span style="font-size:10px;font-weight:700">공지</span>
+      </div>
+      <div class="bnb" id="bdg-n" style="display:none"></div>
+    </div>
+    <div class="bn" data-page="meetings" onclick="nav('meetings')">
+      <div class="bn-inner">
+        <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <span style="font-size:10px;font-weight:700">회의</span>
+      </div>
+    </div>
+    <div class="bn" data-page="budget" onclick="nav('budget')">
+      <div class="bn-inner">
+        <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+        <span style="font-size:10px;font-weight:700">투표</span>
+      </div>
+      <div class="bnb" id="bdg-b" style="display:none"></div>
+    </div>
+    <div class="bn" data-page="library" onclick="nav('library')">
+      <div class="bn-inner">
+        <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+        <span style="font-size:10px;font-weight:700">자료실</span>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<div class="pover" id="pover" onclick="closePan()"></div>
+<div class="pan" id="pan">
+  <div class="panh"></div>
+  <div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div>
+  <div class="panb" id="pan-body"></div>
+</div>
+
+<div class="mover" id="mover" onclick="if(event.target===this)closeMo()">
+  <div class="mo"><div class="moh"></div><div id="mo-body"></div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ★ CONFIG
+const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
+const KK_OC='https://open.kakao.com/o/XXXXXX';
+const KK_CH='http://pf.kakao.com/_XXXXXX';
+
+const {createClient}=supabase;
+const db=createClient(SUPA_URL,SUPA_KEY);
+const App={user:null,member:null,role:null};
+let _tt=null;
+
+// ── 회원 카운터 ──
+function getMC(){return parseInt(localStorage.getItem('gca_mc')||'116');}
+function setMC(n){localStorage.setItem('gca_mc',n);}
+function animMC(from,to){
+  var el=g('mc-num');if(!el)return;
+  var dur=550,start=Date.now();
+  el.classList.add('bump');setTimeout(function(){el.classList.remove('bump');},180);
+  (function tick(){var p=Math.min((Date.now()-start)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(from+(to-from)*e);if(p<1)requestAnimationFrame(tick);})();
+}
+function initMC(){var el=g('mc-num');if(el)el.textContent=getMC();}
+function joinMember(){
+  var cur=getMC(),next=cur+1;setMC(next);animMC(cur,next);
+  toast('신규 회원 등록 ('+next+'명) ✓');
+}
+
+// ── 예산 필터 + 검색 ──
+var _bFilter='all';
+function bindBudgetBar(){
+  document.querySelectorAll('[data-bf]').forEach(function(btn){
+    if(btn._bb)return;btn._bb=1;
+    btn.addEventListener('click',function(){
+      _bFilter=btn.dataset.bf;
+      document.querySelectorAll('[data-bf]').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');applyBF();
+    });
+  });
+  var inp=g('budget-search');if(inp&&!inp._bb){inp._bb=1;inp.addEventListener('input',applyBF);}
+}
+function applyBF(){
+  var q=(g('budget-search')?.value||'').trim().toLowerCase();
+  document.querySelectorAll('.pc').forEach(function(c){
+    var okS=_bFilter==='all'||c.classList.contains(_bFilter);
+    var okQ=!q||(c.dataset.bs||'').includes(q);
+    c.style.display=(okS&&okQ)?'':'none';
+  });
+}
+
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  g('kk-oc').href=KK_OC; g('kk-ch').href=KK_CH;
+  const {data:{session}}=await db.auth.getSession();
+  if(session){const ok=await loadMember(session.user);if(ok)showApp();}
+  else showLogin();
+  db.auth.onAuthStateChange(async(ev,session)=>{
+    if(ev==='SIGNED_IN'&&session){const ok=await loadMember(session.user);if(ok)showApp();}
+    else if(ev==='SIGNED_OUT'){Object.assign(App,{user:null,member:null,role:null});showLogin();}
+  });
+});
+
+async function loadMember(user){
+  App.user=user;
+  const {data,error}=await db.from('members').select('*').eq('user_id',user.id).eq('is_active',true).single();
+  if(error||!data){setLerr('계정이 등록되지 않았습니다. 협회 관리자에게 문의하세요.');await db.auth.signOut();return false;}
+  App.member=data;App.role=data.role;return true;
+}
+async function loginKakao(){
+  load(true);
+  const {error}=await db.auth.signInWithOAuth({provider:'kakao',options:{redirectTo:location.origin+location.pathname}});
+  if(error){load(false);setLerr(error.message);}
+}
+async function loginEmail(){
+  const e=g('ei').value.trim(),p=g('pi').value;
+  if(!e||!p){setLerr('이메일과 비밀번호를 입력하세요');return;}
+  load(true);
+  const {error}=await db.auth.signInWithPassword({email:e,password:p});
+  load(false);if(error)setLerr('로그인 실패: '+error.message);
+}
+async function logout(){if(!confirm('로그아웃 하시겠습니까?'))return;await db.auth.signOut();}
+function setLerr(msg){const el=g('lerr');el.textContent=msg;el.style.display='block';}
+function showLogin(){g('login-screen').style.display='flex';g('app').style.display='none';}
+function showApp(){
+  g('login-screen').style.display='none';g('app').style.display='block';
+  const isAdmin=App.role==='admin';
+  g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+({admin:'협회임원',member:'회원',county:'군청'}[App.role]);
+  if(isAdmin)['btn-notice','btn-meeting','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display='';});
+  initMC();nav('notices');loadBadges();
+}
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
+  g('page-'+page).classList.add('active');
+  document.querySelector('.bn[data-page="'+page+'"]').classList.add('active');
+  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',library:'자료실'};
+  g('tb-title').textContent=titles[page];
+  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,library:loadLibrary};
+  if(loaders[page])loaders[page]();
+}
+async function loadBadges(){
+  if(App.member){
+    const {data:reads}=await db.from('notice_reads').select('notice_id').eq('member_id',App.member.id);
+    const rids=(reads||[]).map(r=>r.notice_id);
+    let q=db.from('notices').select('*',{count:'exact',head:true});
+    if(rids.length)q=q.not('id','in','('+rids.map(i=>'"'+i+'"').join(',')+')');
+    const {count}=await q;
+    const b=g('bdg-n');if(count>0){b.textContent=count;b.style.display='';}
+  }
+  const {count:vc}=await db.from('budget_proposals').select('*',{count:'exact',head:true}).eq('status','voting');
+  const bv=g('bdg-b');if(vc>0){bv.textContent=vc;bv.style.display='';}
+}
+
+// ── 공지사항 ──
+async function loadNotices(){
+  const list=g('notice-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const [nr,rr]=await Promise.all([
+    db.from('notices').select('*, members!notices_created_by_fkey(name)').order('is_pinned',{ascending:false}).order('created_at',{ascending:false}),
+    App.member?db.from('notice_reads').select('notice_id').eq('member_id',App.member.id):{data:[]}
+  ]);
+  if(nr.error){list.innerHTML='<div class="errm">불러오기 실패</div>';return;}
+  const rids=new Set((rr.data||[]).map(r=>r.notice_id));
+  if(!nr.data.length){list.innerHTML='<div class="empty"><div class="emptyic">📋</div>공지가 없습니다</div>';return;}
+  list.innerHTML='<div class="card">'+nr.data.map(n=>'<div class="row '+(rids.has(n.id)?'':'unread')+(n.is_pinned?' pinned':'')+'" onclick="openNotice(\''+n.id+'\')">'+'<div class="rdot '+(rids.has(n.id)?'read':'')+'"></div>'+'<div class="rmain"><div class="rt">'+(n.is_pinned?'📌 ':'')+esc(n.title)+'</div><div class="rm">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+'</div></div></div>').join('')+'</div>';
+}
+async function openNotice(id){
+  const {data:n}=await db.from('notices').select('*, members!notices_created_by_fkey(name)').eq('id',id).single();
+  if(!n)return;
+  if(App.member){
+    await db.from('notice_reads').upsert({notice_id:id,member_id:App.member.id},{onConflict:'notice_id,member_id',ignoreDuplicates:true});
+    loadNotices();loadBadges();
+  }
+  const files=[];  // attachments 테이블에 notice_id 컬럼 미존재 - schema 확장 후 활성화
+  showPan(n.title,'<div class="p-meta">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+(n.is_pinned?' · 📌 고정':'')+'</div><div class="p-content">'+esc(n.content).replace(/\n/g,'<br>')+'</div>'+(files?.length?'<div class="p-sec"><div class="p-sec-t">첨부파일</div>'+files.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>').join('')+'</div>':'')+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delNotice(\''+id+'\')">🗑️ 삭제</button></div>':''));
+}
+async function submitNotice(){
+  const title=v('n-title'),content=v('n-content'),pinned=g('n-pin').checked;
+  if(!title||!content){toast('제목과 내용을 입력하세요');return;}
+  load(true);
+  const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
+  if(!error&&data){const fi=g('n-file');if(fi.files.length)await uploadAtt(fi.files,'notice',data.id);}
+  load(false);
+  if(error){toast('오류: '+error.message);return;}
+  toast('공지 등록 완료 ✓');closeMo();loadNotices();
+}
+async function delNotice(id){if(!confirm('삭제하시겠습니까?'))return;await db.from('notices').delete().eq('id',id);closePan();toast('삭제되었습니다');loadNotices();}
+
+// ── 회의 ──
+async function loadMeetings(){
+  const list=g('meeting-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const {data,error}=await db.from('meetings').select('*, members!meetings_created_by_fkey(name)').order('meeting_date',{ascending:false});
+  if(error){list.innerHTML='<div class="errm">불러오기 실패</div>';return;}
+  if(!data.length){list.innerHTML='<div class="empty"><div class="emptyic">🎥</div>등록된 회의가 없습니다</div>';return;}
+  list.innerHTML='<div class="card">'+data.map(m=>'<div class="row" onclick="openMeeting(\''+m.id+'\')">'+'<div class="rdot '+(m.status==='done'?'read':'')+'"></div>'+'<div class="rmain"><div class="rt">'+esc(m.title)+'</div><div class="rm">'+fdt(m.meeting_date)+'</div></div>'+'<div style="display:flex;gap:5px;align-items:center;flex-shrink:0">'+(m.kakao_chat_url?'<a href="'+esc(m.kakao_chat_url)+'" target="_blank" onclick="event.stopPropagation()" class="btn bk btn-sm">💬</a>':'')+'<span class="tag '+(m.status==='done'?'tgr':'tb')+'">'+(m.status==='done'?'완료':'예정')+'</span></div></div>').join('')+'</div>';
+}
+async function openMeeting(id){
+  const {data:m}=await db.from('meetings').select('*, members!meetings_created_by_fkey(name)').eq('id',id).single();
+  if(!m)return;
+  const files=[];  // attachments 테이블에 meeting_id 컬럼 미존재 - schema 확장 후 활성화
+  showPan(m.title,'<div class="p-meta">📅 '+fdt(m.meeting_date)+'</div>'+(m.agenda?'<div class="p-sec"><div class="p-sec-t">📋 안건</div><div class="p-content">'+esc(m.agenda).replace(/\n/g,'<br>')+'</div></div>':'')+(m.minutes?'<div class="p-sec"><div class="p-sec-t">📝 회의록</div><div class="p-content">'+esc(m.minutes).replace(/\n/g,'<br>')+'</div></div>':'')+(m.kakao_chat_url?'<a href="'+esc(m.kakao_chat_url)+'" target="_blank" class="btn bk" style="margin-top:12px;display:inline-flex">💬 오픈채팅 참여</a>':'')+(files?.length?'<div class="p-sec"><div class="p-sec-t">첨부자료</div>'+files.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>').join('')+'</div>':'')+(App.role==='admin'&&!m.minutes?'<div class="p-sec"><button class="btn bp btn-sm" onclick="openMinutes(\''+id+'\')">📝 회의록 작성</button></div>':''));
+}
+async function submitMeeting(){
+  const title=v('mt-title'),date=v('mt-date'),chat=v('mt-chat'),agenda=v('mt-agenda');
+  if(!title||!date){toast('제목과 날짜를 입력하세요');return;}
+  load(true);
+  const {data,error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:new Date(date).toISOString(),kakao_chat_url:chat||null,status:'upcoming'}).select().single();
+  if(!error&&data){const fi=g('mt-file');if(fi.files.length)await uploadAtt(fi.files,'meeting',data.id);}
+  load(false);
+  if(error){toast('오류: '+error.message);return;}
+  toast('회의 등록 완료 ✓');closeMo();loadMeetings();
+}
+function openMinutes(id){closePan();openModal('minutes');g('min-id').value=id;}
+async function submitMinutes(){
+  const id=g('min-id').value,m=v('min-content');
+  if(!m){toast('내용을 입력하세요');return;}
+  load(true);
+  const {error}=await db.from('meetings').update({minutes:m,status:'done'}).eq('id',id);
+  load(false);if(error){toast('오류');return;}
+  toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
+}
+
+// ── 예산안 투표 ──
+async function loadBudget(){
+  const list=g('budget-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const {data,error}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
+  if(error){list.innerHTML='<div class="errm">불러오기 실패</div>';return;}
+  if(!data.length){list.innerHTML='<div class="empty"><div class="emptyic">✅</div>등록된 예산안이 없습니다</div>';return;}
+  let mv={};
+  if(App.member){
+    const {data:vd}=await db.from('votes').select('proposal_id,vote').eq('member_id',App.member.id);
+    (vd||[]).forEach(v=>mv[v.proposal_id]=v.vote);
+  }
+  list.innerHTML=data.map(p=>renderP(p,mv)).join('');
+  bindBudgetBar();
+}
+function renderP(p,mv={}){
+  const tot=p.vote_yes+p.vote_no,yesPct=tot>0?Math.round(p.vote_yes/tot*100):0;
+  const qmet=tot>=(p.quorum_count||1);
+  const myv=mv[p.id],now=new Date();
+  const canVote=App.role!=='county'&&p.status==='voting'&&!myv&&p.vote_deadline&&new Date(p.vote_deadline)>now;
+  const stM={draft:'초안',voting:'투표중',approved:'승인',rejected:'부결',closed:'정족수미달'};
+  const stC={draft:'tgr',voting:'ta',approved:'tg',rejected:'tr',closed:'tgr'};
+  const isPastDeadline=p.vote_deadline&&new Date(p.vote_deadline)<=now;
+  return '<div class="pc '+p.status+'" data-bs="'+(p.title||'').toLowerCase()+'" onclick="openProposal(\''+p.id+'\')">'+
+    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title)+'</div><div class="pc-meta">'+esc(p.category)+' · '+esc(p.budget_source)+'</div></div>'+
+    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+stC[p.status]+'">'+stM[p.status]+'</span></div></div>'+
+    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(p.quorum_count||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div>'+
+    '<div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div>'+
+    '<div class="vrow"><span>✅ '+p.vote_yes+' · ❌ '+p.vote_no+' · 참여 '+tot+'/'+(p.total_voters||'?')+'</span>'+
+    '<span style="color:var(--amber)">'+(p.vote_deadline?'마감 '+fdt(p.vote_deadline):'')+'</span></div>':'')+ 
+    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+p.id+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+p.id+'\',\'no\')">❌ 반대</button></div>':
+     myv?'<div class="vdone">'+(myv==='yes'?'✅ 찬성으로 투표':'❌ 반대로 투표')+' · 변경 불가</div>':'')+
+    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+
+      (p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+p.id+'\')">🗳️ 투표 시작</button>':'')+
+      (p.status==='voting'&&isPastDeadline?'<button class="btn br btn-sm" onclick="finalize(\''+p.id+'\')">🔒 마감 처리</button>':'')+'</div>':'')+
+    '</div>';
+}
+async function castVote(pid,vote){
+  if(!App.member)return;
+  load(true);
+  const {error}=await db.from('votes').insert({proposal_id:pid,member_id:App.member.id,vote});
+  load(false);
+  if(error){toast(error.code==='23505'?'이미 투표했습니다':(error.message||'투표 오류'));return;}
+  toast(vote==='yes'?'✅ 찬성 투표 완료':'❌ 반대 투표 완료');
+  loadBudget();loadBadges();
+}
+async function startVoting(id){
+  const dline=prompt('투표 마감일시 (예: 2025-07-05T18:00)');if(!dline)return;
+  const quorum=prompt('정족수 (최소 참여 회원 수, 예: 8)');if(!quorum)return;
+  const rule=confirm('2/3 이상 찬성이 필요하면 [확인], 과반이면 [취소]')?'two_thirds':'simple_majority';
+  const {count}=await db.from('members').select('*',{count:'exact',head:true}).eq('role','member').eq('is_active',true);
+  load(true);
+  const {error}=await db.from('budget_proposals').update({
+    status:'voting',vote_deadline:new Date(dline).toISOString(),
+    quorum_count:parseInt(quorum),approval_rule:rule,total_voters:count||0
+  }).eq('id',id).eq('status','draft');
+  load(false);
+  if(error){toast('오류: '+error.message);return;}
+  toast('투표가 시작되었습니다 ✓');loadBudget();loadBadges();
+}
+async function finalize(id){
+  if(!confirm('투표를 마감 처리합니다. 결과가 확정됩니다. 진행하시겠습니까?'))return;
+  load(true);
+  // finalize_budget_proposal RPC 미존재 → 직접 집계 후 status UPDATE
+  const {data:vdata}=await db.from('votes').select('vote').eq('proposal_id',id);
+  const yes=(vdata||[]).filter(v=>v.vote==='yes').length;
+  const no=(vdata||[]).filter(v=>v.vote==='no').length;
+  const {data:p}=await db.from('budget_proposals').select('total_voters').eq('id',id).single();
+  const total=p?.total_voters||0;
+  const quorum=Math.ceil(total/2)||1;
+  const tot=yes+no;
+  let newStatus='rejected';
+  if(tot>=quorum && yes>no) newStatus='approved';
+  const {error}=await db.from('budget_proposals')
+    .update({status:newStatus,vote_yes:yes,vote_no:no})
+    .eq('id',id).eq('status','voting');
+  load(false);
+  if(error){toast('마감 오류: '+error.message);return;}
+  toast(newStatus==='approved'?'✅ 가결 확정':'❌ 부결 확정');loadBudget();loadBadges();
+}
+async function openProposal(id){
+  const {data:p}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').eq('id',id).single();
+  if(!p)return;
+  const {data:files}=await db.from('attachments').select('*').eq('proposal_id',id);
+  const tot=p.vote_yes+p.vote_no;
+  const stM={draft:'초안',voting:'투표중',approved:'승인',rejected:'부결',closed:'정족수미달'};
+  showPan(p.title,'<div class="p-meta">등록: '+esc(p.members?.name||'')+' · '+fd(p.created_at)+'</div>'+
+    '<div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(p.amount)+'</div>'+
+    '<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(p.category)+'</span><span class="tag tgr">'+esc(p.budget_source)+'</span><span class="tag '+(p.approval_rule==='two_thirds'?'tr':'tg')+'">'+(p.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div>'+
+    '<div class="p-content">'+esc(p.description).replace(/\n/g,'<br>')+'</div>'+
+    (p.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+stM[p.status]+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+p.vote_yes+'</strong> · 반대 <strong>'+p.vote_no+'</strong> · 참여 '+tot+' / '+(p.total_voters||'?')+'<br>정족수 '+tot+' / '+(p.quorum_count||'?')+' '+(tot>=(p.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+fdt(p.vote_deadline||'')+(p.finalized_at?'<br>확정: '+fdt(p.finalized_at):'')+'</div></div>':'')+
+    (files?.length?'<div class="p-sec"><div class="p-sec-t">첨부 서류</div>'+files.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>').join('')+'</div>':''));
+}
+async function submitProposal(){
+  const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=parseInt(v('pr-amt')),desc=v('pr-desc'),rule=v('pr-rule');
+  if(!title||!amt||!desc){toast('모든 항목을 입력하세요');return;}
+  load(true);
+  const {data,error}=await db.from('budget_proposals').insert({created_by:App.member.id,title,category:cat,budget_source:src,amount:amt,description:desc,approval_rule:rule,status:'draft'}).select().single();
+  if(!error&&data){const fi=g('pr-file');if(fi.files.length)await uploadAtt(fi.files,'proposal',data.id);}
+  load(false);
+  if(error){toast('오류: '+error.message);return;}
+  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();
+}
+
+// ── 자료실 ──
+async function loadLibrary(){
+  const list=g('library-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const {data,error}=await db.from('attachments').select('*, members!attachments_uploaded_by_fkey(name)').order('created_at',{ascending:false});
+  if(error){list.innerHTML='<div class="errm">불러오기 실패</div>';return;}
+  if(!data.length){list.innerHTML='<div class="empty"><div class="emptyic">📁</div>첨부된 파일이 없습니다</div>';return;}
+  list.innerHTML=data.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px;font-weight:500">'+esc(f.file_name)+'</div><div class="rm">'+esc(f.members?.name||'')+' · '+esc(f.target_type)+' · '+fd(f.created_at)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm" download>↓</a></div>').join('');
+}
+
+// ── 파일 업로드 공통 ──
+async function uploadAtt(files,targetType,targetId){
+  if(targetType!=='proposal'){
+    toast('현재 버전에서는 예산안 첨부만 지원됩니다');return;
+  }
+  for(const file of files){
+    if(!file||file.size>50*1024*1024){toast(file.name+': 50MB 초과');continue;}
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const path='proposal/'+targetId+'/'+Date.now()+'_'+safeName;
+    const {error:ue}=await db.storage.from('association-files').upload(path,file,{cacheControl:'3600',upsert:false});
+    if(ue){toast('업로드 실패: '+file.name+' ('+ue.message+')');continue;}
+    const {data:{publicUrl}}=db.storage.from('association-files').getPublicUrl(path);
+    const {error:ie}=await db.from('attachments').insert({
+      proposal_id:targetId,
+      uploaded_by:App.member.id,
+      file_name:file.name,
+      file_url:publicUrl,
+      file_size:file.size
+    });
+    if(ie) toast('DB 저장 실패: '+ie.message);
+  }
+}
+
+// ── 모달 ──
+function openModal(type){
+  const tpls={
+    notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
+    meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="ff"><label>첨부자료 (선택)</label><input type="file" id="mt-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
+    minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
+    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:600;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="number" id="pr-amt" placeholder="예: 4500000"></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
+  };
+  g('mo-body').innerHTML=tpls[type]||'';g('mover').classList.add('open');
+}
+function closeMo(){g('mover').classList.remove('open');}
+function showPan(title,body){g('pan-title').textContent=title;g('pan-body').innerHTML=body;g('pover').classList.add('open');g('pan').classList.add('open');}
+function closePan(){g('pover').classList.remove('open');g('pan').classList.remove('open');}
+function g(id){return document.getElementById(id)}
+function v(id){return(g(id)||{}).value?.trim()||''}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fd(iso){if(!iso)return'';const d=new Date(iso);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
+function fdt(iso){if(!iso)return'';const d=new Date(iso);return fd(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function fext(name){return(name.split('.').pop()||'def').toLowerCase()}
+function won(n){if(!n)return'0원';if(n>=10000){const m=Math.floor(n/10000),r=n%10000;return m+'만'+(r>0?Math.round(r/1000)+'천':'')+'원';}return n.toLocaleString()+'원'}
+function load(on){g('lovo').classList.toggle('show',on)}
+function toast(msg){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
+</script>
+</body>
+</html>
