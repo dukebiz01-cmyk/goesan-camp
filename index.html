@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   if(session){const ok=await loadMember(session.user);if(오케이)showApp();}
   else showLogin();
   db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session){const ok=await loadMember(session.user);if(오케이)showApp();}
+    if(ev==='SIGNED_IN'&&session){try{const ok=await loadMember(session.user);if(오케이)showApp();}catch(e){console.error('loadMember error',e);showLogin();}}
     else if(ev==='SIGNED_OUT'){Object.assign(App,{user:null,member:null,role:null});showLogin();}
   });
 });
@@ -409,9 +409,15 @@ function showLogin(){g('login-screen').style.display='flex';g('app').style.displ
 function showApp(){
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
-  g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+({admin:'협회임원',member:'회원',county:'군청'}[App.role]);
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
-  initMC();nav('notices');loadBadges();
+  const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
+  g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+(roleLabel[App.role]||App.role);
+  // 관리자 전용 버튼
+  ['btn-notice','btn-meeting','btn-proposal'].forEach(function(id){
+    const el=g(id); if(el) el.style.display=isAdmin?'inline-flex':'none';
+  });
+  const joinBtn=g('mc-join-btn');
+  if(joinBtn) joinBtn.style.display=isAdmin?'flex':'none';
+  initMC();nav('notices',true);loadBadges();
 }
 function nav(page,push=true){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
