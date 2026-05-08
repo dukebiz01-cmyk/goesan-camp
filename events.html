@@ -186,6 +186,7 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     <div class="tab" data-tab="cal">📅 달력</div>
     <div class="tab" data-tab="check">⚠️ 검증</div>
     <div class="tab" data-tab="all">📊 전체</div>
+    <div class="tab admin-only" data-tab="admin" style="display:none">👑 관리자</div>
   </div>
 
   <div id="tab-my" class="tab-content">
@@ -221,6 +222,46 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
       <h2>📊 전체 캠프 현황</h2>
       <div style="font-size:11px;color:var(--muted);margin-bottom:8px">기준 예산: 4,347,000원/캠프</div>
       <div id="all-camps"><div class="loading">불러오는 중</div></div>
+    </div>
+  </div>
+
+  <div id="tab-admin" class="tab-content" style="display:none">
+    <div class="card">
+      <h2>👑 관리자 대시보드</h2>
+      <div style="font-size:11px;color:var(--muted)">실시간 활동 모니터링 · 통계 · 내보내기</div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📊 통계 요약</h2>
+      <div id="admin-stats"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🎨 카테고리별 분포</h2>
+      <div id="admin-categories"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🏆 캠프별 활성도</h2>
+      <div id="admin-camp-activity"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">👥 강사별 출장 빈도</h2>
+      <div id="admin-instructor-stats"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🕐 최근 활동 (실시간)</h2>
+      <div id="admin-recent-activity"><div class="loading">불러오는 중</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📥 데이터 내보내기</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn btn-secondary" id="btn-export-csv" style="font-size:12px;padding:10px">📋 CSV 다운로드</button>
+        <button class="btn btn-secondary" id="btn-export-summary" style="font-size:12px;padding:10px">📄 요약 텍스트</button>
+      </div>
     </div>
   </div>
 
@@ -471,6 +512,10 @@ function showApp(){
   $("#screen-app").style.display = "block";
   const role = state.isAdmin ? '<span class="role-badge admin">관리자</span>' : (state.myCamp ? '<span class="role-badge">캠프 owner</span>' : '<span class="role-badge">회원</span>');
   $("#user-info").innerHTML = `${state.user.email}${role}`;
+  // 관리자 탭 표시
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.display = state.isAdmin ? '' : 'none';
+  });
 }
 
 // ============================================================
@@ -716,6 +761,255 @@ function renderAll(){
   renderCalendar();
   renderIssues();
   renderAllCamps();
+  if(state.isAdmin) renderAdmin();
+}
+
+// ============================================================
+// 관리자 화면 렌더링
+// ============================================================
+async function renderAdmin(){
+  // 활동 로그용 사용자 정보 로드
+  await loadAdminData();
+  renderAdminStats();
+  renderAdminCategories();
+  renderAdminCampActivity();
+  renderAdminInstructorStats();
+  renderAdminRecentActivity();
+}
+
+const adminCache = {users: {}};
+
+async function loadAdminData(){
+  // created_by user_id → email 매핑
+  const userIds = [...new Set(state.events.map(e=>e.created_by).filter(Boolean))];
+  if(userIds.length === 0) return;
+  // members 테이블에서 이메일 조회
+  const {data} = await sb.from('members').select('user_id,email,name').in('user_id', userIds);
+  if(data){
+    data.forEach(m=>{adminCache.users[m.user_id] = m});
+  }
+}
+
+function renderAdminStats(){
+  const totalEvents = state.events.length;
+  const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name), 0);
+  const totalBudget = state.camps.length * BUDGET;
+  const usagePct = Math.round(totalSpent/totalBudget*100);
+  const issues = getIssues();
+  const danger = issues.filter(i=>i.type==="danger").length;
+  const warn = issues.filter(i=>i.type==="warn").length;
+  const activeCamps = state.camps.filter(c=>campSpent(c.name)>0).length;
+
+  $("#admin-stats").innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#dbeafe;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#1e40af">${totalEvents}</div>
+        <div style="font-size:10px;color:#3b82f6">총 행사</div>
+      </div>
+      <div style="background:#dcfce7;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#166534">${activeCamps}/18</div>
+        <div style="font-size:10px;color:#16a34a">참여 캠프</div>
+      </div>
+      <div style="background:#fef3c7;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#a16207">${(totalSpent/10000).toFixed(0)}만</div>
+        <div style="font-size:10px;color:#ca8a04">총 편성 (${usagePct}%)</div>
+      </div>
+      <div style="background:${danger>0?'#fecaca':warn>0?'#fed7aa':'#dcfce7'};padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:${danger>0?'#991b1b':warn>0?'#9a3412':'#166534'}">${danger>0?'🚨':warn>0?'⚠️':'✅'} ${issues.length}</div>
+        <div style="font-size:10px;color:${danger>0?'#b91c1c':warn>0?'#c2410c':'#16a34a'}">충돌 (불가${danger}/주의${warn})</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminCategories(){
+  const counts = {A:0,B:0,C:0,D:0};
+  for(const e of state.events){counts[e.category] = (counts[e.category]||0)+1}
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  if(total===0){$("#admin-categories").innerHTML = '<div class="empty">데이터 없음</div>';return}
+
+  const colors = {A:'#c8425a',B:'#5a8c3f',C:'#3d6dad',D:'#a36b1f'};
+  const labels = {A:'공연',B:'먹거리',C:'체험',D:'활동'};
+  $("#admin-categories").innerHTML = `
+    <div style="display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:8px">
+      ${Object.entries(counts).map(([cat,n])=>n>0?`<div style="background:${colors[cat]};flex:${n};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">${cat} ${n}</div>`:'').join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
+      ${Object.entries(counts).map(([cat,n])=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;background:#f4f4f0;border-radius:6px">
+          <span class="badge b-${cat}">${cat}</span>
+          <span>${labels[cat]}: <b>${n}건</b> (${Math.round(n/total*100)}%)</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminCampActivity(){
+  // 캠프별 행사 수 + 사용액 정렬
+  const stats = state.camps.map(c=>{
+    const events = state.events.filter(e=>e.camp_name===c.name).length;
+    const spent = campSpent(c.name);
+    const pct = Math.round(spent/BUDGET*100);
+    return {name:c.name, group:c.group_name, events, spent, pct};
+  }).sort((a,b)=>b.events-a.events);
+
+  const top5 = stats.slice(0,5);
+  const inactive = stats.filter(s=>s.events===0);
+
+  $("#admin-camp-activity").innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">🏆 활성 TOP 5</div>
+    ${top5.map((s,i)=>`
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:6px;border-bottom:1px dashed var(--line);font-size:12px;align-items:center">
+        <span style="font-weight:700;color:${i===0?'#d97706':'#6b6b63'}">#${i+1}</span>
+        <div>
+          <div style="font-weight:600">${s.name}</div>
+          <div style="font-size:10px;color:var(--muted)">${s.group} · ${s.events}건</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:700">${s.pct}%</div>
+          <div style="font-size:9px;color:var(--muted)">${(s.spent/10000).toFixed(0)}만원</div>
+        </div>
+      </div>
+    `).join('')}
+    ${inactive.length>0?`
+      <div style="margin-top:12px;padding:8px;background:#fef3c7;border-radius:6px;font-size:11px;color:#78350f">
+        ⚠️ 미참여 캠프 ${inactive.length}곳: ${inactive.map(s=>s.name).join(', ')}
+      </div>
+    `:''}
+  `;
+}
+
+function renderAdminInstructorStats(){
+  const inst = {};
+  for(const e of state.events){
+    if(e.bundle_type==='ticket') continue;
+    const p = findProgram(e.program_name);
+    if(!p) continue;
+    const key = p.i.replace('_',' ').replace(/^(A|B|C|D) /,'$1: ');
+    inst[key] = (inst[key]||0) + 1;
+  }
+  const sorted = Object.entries(inst).sort((a,b)=>b[1]-a[1]);
+  if(sorted.length===0){$("#admin-instructor-stats").innerHTML='<div class="empty">데이터 없음</div>';return}
+
+  $("#admin-instructor-stats").innerHTML = sorted.map(([k,n])=>{
+    const max = sorted[0][1];
+    const pct = Math.round(n/max*100);
+    return `
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px;padding:5px 0;font-size:11px;align-items:center">
+        <div>
+          <div style="font-weight:600">${k}</div>
+          <div style="height:5px;background:#eee;border-radius:3px;margin-top:3px;overflow:hidden">
+            <div style="height:100%;background:#3b82f6;width:${pct}%"></div>
+          </div>
+        </div>
+        <div style="font-weight:700">${n}회</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderAdminRecentActivity(){
+  // 최근 20개 (created_at 내림차순)
+  const sorted = [...state.events].sort((a,b)=>(b.created_at||'').localeCompare(a.created_at||'')).slice(0,20);
+  if(sorted.length===0){$("#admin-recent-activity").innerHTML='<div class="empty">활동 없음</div>';return}
+
+  $("#admin-recent-activity").innerHTML = sorted.map(e=>{
+    const user = adminCache.users[e.created_by];
+    const userName = user ? user.name : (user?.email || '시스템');
+    const time = e.created_at ? formatRelativeTime(e.created_at) : '';
+    const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : '수시';
+    return `
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:6px;padding:6px;border-bottom:1px dashed var(--line);font-size:11px;align-items:center">
+        <span class="badge b-${e.category}" style="font-size:9px">${e.category}</span>
+        <div>
+          <div style="font-weight:600">${e.camp_name}</div>
+          <div style="font-size:10px;color:var(--muted)">${dStr} · ${e.program_name}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--muted)">${userName}</div>
+          <div style="font-size:9px;color:var(--muted)">${time}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatRelativeTime(iso){
+  const t = new Date(iso);
+  const now = new Date();
+  const diff = (now - t) / 1000;
+  if(diff < 60) return '방금';
+  if(diff < 3600) return `${Math.floor(diff/60)}분 전`;
+  if(diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+  if(diff < 604800) return `${Math.floor(diff/86400)}일 전`;
+  return `${t.getMonth()+1}/${t.getDate()}`;
+}
+
+// CSV 내보내기
+function exportCSV(){
+  const headers = ['캠프','그룹','날짜','카테고리','프로그램','묶음','수량','단가','등록일'];
+  const rows = state.events.map(e=>{
+    let price = 0;
+    if(e.bundle_type==='ticket'){price = ticketPrice(e.program_name,e.qty)}
+    else{
+      const bs = bundleStatus(e.event_date,e.program_name);
+      price = autoPrice(e.program_name,bs.count).price;
+    }
+    const camp = state.camps.find(c=>c.name===e.camp_name);
+    return [
+      e.camp_name,
+      camp?.group_name || '',
+      e.event_date || '수시',
+      e.category,
+      e.program_name,
+      e.bundle_type || '',
+      e.qty || 1,
+      price,
+      e.created_at ? e.created_at.slice(0,10) : ''
+    ];
+  });
+  const csv = [headers, ...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const bom = '\uFEFF';
+  const blob = new Blob([bom + csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `괴산캠핑협회_일정_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📋 CSV 다운로드 완료');
+}
+
+// 요약 텍스트 내보내기
+function exportSummary(){
+  const lines = ['괴산캠핑장협회 일정 요약\n========================\n'];
+  for(const c of state.camps){
+    const events = state.events.filter(e=>e.camp_name===c.name).sort((a,b)=>(a.event_date||'z').localeCompare(b.event_date||'z'));
+    const spent = campSpent(c.name);
+    lines.push(`\n[${c.name}] (${c.group_name})`);
+    lines.push(`  편성: ${spent.toLocaleString()}원 / 잔액: ${(BUDGET-spent).toLocaleString()}원`);
+    if(events.length===0){lines.push('  (일정 없음)');continue}
+    for(const e of events){
+      const dStr = e.event_date || '수시';
+      let price = 0;
+      if(e.bundle_type==='ticket'){price = ticketPrice(e.program_name,e.qty)}
+      else{
+        const bs = bundleStatus(e.event_date,e.program_name);
+        price = autoPrice(e.program_name,bs.count).price;
+      }
+      lines.push(`  ${dStr} ${e.category} ${e.program_name} (${price.toLocaleString()}원)`);
+    }
+  }
+  const text = lines.join('\n');
+  const blob = new Blob([text],{type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `괴산캠핑협회_요약_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📄 요약 다운로드 완료');
 }
 
 function renderFormPreview(){
@@ -826,6 +1120,12 @@ $("#btn-login").addEventListener("click",async()=>{
 });
 $("#login-pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-login").click()});
 $("#btn-logout").addEventListener("click",logout);
+
+// 관리자 export 버튼
+document.addEventListener("click",e=>{
+  if(e.target.id==="btn-export-csv") exportCSV();
+  if(e.target.id==="btn-export-summary") exportSummary();
+});
 
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
