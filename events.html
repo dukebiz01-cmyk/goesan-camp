@@ -1204,7 +1204,7 @@ window.addEventListener('offline',()=>{
     return;
   }
   const ok = await checkAuth();
-  if(오케이){
+  if(ok){
     await loadAll();
     setupRealtime();
   }
