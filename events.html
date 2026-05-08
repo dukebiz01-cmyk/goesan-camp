@@ -748,12 +748,86 @@ const $ = s=>document.querySelector(s);
 const won = n=>n.toLocaleString()+"원";
 
 // ============================================================
-// 핵심 비즈니스 로직
+// 핵심 비즈니스 로직 (선착순 묶음 박제 시스템)
 // ============================================================
-function bundleStatus(date,name){
-  const m = state.events.filter(e=>e.event_date===date && e.program_name===name && !e.qty_special);
-  return {count:m.length, camps:m.map(e=>e.camp_name)};
+
+// 프로그램의 묶음 정원 (capacity) — bundle3 우선, 없으면 bundle2, 없으면 1(단독)
+function bundleCapacity(programName){
+  const p = findProgram(programName);
+  if(!p) return 1;
+  if(p.p.bundle3) return 3;
+  if(p.p.bundle2) return 2;
+  return 1;
 }
+
+// 같은 날·행사 일정을 신청 순서대로 정렬해서 묶음 단위로 분할
+// 반환: [{seq, events:[...], capacity, count, complete, locked_price}, ...]
+function getBundles(date, programName){
+  const events = state.events
+    .filter(e => e.event_date === date && e.program_name === programName && e.bundle_type !== 'ticket')
+    .sort((a, b) => {
+      // bundle_seq 우선, 없으면 created_at, 그래도 없으면 id
+      if(a.bundle_seq != null && b.bundle_seq != null) return a.bundle_seq - b.bundle_seq;
+      if(a.bundle_seq != null) return -1;
+      if(b.bundle_seq != null) return 1;
+      const ca = a.created_at || '';
+      const cb = b.created_at || '';
+      if(ca !== cb) return ca.localeCompare(cb);
+      return (a.id||0) - (b.id||0);
+    });
+  
+  if(events.length === 0) return [];
+  
+  const cap = bundleCapacity(programName);
+  const bundles = [];
+  for(let i = 0; i < events.length; i += cap){
+    const chunk = events.slice(i, i + cap);
+    const lockedFromChunk = chunk.find(e => e.locked_price)?.locked_price;
+    bundles.push({
+      seq: bundles.length + 1,
+      events: chunk,
+      capacity: cap,
+      count: chunk.length,
+      complete: chunk.length === cap,
+      finalized: chunk.some(e => e.finalized),
+      lockedPrice: lockedFromChunk
+    });
+  }
+  return bundles;
+}
+
+// 특정 일정이 속한 묶음 정보 반환
+function findBundleForEvent(event){
+  if(event.bundle_type === 'ticket') return null;
+  const bundles = getBundles(event.event_date, event.program_name);
+  for(const b of bundles){
+    if(b.events.some(e => e.id === event.id)) return b;
+  }
+  return null;
+}
+
+// 일정의 실제 가격 (박제됐으면 locked_price, 아니면 현재 묶음 상태로 동적 계산)
+function getEventPrice(event){
+  if(event.bundle_type === 'ticket'){
+    return ticketPrice(event.program_name, event.qty);
+  }
+  // 박제된 가격 우선
+  if(event.locked_price) return event.locked_price;
+  // 박제 전이면 현재 묶음 상태로 계산
+  const b = findBundleForEvent(event);
+  if(!b) return autoPrice(event.program_name, 1).price;
+  return autoPrice(event.program_name, b.count).price;
+}
+
+// 호환성: 기존 bundleStatus() 유지하되 묶음 단위로 반환
+function bundleStatus(date, name){
+  const bundles = getBundles(date, name);
+  // 미완성(아직 모집 중) 묶음 우선, 없으면 마지막 묶음
+  const open = bundles.find(b => !b.complete) || bundles[bundles.length-1];
+  if(!open) return {count: 0, camps: []};
+  return {count: open.count, camps: open.events.map(e => e.camp_name)};
+}
+
 function autoPrice(name,count){
   const p = findProgram(name); if(!p) return {price:0,bundle:"none"};
   const pr = p.p;
@@ -772,10 +846,7 @@ function campSpent(camp){
   let total = 0;
   for(const e of state.events){
     if(e.camp_name !== camp) continue;
-    if(e.bundle_type === "ticket"){total += ticketPrice(e.program_name,e.qty);continue}
-    const bs = bundleStatus(e.event_date,e.program_name);
-    const ap = autoPrice(e.program_name,bs.count);
-    total += ap.price;
+    total += getEventPrice(e);
   }
   return total;
 }
@@ -1044,56 +1115,54 @@ function renderMyEvents(){
         </div>`;
     }
 
-    const bs = bundleStatus(e.event_date, e.program_name);
-    const ap = autoPrice(e.program_name, bs.count);
+    // 묶음 정보
+    const bundle = findBundleForEvent(e);
     const p = findProgram(e.program_name);
-    const currentPrice = ap.price;
-
-    // 할인 가능 여부 계산
+    const cap = bundleCapacity(e.program_name);
+    const currentPrice = getEventPrice(e);
+    const isLocked = !!e.locked_price;
+    
+    // 같은 묶음 내 다른 캠프
+    const otherInBundle = bundle ? bundle.events.filter(ev => ev.camp_name !== c).map(ev => ev.camp_name) : [];
+    
+    // 할인 계산 (박제 안 됐을 때만)
     let bestPrice = currentPrice;
     let needCamps = 0;
-    let progressTarget = 1;
-    let progressNow = bs.count;
+    let progressTarget = bundle ? bundle.capacity : 1;
+    let progressNow = bundle ? bundle.count : 1;
     let savings = 0;
 
-    if(p && !ap.bundle.startsWith("bundle3") && p.p.bundle3){
-      // bundle3 가능한데 아직 3곳 안 됨
-      bestPrice = p.p.bundle3;
-      needCamps = 3 - bs.count;
-      progressTarget = 3;
+    if(!isLocked && bundle && !bundle.complete){
+      // 묶음 완성시 가격
+      bestPrice = autoPrice(e.program_name, cap).price;
+      needCamps = cap - bundle.count;
       savings = currentPrice - bestPrice;
-    } else if(p && bs.count===1 && p.p.bundle2){
-      // bundle2 가능한데 아직 1곳
-      bestPrice = p.p.bundle2;
-      needCamps = 2 - bs.count;
-      progressTarget = 2;
-      savings = currentPrice - bestPrice;
-    } else if(bs.count===3 || bs.count===6 || bs.count===9){
-      progressTarget = bs.count;
     }
 
     const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
     const wkStr = e.event_date ? ["일","월","화","수","목","금","토"][new Date(e.event_date).getDay()] : "";
     const pctProgress = Math.min(100, Math.round(progressNow/progressTarget*100));
 
-    // 다른 캠프 목록
-    const otherCamps = bs.camps.filter(cn=>cn!==c);
-
     // 상태 결정
     let status, statusText, bgCls;
-    if(savings > 0){
-      // 할인 기회 있음
+    if(isLocked){
+      status = "ok"; bgCls = "ok";
+      statusText = `🔒 ${progressNow}곳 묶음 박제`;
+    } else if(savings > 0){
       status = "warn"; bgCls = "discount";
       statusText = `🔍 ${needCamps}곳 모집중`;
-    } else if(bs.count===3 || bs.count===6 || bs.count===9){
+    } else if(bundle && bundle.complete){
       status = "ok"; bgCls = "ok";
-      statusText = `✅ ${bs.count}곳 묶음 완성`;
-    } else if(bs.count===2 && p?.p.bundle2){
-      status = "ok"; bgCls = "ok";
-      statusText = `✅ 2곳 묶음`;
+      statusText = `✅ ${bundle.count}곳 묶음 완성`;
     } else {
       status = "warn"; bgCls = "warn";
-      statusText = `${bs.count}곳`;
+      statusText = `${progressNow}곳`;
+    }
+
+    // 박제된 단가 vs 현재 카탈로그 단가 비교 (정보용)
+    let priceNote = '';
+    if(isLocked){
+      priceNote = `<div style="font-size:9px;color:#16a34a;margin-top:2px">🔒 박제됨 — 카탈로그 변경에 영향 없음</div>`;
     }
 
     return `
@@ -1105,13 +1174,14 @@ function renderMyEvents(){
           <div class="mec-name">
             <span class="badge b-${e.category}">${e.category}</span>
             <span class="mec-title">${e.program_name}</span>
+            ${bundle && bundle.seq > 1 ? `<span style="font-size:9px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:4px">묶음#${bundle.seq}</span>` : ''}
           </div>
           ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
         </div>
         
         <div class="mec-progress-row">
           <div class="mec-progress-label">
-            <span class="mec-progress-text">참여: ${progressNow}/${progressTarget}곳</span>
+            <span class="mec-progress-text">묶음 ${progressNow}/${progressTarget}곳 (신청순 #${e.bundle_seq||'?'})</span>
             <span class="mec-status-badge s-${status}">${statusText}</span>
           </div>
           <div class="mec-progress-bar">
@@ -1121,8 +1191,9 @@ function renderMyEvents(){
 
         <div class="mec-price-row">
           <div class="mec-price-current">
-            <div class="mec-price-label">현재 단가</div>
+            <div class="mec-price-label">${isLocked?'박제 단가':'현재 단가'}</div>
             <div class="mec-price-now">${won(currentPrice)}</div>
+            ${priceNote}
           </div>
           ${savings > 0 ? `
             <div class="mec-arrow">→</div>
@@ -1134,14 +1205,14 @@ function renderMyEvents(){
           ` : ''}
         </div>
 
-        ${otherCamps.length > 0 ? `
+        ${otherInBundle.length > 0 ? `
           <div class="mec-other-camps">
-            <span class="mec-other-label">함께 신청한 캠프:</span>
-            ${otherCamps.map(cn=>`<span class="mec-camp-tag"><span class="gd ${groupColor(getCampGroup(cn))}"></span>${cn}</span>`).join('')}
+            <span class="mec-other-label">같은 묶음 캠프:</span>
+            ${otherInBundle.map(cn=>`<span class="mec-camp-tag"><span class="gd ${groupColor(getCampGroup(cn))}"></span>${cn}</span>`).join('')}
           </div>
         ` : `
           <div class="mec-other-camps mec-empty">
-            ⚠️ 아직 다른 캠프 없음 — 다른 캠프가 같은 행사 추가하면 자동으로 단가 인하
+            ⚠️ 묶음 내 다른 캠프 없음 — 다른 캠프가 같은 행사 신청하면 자동 합류
           </div>
         `}
       </div>
@@ -1149,48 +1220,61 @@ function renderMyEvents(){
   }).join("");
 }
 
-// 다른 캠프 행사 둘러보기 (단가 절감 기회)
+// 다른 캠프 행사 둘러보기 (묶음 단위 합류 기회)
 function renderJoinOpportunities(){
   const c = state.selectedCamp;
   if(!c) return;
   
-  // 다른 캠프가 추가했지만 묶음 미완성인 행사 찾기
-  const groups = {};
+  // 미완성 묶음 찾기 (본인 미참여)
+  const opportunities = [];
+  const seenKeys = new Set();
+  
   for(const e of state.events){
-    if(e.bundle_type==="ticket") continue;
-    if(e.camp_name === c) continue; // 본인 캠프 제외
-    const k = `${e.event_date}|${e.program_name}|${e.category}`;
-    if(!groups[k]) groups[k] = {date:e.event_date, name:e.program_name, cat:e.category, camps:[]};
-    groups[k].camps.push(e.camp_name);
+    if(e.bundle_type === 'ticket') continue;
+    if(e.camp_name === c) continue;
+    
+    const key = `${e.event_date}|${e.program_name}`;
+    if(seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    
+    // 본인이 같은 날·행사 신청했는지
+    const myAlready = state.events.some(me => 
+      me.camp_name === c && 
+      me.event_date === e.event_date && 
+      me.program_name === e.program_name &&
+      me.bundle_type !== 'ticket'
+    );
+    if(myAlready) continue;
+    
+    // 묶음들 가져와서 미완성·박제안된 것 찾기
+    const bundles = getBundles(e.event_date, e.program_name);
+    const openBundle = bundles.find(b => !b.complete && !b.finalized);
+    if(!openBundle) continue; // 모든 묶음 박제됨 → 합류해도 새 묶음 시작
+    
+    const p = findProgram(e.program_name);
+    if(!p) continue;
+    
+    // 합류시 가격 계산
+    const newCount = openBundle.count + 1;
+    const newAp = autoPrice(e.program_name, newCount);
+    const currentSingle = autoPrice(e.program_name, 1).price;
+    const savings = currentSingle - newAp.price;
+    
+    if(savings <= 0) continue; // 절감 없으면 표시 안 함
+    
+    opportunities.push({
+      date: e.event_date,
+      name: e.program_name,
+      cat: e.category,
+      camps: openBundle.events.map(ev => ev.camp_name),
+      newPrice: newAp.price,
+      savings,
+      need: openBundle.capacity - openBundle.count,
+      newCount
+    });
   }
   
-  // 본인이 같은 날 같은 행사 이미 추가했는지 확인
-  const myKeys = new Set(
-    state.events.filter(e=>e.camp_name===c && e.bundle_type!=="ticket")
-      .map(e=>`${e.event_date}|${e.program_name}`)
-  );
-  
-  // 합류 가능한 행사만 (3곳 미만, 본인 미참여)
-  const opportunities = Object.values(groups)
-    .filter(g => {
-      if(g.camps.length >= 3) return false;
-      if(myKeys.has(`${g.date}|${g.name}`)) return false;
-      const p = findProgram(g.name);
-      if(!p) return false;
-      // 합류시 할인 가능한지
-      if(g.camps.length === 1 && (p.p.bundle3 || p.p.bundle2)) return true;
-      if(g.camps.length === 2 && p.p.bundle3) return true;
-      return false;
-    })
-    .map(g => {
-      const p = findProgram(g.name);
-      const currentSingle = p.p.single || p.p.bundle3 || 0;
-      const newCount = g.camps.length + 1;
-      const newAp = autoPrice(g.name, newCount);
-      const savings = currentSingle - newAp.price;
-      return {...g, newPrice:newAp.price, savings, p, newCount};
-    })
-    .sort((a,b)=>b.savings - a.savings); // 절감액 큰 순
+  opportunities.sort((a,b) => b.savings - a.savings);
   
   const target = $("#join-opportunities");
   if(!target) return;
@@ -1202,7 +1286,6 @@ function renderJoinOpportunities(){
   
   target.innerHTML = opportunities.slice(0, 5).map(o => {
     const dStr = o.date ? `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}` : "수시";
-    const need = 3 - o.camps.length;
     return `
       <div class="join-card">
         <div class="join-header">
@@ -1214,7 +1297,7 @@ function renderJoinOpportunities(){
           현재 ${o.camps.length}곳: ${o.camps.join(", ")}
         </div>
         <div class="join-savings">
-          🎁 합류시 본인 ${won(o.newPrice)} · 모두 ${won(o.savings)} 절감
+          🎁 합류시 본인 ${won(o.newPrice)} · ${o.need}곳 더 모이면 묶음 박제!
         </div>
       </div>
     `;
@@ -2068,24 +2151,28 @@ function formatRelativeTime(iso){
 
 // CSV 내보내기
 function exportCSV(){
-  const headers = ['캠프','그룹','날짜','카테고리','프로그램','묶음','수량','단가','등록일'];
+  const headers = ['캠프','그룹','날짜','카테고리','프로그램','묶음순번','묶음상태','수량','단가','박제여부','등록일'];
   const rows = state.events.map(e=>{
-    let price = 0;
-    if(e.bundle_type==='ticket'){price = ticketPrice(e.program_name,e.qty)}
-    else{
-      const bs = bundleStatus(e.event_date,e.program_name);
-      price = autoPrice(e.program_name,bs.count).price;
-    }
+    const price = getEventPrice(e);
     const camp = state.camps.find(c=>c.name===e.camp_name);
+    let bundleStatus = '-';
+    if(e.bundle_type !== 'ticket'){
+      const b = findBundleForEvent(e);
+      if(b){
+        bundleStatus = b.complete ? `${b.count}곳 완성` : `${b.count}/${b.capacity}곳`;
+      }
+    }
     return [
       e.camp_name,
       camp?.group_name || '',
       e.event_date || '수시',
       e.category,
       e.program_name,
-      e.bundle_type || '',
+      e.bundle_seq || '-',
+      bundleStatus,
       e.qty || 1,
       price,
+      e.locked_price ? '🔒박제' : '미박제',
       e.created_at ? e.created_at.slice(0,10) : ''
     ];
   });
@@ -2112,13 +2199,9 @@ function exportSummary(){
     if(events.length===0){lines.push('  (일정 없음)');continue}
     for(const e of events){
       const dStr = e.event_date || '수시';
-      let price = 0;
-      if(e.bundle_type==='ticket'){price = ticketPrice(e.program_name,e.qty)}
-      else{
-        const bs = bundleStatus(e.event_date,e.program_name);
-        price = autoPrice(e.program_name,bs.count).price;
-      }
-      lines.push(`  ${dStr} ${e.category} ${e.program_name} (${price.toLocaleString()}원)`);
+      const price = getEventPrice(e);
+      const lock = e.locked_price ? ' 🔒' : '';
+      lines.push(`  ${dStr} ${e.category} ${e.program_name} (${price.toLocaleString()}원${lock})`);
     }
   }
   const text = lines.join('\n');
@@ -2141,68 +2224,182 @@ function generateReport(){
   const total = state.events.length;
   const totalSpent = state.camps.reduce((s,c)=>s+campSpent(c.name), 0);
   const totalBudget = state.camps.length * BUDGET;
-  const pct = Math.round(totalSpent/totalBudget*100);
-  
-  const lines = [];
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('   2026년 괴산캠핑장협회');
-  lines.push('   활성화 프로그램 운영계획');
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('');
-  lines.push(`작성일: ${todayStr}`);
-  lines.push(`작성: 괴산캠핑장협회 사무국`);
-  lines.push('');
-  lines.push('■ 총괄');
-  lines.push(`  • 참여 캠핑장: ${state.camps.length}곳`);
-  lines.push(`  • 운영 행사: ${total}건`);
-  lines.push(`  • 총 편성액: ${totalSpent.toLocaleString()}원`);
-  lines.push(`  • 총 예산: ${totalBudget.toLocaleString()}원`);
-  lines.push(`  • 사용률: ${pct}%`);
-  lines.push('');
   
   // 카테고리별 통계
   const cats = {A:0,B:0,C:0,D:0};
   for(const e of state.events) cats[e.category] = (cats[e.category]||0)+1;
-  lines.push('■ 카테고리별 분포');
-  lines.push(`  • A 공연 : ${cats.A}건`);
-  lines.push(`  • B 먹거리: ${cats.B}건`);
-  lines.push(`  • C 체험 : ${cats.C}건`);
-  lines.push(`  • D 활동 : ${cats.D}건`);
-  lines.push('');
   
-  // 강사별 출장
-  const inst = {};
+  // 강사별 통계 (실 출장 횟수 = 행사 건수)
+  const instStats = {};
+  let progStats = {};
+  let progAmount = {};
   for(const e of state.events){
-    if(e.bundle_type==='ticket') continue;
     const p = findProgram(e.program_name);
     if(!p) continue;
-    const cat = p.i.charAt(0);
-    const name = p.i.split('_')[1] || p.i;
-    const key = `${cat} ${name}`;
-    inst[key] = (inst[key] || 0) + 1;
-  }
-  if(Object.keys(inst).length > 0){
-    lines.push('■ 강사별 출장');
-    Object.entries(inst).sort((a,b)=>b[1]-a[1]).forEach(([k,n])=>{
-      lines.push(`  • ${k}: ${n}회`);
-    });
-    lines.push('');
+    progStats[e.program_name] = (progStats[e.program_name]||0) + 1;
+    
+    progAmount[e.program_name] = (progAmount[e.program_name]||0) + getEventPrice(e);
+    
+    if(e.bundle_type !== 'ticket'){
+      const name = p.i.split('_')[1] || p.i;
+      if(!instStats[name]) instStats[name] = {count:0, programs:new Set()};
+      instStats[name].count++;
+      instStats[name].programs.add(e.program_name);
+    }
   }
   
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('   캠핑장별 상세 일정');
-  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('');
-  
-  // 그룹별 캠프 정렬
+  // 그룹별 캠프
   const groupMap = {};
   for(const c of state.camps){
     const g = c.group_name || '기타';
     if(!groupMap[g]) groupMap[g] = [];
     groupMap[g].push(c);
   }
-  
   const groupKeys = Object.keys(groupMap).sort();
+  
+  const lines = [];
+  
+  // ============================================
+  // 표지
+  // ============================================
+  lines.push('═══════════════════════════════════════════');
+  lines.push('   - 2026년도 등록야영장 지원사업 -');
+  lines.push('');
+  lines.push('   야영장 활성화 프로그램 사업계획(안)');
+  lines.push('');
+  lines.push(`   ${today.getFullYear()}. ${today.getMonth()+1}.`);
+  lines.push('');
+  lines.push('         수행기관');
+  lines.push('   비영리 괴산군 야영장 발전 협의회');
+  lines.push('═══════════════════════════════════════════');
+  lines.push('');
+  lines.push('');
+  
+  // ============================================
+  // 1. 사업개요
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 1. 사업 개요');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push('□ 사업목적');
+  lines.push('  최근 야영객의 트렌드와 NEEDS를 적극 반영, 다양한 체험위주의');
+  lines.push('  프로그램을 구성하여 야영객의 즐거움과 재미를 충족하고 참여업체의');
+  lines.push('  야영객 순증효과를 통해 관내 야영장 및 괴산군 관광산업의 경쟁력을');
+  lines.push('  키우고 캠핑 문화의 다양성과 국민 여가의 중심에서는 캠핑과 서민');
+  lines.push('  문화캠핑의 확장성과 운영 사업주들에게 도움을 주는 관광 활성화');
+  lines.push('  취지로 사업을 진행함.');
+  lines.push('');
+  lines.push('□ 사업기간 및 장소');
+  lines.push('  ○ 기간 : 2026. 1. 4. ~ 11. 24.');
+  lines.push('    * 기간중 (토,일) 요일 빨간글씨 공휴일 한정 행사 진행');
+  lines.push(`  ○ 장소 : 관내 등록야영장 (${state.camps.length}개 업체)`);
+  
+  // 캠프 목록 (5개씩 줄바꿈)
+  const campNames = state.camps.map(c => c.name);
+  for(let i=0; i<campNames.length; i+=5){
+    const chunk = campNames.slice(i, i+5).join(', ');
+    lines.push(`    - ${chunk}${i+5 < campNames.length ? ',' : ''}`);
+  }
+  
+  lines.push('    * 행사일정은 캠핑장 사정 또는 기상 악화시 변경될 수 있음');
+  lines.push('    * 사업참여 신청 후 자체 일정 및 사정으로 취소 불가');
+  lines.push('');
+  
+  lines.push('□ 지원규모');
+  lines.push(`  ○ 총 사업비: ${totalBudget.toLocaleString()}원`);
+  lines.push(`  ○ 캠프당 예산: ${BUDGET.toLocaleString()}원`);
+  lines.push(`  ○ 매칭 비율: 국비 50%, 지방비 50%`);
+  lines.push('');
+  
+  lines.push('□ 심사기준');
+  lines.push('  ① 추진여건  ② 사업계획 충실성  ③ 관광산업 파급효과');
+  lines.push('');
+  
+  // ============================================
+  // 2. 사업내용 (프로그램별 신청 현황)
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 2. 사업 내용 (카테고리별 프로그램)');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  
+  const catNames = {A:'A 공연', B:'B 먹거리', C:'C 체험', D:'D 활동'};
+  for(const cat of ['A','B','C','D']){
+    lines.push(`□ ${catNames[cat]} (${cats[cat]}건)`);
+    const progsInCat = Object.entries(progStats)
+      .filter(([n])=>{
+        const p = findProgram(n);
+        return p && p.cat === cat;
+      })
+      .sort((a,b)=>b[1]-a[1]);
+    if(progsInCat.length === 0){
+      lines.push('  (신청 없음)');
+    } else {
+      for(const [name, count] of progsInCat){
+        lines.push(`  · ${name}: ${count}회 / ${(progAmount[name]||0).toLocaleString()}원`);
+      }
+    }
+    lines.push('');
+  }
+  
+  // ============================================
+  // 3. 항목별 소요예산
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 3. 항목별 소요예산');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('                                    (단위: 원)');
+  lines.push('');
+  lines.push('┌──────────────┬──────────┬──────────┬──────────┐');
+  lines.push('│ 사업명       │ 계       │ 국비 50% │ 지방비50%│');
+  lines.push('├──────────────┼──────────┼──────────┼──────────┤');
+  
+  // 카테고리별 합계
+  const catTotal = {A:0, B:0, C:0, D:0};
+  for(const [name, amount] of Object.entries(progAmount)){
+    const p = findProgram(name);
+    if(p) catTotal[p.cat] = (catTotal[p.cat]||0) + amount;
+  }
+  for(const cat of ['A','B','C','D']){
+    const total = catTotal[cat]||0;
+    const half = Math.round(total/2);
+    lines.push(`│ ${catNames[cat].padEnd(12,' ')} │ ${total.toLocaleString().padStart(8,' ')} │ ${half.toLocaleString().padStart(8,' ')} │ ${half.toLocaleString().padStart(8,' ')} │`);
+  }
+  lines.push('├──────────────┼──────────┼──────────┼──────────┤');
+  const grandHalf = Math.round(totalSpent/2);
+  lines.push(`│ 합계         │ ${totalSpent.toLocaleString().padStart(8,' ')} │ ${grandHalf.toLocaleString().padStart(8,' ')} │ ${grandHalf.toLocaleString().padStart(8,' ')} │`);
+  lines.push('└──────────────┴──────────┴──────────┴──────────┘');
+  lines.push('');
+  
+  // ============================================
+  // 4. 강사별 출장 현황
+  // ============================================
+  if(Object.keys(instStats).length > 0){
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push(' 4. 수행 기관 및 강사 정보');
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('');
+    const sorted = Object.entries(instStats).sort((a,b)=>b[1].count-a[1].count);
+    for(const [name, stat] of sorted){
+      const progs = [...stat.programs].join(', ');
+      lines.push(`○ ${name} 강사 (총 ${stat.count}회 출장)`);
+      lines.push(`   담당 프로그램: ${progs}`);
+      lines.push('');
+    }
+  }
+  
+  // ============================================
+  // 5. 야영장×날짜 매트릭스 (참여업체별 일정)
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 5. 참여업체별 운영 일정 상세');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  
+  let campIdx = 1;
+  const circles = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];
+  
   for(const group of groupKeys){
     lines.push(`【 ${group} 】`);
     lines.push('');
@@ -2211,43 +2408,80 @@ function generateReport(){
         .sort((a,b)=>(a.event_date||'z').localeCompare(b.event_date||'z'));
       const spent = campSpent(camp.name);
       const remain = BUDGET - spent;
-      lines.push(`◆ ${camp.name}`);
+      const cIdx = circles[campIdx-1] || `(${campIdx})`;
+      lines.push(`${cIdx} ${camp.name}`);
       lines.push(`   편성: ${spent.toLocaleString()}원 / 예산: ${BUDGET.toLocaleString()}원 / 잔액: ${remain.toLocaleString()}원`);
       if(events.length === 0){
         lines.push(`   (일정 미편성)`);
       } else {
         for(const e of events){
-          const dStr = e.event_date ? e.event_date : '수시';
-          let price = 0, note = '';
+          const dStr = e.event_date ? e.event_date.replace('2026-','').replace('-','/') : '수시';
+          const price = getEventPrice(e);
+          let note = '';
           if(e.bundle_type === 'ticket'){
-            price = ticketPrice(e.program_name, e.qty);
             note = `${e.qty}매`;
           } else {
-            const bs = bundleStatus(e.event_date, e.program_name);
-            price = autoPrice(e.program_name, bs.count).price;
-            const otherCamps = bs.camps.filter(cn=>cn!==camp.name);
-            if(bs.count >= 3){
-              note = `${bs.count}곳묶음`;
-            } else if(bs.count === 2){
-              note = `2곳`;
-            } else {
-              note = `단독`;
-            }
-            if(otherCamps.length > 0){
-              note += `(${otherCamps.join('·')})`;
+            const b = findBundleForEvent(e);
+            if(b){
+              const otherCamps = b.events.filter(ev=>ev.camp_name!==camp.name).map(ev=>ev.camp_name);
+              const lockMark = e.locked_price ? '🔒' : '';
+              note = b.complete ? `${b.count}곳묶음${lockMark}` : (b.count === 2 ? `2곳` : `단독`);
+              if(otherCamps.length > 0){
+                note += ` (${otherCamps.join('·')})`;
+              }
             }
           }
-          lines.push(`   · ${dStr} [${e.category}] ${e.program_name} - ${note} ${price.toLocaleString()}원`);
+          lines.push(`   · ${dStr} [${e.category}] ${e.program_name} - ${note} / ${price.toLocaleString()}원`);
         }
       }
       lines.push('');
+      campIdx++;
     }
   }
   
+  // ============================================
+  // 6. 추진일정
+  // ============================================
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  lines.push('이상 보고드립니다.');
+  lines.push(' 6. 추진일정');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   lines.push('');
-  lines.push('괴산캠핑장협회 사무국');
+  lines.push('┌─────────────┬───────────────┬────────────────────────┐');
+  lines.push('│ 일정        │ 주요내용      │ 세부추진내용           │');
+  lines.push('├─────────────┼───────────────┼────────────────────────┤');
+  lines.push('│ 25년 12월   │ 세부계획 확정 │ 사업 추진계획 / 예산안 │');
+  lines.push('│ 26년 01월   │ 야영장 선정   │ 참여업체 심사 및 선정  │');
+  lines.push('│ 26년 02월   │ 사업준비      │ 홍보물·장비 준비       │');
+  lines.push('│ 26년 2~11월 │ 사업 진행     │ 활성화 프로그램 운영   │');
+  lines.push('│ 26년 11월   │ 정산 및 보고  │ e-나라도움 정산        │');
+  lines.push('└─────────────┴───────────────┴────────────────────────┘');
+  lines.push('');
+  
+  // ============================================
+  // 7. 예상 성과
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 7. 예상 성과');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push('○ (정량적 성과)');
+  lines.push('  - 코로나19 이후 하락한 야영객 매출 회복 기대');
+  lines.push('  - 참여업체 이용객 만족도 설문을 통해 재방문 의사 제고');
+  lines.push(`  - 총 ${total}건의 행사로 야영장 활성화`);
+  lines.push('');
+  lines.push('○ (정성적 성과)');
+  lines.push('  - 프로그램 참가자 만족도 평가 (5점 척도)');
+  lines.push('  - 야영장 사업주 대상 만족도 설문조사');
+  lines.push('  - 향후 프로그램 개선 자료로 활용');
+  lines.push('');
+  
+  // ============================================
+  // 마무리
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(`                    ${todayStr} 작성`);
+  lines.push('');
+  lines.push('              비영리 괴산군 야영장 발전 협의회');
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   
   return lines.join('\n');
@@ -2326,39 +2560,95 @@ function renderFormPreview(){
   }
   if(!date){$("#m-preview").innerHTML='<div class="preview warn">📅 날짜 선택</div>';$("#m-save").disabled=true;return}
   const existing = state.events.filter(e=>e.event_date===date && e.program_name===name && e.bundle_type!=="ticket");
-  const otherCamps = existing.filter(e=>e.camp_name!==camp).map(e=>e.camp_name);
   const alreadyMine = existing.some(e=>e.camp_name===camp);
   if(alreadyMine){$("#m-preview").innerHTML='<div class="preview err">⚠️ 이미 추가됨</div>';$("#m-save").disabled=true;return}
-  const sameDayConflict = state.events.filter(e=>{
-    if(e.camp_name!==camp||e.event_date!==date||e.bundle_type==="ticket")return false;
-    const op = findProgram(e.program_name);
-    return op && op.i === p.i;
-  });
-  const newCount = existing.length + 1;
-  const ap = autoPrice(name,newCount);
+  
+  // 본인이 들어갈 묶음 결정 (가장 최근 미완성 묶음 또는 새 묶음)
+  const cap = bundleCapacity(name);
+  const bundles = getBundles(date, name);
+  const openBundle = bundles.find(b => !b.complete);
+  let myBundleSeq, myBundleCount, willComplete, joiningCamps;
+  if(openBundle){
+    myBundleSeq = openBundle.seq;
+    myBundleCount = openBundle.count + 1;
+    willComplete = (myBundleCount === cap);
+    joiningCamps = openBundle.events.map(e => e.camp_name);
+  } else {
+    myBundleSeq = bundles.length + 1;
+    myBundleCount = 1;
+    willComplete = (cap === 1);
+    joiningCamps = [];
+  }
+  
+  const ap = autoPrice(name, myBundleCount);
   const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
   const instTotalAfter = new Set([...sameDayInst.map(e=>e.camp_name),camp]).size;
   let cls="ok",msg="✅ 추가 가능";
   if(instTotalAfter>5){cls="warn";msg="⚠️ 강사 출장 매우 많음 (협의 필요)"}
   else if(instTotalAfter>3){cls="warn";msg="⚠️ 강사 출장 부담"}
   else if(ap.warn){cls="warn";msg="⚠️ "+ap.warn}
-  const matchInfo = otherCamps.length>0
-    ? otherCamps.map(c=>`<div class="match-item"><span class="gd ${groupColor(getCampGroup(c))}"></span>${c}</div>`).join("")
-    : '<div style="font-size:11px;color:var(--muted)">아직 다른 캠프 없음 (단독)</div>';
+  
+  // 묶음 정보 표시
+  let bundleInfo;
+  if(joiningCamps.length > 0){
+    bundleInfo = `묶음#${myBundleSeq} 합류 — 기존: ${joiningCamps.join(', ')}`;
+  } else if(myBundleSeq === 1){
+    bundleInfo = `묶음#1 시작 (단독, 다른 캠프 합류 대기)`;
+  } else {
+    bundleInfo = `묶음#${myBundleSeq} 새로 시작 (앞 묶음들 박제됨)`;
+  }
+  
+  const lockMark = willComplete ? '<div style="font-size:10px;color:#16a34a;font-weight:700;margin-top:4px">🔒 추가 즉시 묶음 박제됨!</div>' : 
+                    `<div style="font-size:10px;color:var(--muted);margin-top:4px">박제까지 ${cap - myBundleCount}곳 더 필요</div>`;
+  
   $("#m-preview").innerHTML = `
     <div class="preview ${cls}">
       <div class="pv-title">${msg}</div>
-      <div class="pv-row"><b>같은 행사 신청 (${otherCamps.length}곳):</b></div>
-      <div>${matchInfo}</div>
-      <div class="pv-row"><b>본인 추가시 묶음:</b> ${newCount}곳 (${ap.bundle})</div>
+      <div class="pv-row"><b>${bundleInfo}</b></div>
+      <div class="pv-row"><b>본인 추가시:</b> ${myBundleCount}/${cap}곳 (${ap.bundle})</div>
       <div class="pv-row"><b>본인 부담:</b></div>
       <div class="pv-price">${won(ap.price)}</div>
+      ${lockMark}
       <div style="font-size:10px;color:var(--muted);margin-top:6px">예산 잔액: ${won(BUDGET-campSpent(camp))} → 추가 후 ${won(BUDGET-campSpent(camp)-ap.price)}</div>
       <div class="pv-row" style="font-size:10px;color:var(--muted)">강사 ${p.i.split("_")[1]||p.i} · 이 날 ${instTotalAfter}곳 출장</div>
     </div>
   `;
-  // 경고는 표시하되 저장은 가능 (협회/강사 협의 영역)
   $("#m-save").disabled = false;
+}
+
+// ============================================================
+// 묶음 박제 처리 (capacity 도달시 locked_price 확정)
+// ============================================================
+async function lockCompletedBundles(date, programName){
+  const cap = bundleCapacity(programName);
+  if(cap < 2) return; // 단독은 박제 의미 없음
+  
+  // 최신 데이터 다시 로드
+  const {data: events, error} = await sb.from('camp_events')
+    .select('*')
+    .eq('event_date', date)
+    .eq('program_name', programName)
+    .neq('bundle_type', 'ticket')
+    .order('bundle_seq', {ascending: true, nullsFirst: false})
+    .order('created_at', {ascending: true});
+  
+  if(error || !events) return;
+  
+  // capacity 단위로 묶어서, 완성된 묶음이면서 박제 안 된 것들 박제
+  const lockedPrice = autoPrice(programName, cap).price;
+  for(let i = 0; i < events.length; i += cap){
+    const chunk = events.slice(i, i + cap);
+    if(chunk.length !== cap) continue; // 미완성
+    const toLock = chunk.filter(e => !e.finalized);
+    if(toLock.length === 0) continue; // 이미 모두 박제됨
+    
+    const ids = toLock.map(e => e.id);
+    const {error: upErr} = await sb.from('camp_events')
+      .update({locked_price: lockedPrice, finalized: true})
+      .in('id', ids);
+    if(upErr){console.error('박제 실패:', upErr); continue}
+    console.log(`✅ 박제됨: ${date} ${programName} 묶음 (${chunk.length}곳, ${lockedPrice}원)`);
+  }
 }
 
 // ============================================================
@@ -2381,7 +2671,6 @@ async function saveEvent(){
     const instCount = campSet.size;
     
     if(instCount > 5){
-      // 강사별 행사 그룹화
       const eventsByName = {};
       for(const e of sameDayInst){
         eventsByName[e.program_name] = (eventsByName[e.program_name]||0) + 1;
@@ -2406,6 +2695,16 @@ async function saveEvent(){
     }
   }
 
+  // bundle_seq 결정: 같은 날·행사 내 max + 1
+  let bundleSeq = null;
+  if(!isTicket && date){
+    const existingSeqs = state.events
+      .filter(e => e.event_date === date && e.program_name === name && e.bundle_type !== 'ticket')
+      .map(e => e.bundle_seq || 0);
+    const maxSeq = existingSeqs.length > 0 ? Math.max(...existingSeqs) : 0;
+    bundleSeq = maxSeq + 1;
+  }
+
   const newEvent = {
     camp_name: state.selectedCamp,
     event_date: isTicket ? null : date,
@@ -2413,6 +2712,7 @@ async function saveEvent(){
     program_name: name,
     bundle_type: isTicket ? "ticket" : "auto",
     qty: isTicket ? qty : 1,
+    bundle_seq: bundleSeq,
     created_by: state.user.id
   };
 
@@ -2423,8 +2723,15 @@ async function saveEvent(){
     console.error(error);
     return;
   }
+  
   $("#modal").style.display="none";
-  toast("✅ 추가 완료 (실시간 동기화 중)");
+  toast("✅ 추가 완료");
+  
+  // 묶음 박제 체크
+  if(!isTicket && date){
+    await lockCompletedBundles(date, name);
+  }
+  
   await loadEvents();
   renderAll();
 }
