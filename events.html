@@ -331,6 +331,48 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 .inst-event-name{font-weight:600;color:var(--ink)}
 .inst-event-camps{font-size:10px;color:var(--muted);margin-top:1px}
 
+/* 공지 배너 */
+#announcement-banner{
+  background:linear-gradient(135deg,#fef3c7,#fde68a);
+  border-left:5px solid #f59e0b;border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;
+  position:relative;animation:slideDown 0.4s ease
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+#announcement-banner.urgent{
+  background:linear-gradient(135deg,#fee2e2,#fecaca);
+  border-color:#dc2626
+}
+#announcement-banner.menu_add{
+  background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+  border-color:#3b82f6
+}
+.ann-banner-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ann-banner-content{font-size:11px;color:var(--ink);line-height:1.5;white-space:pre-wrap}
+.ann-banner-meta{font-size:9px;color:var(--muted);margin-top:6px}
+.ann-banner-close{
+  position:absolute;top:8px;right:10px;
+  background:transparent;border:none;font-size:16px;cursor:pointer;
+  color:var(--muted);font-family:inherit
+}
+
+/* 공지 목록 */
+.ann-list-item{
+  background:#fafaf7;border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;font-size:11px
+}
+.ann-list-item.urgent{background:#fef2f2;border-color:#fca5a5}
+.ann-list-item.menu_add{background:#eff6ff;border-color:#93c5fd}
+.ann-list-head{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.ann-list-title{font-weight:700;flex:1;font-size:12px}
+.ann-list-meta{font-size:9px;color:var(--muted)}
+.ann-list-content{font-size:10px;color:var(--muted);white-space:pre-wrap;margin-top:3px;line-height:1.5}
+.ann-delete-btn{
+  background:#fff;border:1px solid #fca5a5;color:#dc2626;
+  padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;
+  font-family:inherit
+}
+
 .role-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.2);margin-left:4px}
 .role-badge.admin{background:#fbbf24;color:#78350f}
 
@@ -365,6 +407,8 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 
 <!-- MAIN APP -->
 <div id="screen-app" style="display:none">
+  <div id="announcement-banner" style="display:none"></div>
+  
   <div class="tabs">
     <div class="tab active" data-tab="my">🏕 내 캠프</div>
     <div class="tab" data-tab="cal">📅 달력</div>
@@ -492,6 +536,34 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     <div class="card">
       <h2 style="font-size:13px">🕐 최근 활동 (실시간)</h2>
       <div id="admin-recent-activity"><div class="loading">불러오는 중</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📢 공지사항 관리</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">새 메뉴 추가·중요 공지 발송 · 실시간 모든 사용자에게 표시됨</div>
+      
+      <div class="form-row">
+        <label style="font-size:10px">공지 유형</label>
+        <select id="ann-type" style="font-size:13px">
+          <option value="menu_add">🆕 새 메뉴 추가</option>
+          <option value="general">📢 일반 공지</option>
+          <option value="urgent">🚨 긴급 공지</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label style="font-size:10px">제목</label>
+        <input type="text" id="ann-title" placeholder="예: 모터보트 매수권 추가">
+      </div>
+      <div class="form-row">
+        <label style="font-size:10px">내용 (선택)</label>
+        <textarea id="ann-content" placeholder="상세 내용..." style="width:100%;min-height:80px;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:12px;resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-ann-create" style="background:#3b82f6;color:#fff">📤 공지 발송</button>
+      
+      <div style="margin-top:12px">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted)">📋 활성 공지 목록</div>
+        <div id="ann-list"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -647,6 +719,7 @@ const programs = {
     {n:"승마체험",i:"D_승마",p:{single:200000}},
     {n:"사과따기 체험",i:"D_사과따기",p:{single:500000}},
     {n:"산막이 보트 1매",i:"D_보트",p:{ticket:4000}},
+    {n:"모터보트 2인 1매",i:"D_모터보트",p:{ticket:25000}},
     {n:"소형유람선 1매",i:"D_유람선",p:{ticket:18000}},
     {n:"자체행사비",i:"D_자체",p:{single:1000000}}
   ]
@@ -658,12 +731,14 @@ function findProgram(name){for(const c of"ABCD")for(const p of programs[c])if(p.
 // ============================================================
 const state = {
   user: null,
-  member: null,    // members 테이블 row (role 포함)
+  member: null,
   isAdmin: false,
-  myCamp: null,    // owner인 경우 본인 캠프
+  myCamp: null,
   selectedCamp: null,
-  camps: [],       // DB에서 로드
-  events: []       // DB에서 로드
+  camps: [],
+  events: [],
+  announcements: [],
+  dismissedAnnIds: new Set(JSON.parse(localStorage.getItem('dismissedAnn')||'[]'))
 };
 let formState = {cat:""};
 
@@ -834,11 +909,27 @@ async function loadEvents(){
 async function loadAll(){
   await loadCamps();
   await loadEvents();
+  await loadAnnouncements();
   // 초기 선택 캠프
   if(!state.selectedCamp){
     state.selectedCamp = state.myCamp || (state.camps[0]?.name);
   }
   renderAll();
+}
+
+async function loadAnnouncements(){
+  const {data, error} = await sb.from('announcements')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', {ascending:false});
+  if(error){
+    console.error('announcements load:', error);
+    state.announcements = [];
+    return;
+  }
+  // 만료 필터
+  const now = new Date();
+  state.announcements = (data||[]).filter(a => !a.expires_at || new Date(a.expires_at) > now);
 }
 
 // ============================================================
@@ -850,6 +941,24 @@ function setupRealtime(){
     (payload)=>{
       console.log('실시간 변경',payload);
       loadEvents().then(()=>{renderAll(); toast('🔄 다른 캠프가 일정을 업데이트했습니다')});
+    }
+  ).subscribe();
+  
+  // 공지사항 실시간 구독
+  sb.channel('ann-changes').on('postgres_changes',
+    {event:'*', schema:'public', table:'announcements'},
+    (payload)=>{
+      console.log('공지 변경',payload);
+      loadAnnouncements().then(()=>{
+        renderAnnouncementBanner();
+        if(state.isAdmin) renderAnnouncementList();
+        // 새 공지면 토스트
+        if(payload.eventType === 'INSERT' && payload.new){
+          const a = payload.new;
+          const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+          toast(`${icon} 새 공지: ${a.title}`);
+        }
+      });
     }
   ).subscribe();
 }
@@ -1215,6 +1324,7 @@ function renderAllCamps(){
 }
 
 function renderAll(){
+  renderAnnouncementBanner();
   renderCampPicker();
   renderBudget();
   renderMyEvents();
@@ -1223,6 +1333,86 @@ function renderAll(){
   renderIssues();
   renderAllCamps();
   if(state.isAdmin) renderAdmin();
+}
+
+function renderAnnouncementBanner(){
+  const banner = $("#announcement-banner");
+  if(!banner) return;
+  
+  // 닫지 않은 가장 최신 공지 1개
+  const visible = state.announcements.filter(a => !state.dismissedAnnIds.has(a.id));
+  if(visible.length === 0){
+    banner.style.display = 'none';
+    return;
+  }
+  
+  const a = visible[0]; // 최신 1개만
+  const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+  const created = new Date(a.created_at);
+  const dateStr = `${created.getMonth()+1}/${created.getDate()}`;
+  
+  banner.className = a.type;
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <button class="ann-banner-close" data-id="${a.id}">×</button>
+    <div class="ann-banner-title">${icon} ${a.title}</div>
+    ${a.content ? `<div class="ann-banner-content">${a.content}</div>` : ''}
+    <div class="ann-banner-meta">${dateStr} 등록 · ${visible.length > 1 ? `+${visible.length-1}건 더` : ''}</div>
+  `;
+}
+
+function dismissAnnouncement(id){
+  state.dismissedAnnIds.add(parseInt(id));
+  localStorage.setItem('dismissedAnn', JSON.stringify([...state.dismissedAnnIds]));
+  renderAnnouncementBanner();
+}
+
+function renderAnnouncementList(){
+  const target = $("#ann-list");
+  if(!target) return;
+  if(state.announcements.length === 0){
+    target.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">활성 공지 없음</div>';
+    return;
+  }
+  target.innerHTML = state.announcements.map(a=>{
+    const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+    const created = new Date(a.created_at);
+    const dateStr = `${created.getMonth()+1}/${created.getDate()} ${created.getHours()}:${String(created.getMinutes()).padStart(2,'0')}`;
+    return `
+      <div class="ann-list-item ${a.type}">
+        <div class="ann-list-head">
+          <span>${icon}</span>
+          <span class="ann-list-title">${a.title}</span>
+          <span class="ann-list-meta">${dateStr}</span>
+          <button class="ann-delete-btn" data-ann-del="${a.id}">삭제</button>
+        </div>
+        ${a.content ? `<div class="ann-list-content">${a.content}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function createAnnouncement(){
+  const type = $("#ann-type").value;
+  const title = $("#ann-title").value.trim();
+  const content = $("#ann-content").value.trim();
+  if(!title){toast('❌ 제목을 입력하세요');return}
+  
+  const {error} = await sb.from('announcements').insert({
+    type, title, content: content || null, created_by: state.user.id
+  });
+  if(error){toast('❌ '+error.message);console.error(error);return}
+  
+  $("#ann-title").value = '';
+  $("#ann-content").value = '';
+  toast('📤 공지 발송됨 — 모든 사용자에게 표시됩니다');
+}
+
+async function deleteAnnouncement(id){
+  if(!confirm('이 공지를 삭제하시겠습니까?')) return;
+  const {error} = await sb.from('announcements').update({is_active:false}).eq('id', id);
+  if(error){toast('❌ '+error.message);return}
+  toast('삭제됨');
 }
 
 function renderJoinOpportunitiesCard(){
@@ -1274,6 +1464,7 @@ async function renderAdmin(){
   renderAdminCampActivity();
   renderAdminInstructorStats();
   renderAdminRecentActivity();
+  renderAnnouncementList();
 }
 
 // 강사 목록 추출 (실제 일정이 있는 강사만)
@@ -2278,6 +2469,13 @@ document.addEventListener("click",e=>{
   if(e.target.id==="btn-inst-csv") copyInstCsv();
   if(e.target.id==="btn-inst-sms") sendInstSms();
   if(e.target.id==="btn-inst-mail") sendInstMail();
+  if(e.target.id==="btn-ann-create") createAnnouncement();
+  if(e.target.classList && e.target.classList.contains("ann-banner-close")){
+    dismissAnnouncement(e.target.dataset.id);
+  }
+  if(e.target.dataset && e.target.dataset.annDel){
+    deleteAnnouncement(parseInt(e.target.dataset.annDel));
+  }
 });
 
 // 강사 선택 변경
