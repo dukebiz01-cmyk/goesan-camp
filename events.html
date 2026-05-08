@@ -7,6 +7,38 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>괴산캠핑장협회 일정관리</title>
+<script>
+// ============================================================
+// 진단 모드 — JS 에러 즉시 화면에 표시
+// ============================================================
+window.addEventListener('error', function(e){
+  try{
+    const errBox = document.getElementById('js-error-box') || (function(){
+      const d = document.createElement('div');
+      d.id = 'js-error-box';
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:10px;z-index:99999;font-size:11px;font-family:monospace;line-height:1.5;max-height:60vh;overflow-y:auto;border-bottom:3px solid #fff';
+      document.body && document.body.appendChild(d);
+      return d;
+    })();
+    errBox.innerHTML += '<div style="border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;margin-top:6px"><b>🚨 JS Error</b><br>' + 
+      (e.message || 'unknown') + '<br>at ' + (e.filename||'?').split('/').pop() + ':' + (e.lineno||'?') + '</div>';
+  } catch(ee){}
+});
+window.addEventListener('unhandledrejection', function(e){
+  try{
+    const errBox = document.getElementById('js-error-box') || (function(){
+      const d = document.createElement('div');
+      d.id = 'js-error-box';
+      d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#dc2626;color:#fff;padding:10px;z-index:99999;font-size:11px;font-family:monospace;line-height:1.5;max-height:60vh;overflow-y:auto';
+      document.body && document.body.appendChild(d);
+      return d;
+    })();
+    errBox.innerHTML += '<div style="border-top:1px solid rgba(255,255,255,0.3);padding-top:6px;margin-top:6px"><b>⚠️ Promise Reject</b><br>' + 
+      (e.reason && e.reason.message ? e.reason.message : String(e.reason)) + '</div>';
+  } catch(ee){}
+});
+console.log('📊 진단 모드 활성화');
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -453,6 +485,7 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     <input type="password" id="login-pw" placeholder="비밀번호">
     <button class="btn btn-primary" id="btn-login" style="margin-top:8px">로그인</button>
     <div id="login-msg" style="margin-top:10px;font-size:12px;color:var(--danger)"></div>
+    <div id="diag-status" style="margin-top:14px;padding:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;font-size:10px;color:#166534;text-align:left;font-family:monospace;line-height:1.5"></div>
   </div>
 </div>
 
@@ -728,6 +761,17 @@ const SUPA_URL = 'https://zzglzlbxslgojntcofez.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
 
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// 진단 메시지 표시 함수
+function diag(msg){
+  try{
+    const d = document.getElementById('diag-status');
+    if(d){
+      d.innerHTML += msg + '<br>';
+    }
+  } catch(e){}
+}
+diag('✓ 1. Supabase 클라이언트 생성 OK');
 
 // ============================================================
 // 데이터 정의
@@ -3391,14 +3435,28 @@ window.addEventListener('offline',()=>{
 
 // 시작
 (async()=>{
+  diag('✓ 2. JS 전체 파싱 완료');
+  
   if(SUPA_URL.includes("YOUR_") || SUPA_KEY.includes("YOUR_")){
     document.body.innerHTML = '<div style="padding:20px;font-family:system-ui;text-align:center;color:#b91c1c"><h2>⚠️ 설정 필요</h2><p>HTML 상단의 <code>SUPA_URL</code>과 <code>SUPA_KEY</code>를 입력하세요</p></div>';
     return;
   }
-  const ok = await checkAuth();
-  if(ok){
-    await loadAll();
-    setupRealtime();
+  
+  diag('✓ 3. 이벤트 핸들러 등록 OK');
+  diag('✓ 4. 로그인 버튼 작동 가능');
+  
+  try{
+    const ok = await checkAuth();
+    if(ok){
+      diag('✓ 5. 자동 로그인 (세션 있음) — 데이터 로드 중');
+      await loadAll();
+      setupRealtime();
+    } else {
+      diag('ℹ️ 5. 세션 없음 — 로그인 필요');
+    }
+  } catch(err){
+    diag('❌ 시작 에러: ' + (err.message || err));
+    console.error('시작 에러:', err);
   }
 })();
 </script>
