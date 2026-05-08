@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>괴산캠핑장협회 일정관리</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -17,7 +20,7 @@
 body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;padding-bottom:80px}
 .wrap{max-width:760px;margin:0 auto;padding:12px 10px}
 header{background:linear-gradient(135deg,#1f2937,#374151);color:#fff;border-radius:14px;padding:14px;margin-bottom:10px}
-header h1{font-size:17px;font-weight:800;display:flex;align-items:center;gap:6px}
+header h1{font-size:17px;font-weight:800}
 .h-sub{font-size:11px;color:#cbd5e1;margin-top:2px;display:flex;justify-content:space-between;align-items:center}
 .h-online{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:rgba(34,197,94,0.2);padding:2px 8px;border-radius:10px;color:#86efac}
 .h-online::before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
@@ -431,7 +434,10 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 <div class="wrap">
 
 <header>
-  <h1>🏕 괴산캠핑장협회 일정관리</h1>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+    <h1 style="flex:1;margin:0">🏕 괴산캠핑장협회 일정관리</h1>
+    <button id="btn-refresh" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0">🔄</button>
+  </div>
   <div class="h-sub">
     <span id="user-info">로그인 필요</span>
     <span class="h-online" id="online-status">온라인</span>
@@ -789,6 +795,21 @@ function findProgram(name){for(const c of"ABCD")for(const p of programs[c])if(p.
 // ============================================================
 // 앱 상태
 // ============================================================
+// localStorage 안전 로드 (손상된 데이터 대비)
+function safeLoadDismissedAnn(){
+  try{
+    const raw = localStorage.getItem('dismissedAnn');
+    if(!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return new Set();
+    return new Set(parsed);
+  } catch(e){
+    console.warn('dismissedAnn 손상, 초기화:', e);
+    try{ localStorage.removeItem('dismissedAnn'); } catch(e2){}
+    return new Set();
+  }
+}
+
 const state = {
   user: null,
   member: null,
@@ -798,7 +819,7 @@ const state = {
   camps: [],
   events: [],
   announcements: [],
-  dismissedAnnIds: new Set(JSON.parse(localStorage.getItem('dismissedAnn')||'[]'))
+  dismissedAnnIds: safeLoadDismissedAnn()
 };
 let formState = {cat:""};
 
@@ -982,11 +1003,56 @@ async function checkAuth(){
 }
 
 async function login(email,pw){
-  const {error} = await sb.auth.signInWithPassword({email,password:pw});
-  if(error){$("#login-msg").textContent = "❌ " + error.message; return false}
-  await checkAuth();
-  await loadAll();
-  return true;
+  const msgEl = $("#login-msg");
+  msgEl.textContent = "⏳ 로그인 중...";
+  msgEl.style.color = "var(--muted)";
+  
+  try{
+    const {data, error} = await sb.auth.signInWithPassword({email, password: pw});
+    if(error){
+      console.error('로그인 에러:', error);
+      msgEl.style.color = "var(--danger)";
+      // 에러 메시지 한글화
+      let msg = error.message;
+      if(msg.includes('Invalid')) msg = "❌ 이메일 또는 비밀번호가 틀렸습니다";
+      else if(msg.includes('network')) msg = "❌ 네트워크 오류 — 인터넷 확인";
+      else msg = "❌ " + msg;
+      msgEl.textContent = msg;
+      return false;
+    }
+    if(!data || !data.session){
+      msgEl.style.color = "var(--danger)";
+      msgEl.textContent = "❌ 세션 생성 실패";
+      return false;
+    }
+    
+    msgEl.textContent = "✅ 로그인 성공, 데이터 로드 중...";
+    msgEl.style.color = "var(--ok)";
+    
+    await checkAuth();
+    
+    try{
+      await loadAll();
+    } catch(err){
+      console.error('데이터 로드 에러:', err);
+      msgEl.style.color = "var(--warn)";
+      msgEl.textContent = "⚠️ 일부 데이터 로드 실패 — 새로고침 시도";
+      // 데이터 로드 실패해도 로그인은 성공한 것으로 처리
+    }
+    
+    try{
+      setupRealtime();
+    } catch(err){
+      console.warn('실시간 동기화 실패 (무시):', err);
+    }
+    
+    return true;
+  } catch(err){
+    console.error('로그인 예외:', err);
+    msgEl.style.color = "var(--danger)";
+    msgEl.textContent = "❌ 예상치 못한 오류: " + (err.message || '알 수 없음');
+    return false;
+  }
 }
 
 async function logout(){
@@ -1038,14 +1104,19 @@ async function loadEvents(){
   state.events = data;
 }
 async function loadAll(){
-  await loadCamps();
-  await loadEvents();
-  await loadAnnouncements();
-  // 초기 선택 캠프
+  // 각 단계 실패해도 다른 데이터 로드는 계속
+  try{ await loadCamps(); } catch(e){ console.error('loadCamps:', e); state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1,group_name:c.group,budget:BUDGET})); }
+  try{ await loadEvents(); } catch(e){ console.error('loadEvents:', e); state.events = []; }
+  try{ await loadAnnouncements(); } catch(e){ console.warn('loadAnnouncements (무시):', e); state.announcements = []; }
+  
   if(!state.selectedCamp){
     state.selectedCamp = state.myCamp || (state.camps[0]?.name);
   }
-  renderAll();
+  
+  try{ renderAll(); } catch(e){ 
+    console.error('renderAll 에러:', e);
+    toast('⚠️ 화면 렌더링 일부 실패 — 새로고침 권장');
+  }
 }
 
 async function loadAnnouncements(){
@@ -2041,7 +2112,7 @@ function sendInstSms(){
   const instName = key.split('_')[1] || key;
   const shortText = `[괴산캠핑협회]\n${instName}강사님 출장일정\n총 ${dates.length}회 (${uniqueDates.length}일)\n첫 일정: ${uniqueDates[0]||''}\n상세는 메일/카톡 확인부탁드립니다.\n사무국`;
   
-  if(콜){
+  if(phone){
     location.href = `sms:${phone}?body=${encodeURIComponent(shortText)}`;
   } else {
     copyToClipboard(shortText, '📲 문자 텍스트 복사됨 (연락처 입력시 자동발송)');
@@ -2619,4 +2690,718 @@ function generateReport(){
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   lines.push('                                    (단위: 원)');
   lines.push('');
-  lines.push('┌──────────────┬──────────┬──────────┬──────────
+  lines.push('┌──────────────┬──────────┬──────────┬──────────┐');
+  lines.push('│ 사업명       │ 계       │ 국비 50% │ 지방비50%│');
+  lines.push('├──────────────┼──────────┼──────────┼──────────┤');
+  
+  // 카테고리별 합계
+  const catTotal = {A:0, B:0, C:0, D:0};
+  for(const [name, amount] of Object.entries(progAmount)){
+    const p = findProgram(name);
+    if(p) catTotal[p.cat] = (catTotal[p.cat]||0) + amount;
+  }
+  for(const cat of ['A','B','C','D']){
+    const total = catTotal[cat]||0;
+    const half = Math.round(total/2);
+    lines.push(`│ ${catNames[cat].padEnd(12,' ')} │ ${total.toLocaleString().padStart(8,' ')} │ ${half.toLocaleString().padStart(8,' ')} │ ${half.toLocaleString().padStart(8,' ')} │`);
+  }
+  lines.push('├──────────────┼──────────┼──────────┼──────────┤');
+  const grandHalf = Math.round(totalSpent/2);
+  lines.push(`│ 합계         │ ${totalSpent.toLocaleString().padStart(8,' ')} │ ${grandHalf.toLocaleString().padStart(8,' ')} │ ${grandHalf.toLocaleString().padStart(8,' ')} │`);
+  lines.push('└──────────────┴──────────┴──────────┴──────────┘');
+  lines.push('');
+  
+  // ============================================
+  // 4. 강사별 출장 현황
+  // ============================================
+  if(Object.keys(instStats).length > 0){
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push(' 4. 수행 기관 및 강사 정보');
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push('');
+    const sorted = Object.entries(instStats).sort((a,b)=>b[1].count-a[1].count);
+    for(const [name, stat] of sorted){
+      const progs = [...stat.programs].join(', ');
+      lines.push(`○ ${name} 강사 (총 ${stat.count}회 출장)`);
+      lines.push(`   담당 프로그램: ${progs}`);
+      lines.push('');
+    }
+  }
+  
+  // ============================================
+  // 5. 야영장×날짜 매트릭스 (참여업체별 일정)
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 5. 참여업체별 운영 일정 상세');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  
+  let campIdx = 1;
+  const circles = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];
+  
+  for(const group of groupKeys){
+    lines.push(`【 ${group} 】`);
+    lines.push('');
+    for(const camp of groupMap[group]){
+      const events = state.events.filter(e=>e.camp_name===camp.name)
+        .sort((a,b)=>(a.event_date||'z').localeCompare(b.event_date||'z'));
+      const spent = campSpent(camp.name);
+      const remain = BUDGET - spent;
+      const cIdx = circles[campIdx-1] || `(${campIdx})`;
+      lines.push(`${cIdx} ${camp.name}`);
+      lines.push(`   편성: ${spent.toLocaleString()}원 / 예산: ${BUDGET.toLocaleString()}원 / 잔액: ${remain.toLocaleString()}원`);
+      if(events.length === 0){
+        lines.push(`   (일정 미편성)`);
+      } else {
+        for(const e of events){
+          const dStr = e.event_date ? e.event_date.replace('2026-','').replace('-','/') : '수시';
+          const price = getEventPrice(e);
+          let note = '';
+          if(e.bundle_type === 'ticket'){
+            note = `${e.qty}매`;
+          } else {
+            const b = findBundleForEvent(e);
+            if(b){
+              const otherCamps = b.events.filter(ev=>ev.camp_name!==camp.name).map(ev=>ev.camp_name);
+              const lockMark = e.locked_price ? '🔒' : '';
+              note = b.complete ? `${b.count}곳묶음${lockMark}` : (b.count === 2 ? `2곳` : `단독`);
+              if(otherCamps.length > 0){
+                note += ` (${otherCamps.join('·')})`;
+              }
+            }
+          }
+          lines.push(`   · ${dStr} [${e.category}] ${e.program_name} - ${note} / ${price.toLocaleString()}원`);
+        }
+      }
+      lines.push('');
+      campIdx++;
+    }
+  }
+  
+  // ============================================
+  // 6. 추진일정
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 6. 추진일정');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push('┌─────────────┬───────────────┬────────────────────────┐');
+  lines.push('│ 일정        │ 주요내용      │ 세부추진내용           │');
+  lines.push('├─────────────┼───────────────┼────────────────────────┤');
+  lines.push('│ 25년 12월   │ 세부계획 확정 │ 사업 추진계획 / 예산안 │');
+  lines.push('│ 26년 01월   │ 야영장 선정   │ 참여업체 심사 및 선정  │');
+  lines.push('│ 26년 02월   │ 사업준비      │ 홍보물·장비 준비       │');
+  lines.push('│ 26년 2~11월 │ 사업 진행     │ 활성화 프로그램 운영   │');
+  lines.push('│ 26년 11월   │ 정산 및 보고  │ e-나라도움 정산        │');
+  lines.push('└─────────────┴───────────────┴────────────────────────┘');
+  lines.push('');
+  
+  // ============================================
+  // 7. 예상 성과
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(' 7. 예상 성과');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push('○ (정량적 성과)');
+  lines.push('  - 코로나19 이후 하락한 야영객 매출 회복 기대');
+  lines.push('  - 참여업체 이용객 만족도 설문을 통해 재방문 의사 제고');
+  lines.push(`  - 총 ${total}건의 행사로 야영장 활성화`);
+  lines.push('');
+  lines.push('○ (정성적 성과)');
+  lines.push('  - 프로그램 참가자 만족도 평가 (5점 척도)');
+  lines.push('  - 야영장 사업주 대상 만족도 설문조사');
+  lines.push('  - 향후 프로그램 개선 자료로 활용');
+  lines.push('');
+  
+  // ============================================
+  // 마무리
+  // ============================================
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push(`                    ${todayStr} 작성`);
+  lines.push('');
+  lines.push('              비영리 괴산군 야영장 발전 협의회');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  return lines.join('\n');
+}
+
+function openReportModal(){
+  if(!state.isAdmin){toast('관리자만 가능');return}
+  const report = generateReport();
+  $("#report-body").value = report;
+  $("#report-modal").style.display = "flex";
+}
+
+function copyReportBody(){
+  const ta = $("#report-body");
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try{
+    navigator.clipboard.writeText(ta.value);
+    toast('📋 보고서 본문이 클립보드에 복사됨');
+  }catch(err){
+    document.execCommand('copy');
+    toast('📋 보고서 복사됨');
+  }
+}
+
+function sendReportMail(){
+  const email = $("#report-email").value.trim();
+  const subject = $("#report-subject").value.trim();
+  const body = $("#report-body").value;
+  
+  if(!email){
+    toast('❌ 받는 사람 이메일을 입력하세요');
+    $("#report-email").focus();
+    return;
+  }
+  
+  // 본문이 너무 길면 짧은 버전 사용
+  const today = new Date().toISOString().slice(0,10);
+  let mailBody = body;
+  
+  // mailto URL 인코딩 — 길이 제한 대응
+  const encoded = encodeURIComponent(mailBody);
+  if(encoded.length > 7000){
+    if(confirm('보고서가 길어서 메일 본문에 일부만 들어갑니다. CSV 파일을 먼저 다운로드해서 첨부하시겠습니까?')){
+      exportCSV();
+    }
+    // 짧은 버전 사용
+    mailBody = body.split('━━━').slice(0, 4).join('━━━') + '\n\n... (상세 내역은 첨부 CSV 파일 참조) ...\n\n괴산캠핑장협회 사무국';
+  }
+  
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+  
+  // 새창에서 mailto 열기 (모바일/PC 호환)
+  const a = document.createElement('a');
+  a.href = mailto;
+  a.target = '_blank';
+  a.click();
+  
+  toast('📧 메일 앱이 열립니다 (안 열리면 본문 복사 사용)');
+}
+
+function renderFormPreview(){
+  const date = $("#m-date").value;
+  const cat = formState.cat;
+  const name = $("#m-program").value;
+  const qty = parseInt($("#m-qty").value)||1;
+  const camp = state.selectedCamp;
+  if(!cat||!name){$("#m-preview").innerHTML="";$("#m-save").disabled=true;return}
+  const p = findProgram(name);
+  if(!p)return;
+  if(p.p.ticket){
+    const total = p.p.ticket * qty;
+    $("#m-preview").innerHTML = `<div class="preview ok"><div class="pv-title">📦 매수권</div><div>${name} × ${qty}매</div><div class="pv-price">${won(total)}</div></div>`;
+    $("#m-save").disabled = false;
+    return;
+  }
+  if(!date){$("#m-preview").innerHTML='<div class="preview warn">📅 날짜 선택</div>';$("#m-save").disabled=true;return}
+  const existing = state.events.filter(e=>e.event_date===date && e.program_name===name && e.bundle_type!=="ticket");
+  const alreadyMine = existing.some(e=>e.camp_name===camp);
+  if(alreadyMine){$("#m-preview").innerHTML='<div class="preview err">⚠️ 이미 추가됨</div>';$("#m-save").disabled=true;return}
+  
+  // 본인이 들어갈 묶음 결정 (가장 최근 미완성 묶음 또는 새 묶음)
+  const cap = bundleCapacity(name);
+  const bundles = getBundles(date, name);
+  const openBundle = bundles.find(b => !b.complete);
+  let myBundleSeq, myBundleCount, willComplete, joiningCamps;
+  if(openBundle){
+    myBundleSeq = openBundle.seq;
+    myBundleCount = openBundle.count + 1;
+    willComplete = (myBundleCount === cap);
+    joiningCamps = openBundle.events.map(e => e.camp_name);
+  } else {
+    myBundleSeq = bundles.length + 1;
+    myBundleCount = 1;
+    willComplete = (cap === 1);
+    joiningCamps = [];
+  }
+  
+  const ap = autoPrice(name, myBundleCount);
+  const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
+  const instTotalAfter = new Set([...sameDayInst.map(e=>e.camp_name),camp]).size;
+  let cls="ok",msg="✅ 추가 가능";
+  if(instTotalAfter>5){cls="warn";msg="⚠️ 강사 출장 매우 많음 (협의 필요)"}
+  else if(instTotalAfter>3){cls="warn";msg="⚠️ 강사 출장 부담"}
+  else if(ap.warn){cls="warn";msg="⚠️ "+ap.warn}
+  
+  // 묶음 정보 표시
+  let bundleInfo;
+  if(joiningCamps.length > 0){
+    bundleInfo = `묶음#${myBundleSeq} 합류 — 기존: ${joiningCamps.join(', ')}`;
+  } else if(myBundleSeq === 1){
+    bundleInfo = `묶음#1 시작 (단독, 다른 캠프 합류 대기)`;
+  } else {
+    bundleInfo = `묶음#${myBundleSeq} 새로 시작 (앞 묶음들 박제됨)`;
+  }
+  
+  const lockMark = willComplete ? '<div style="font-size:10px;color:#16a34a;font-weight:700;margin-top:4px">🔒 추가 즉시 묶음 박제됨!</div>' : 
+                    `<div style="font-size:10px;color:var(--muted);margin-top:4px">박제까지 ${cap - myBundleCount}곳 더 필요</div>`;
+  
+  $("#m-preview").innerHTML = `
+    <div class="preview ${cls}">
+      <div class="pv-title">${msg}</div>
+      <div class="pv-row"><b>${bundleInfo}</b></div>
+      <div class="pv-row"><b>본인 추가시:</b> ${myBundleCount}/${cap}곳 (${ap.bundle})</div>
+      <div class="pv-row"><b>본인 부담:</b></div>
+      <div class="pv-price">${won(ap.price)}</div>
+      ${lockMark}
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">예산 잔액: ${won(BUDGET-campSpent(camp))} → 추가 후 ${won(BUDGET-campSpent(camp)-ap.price)}</div>
+      <div class="pv-row" style="font-size:10px;color:var(--muted)">강사 ${p.i.split("_")[1]||p.i} · 이 날 ${instTotalAfter}곳 출장</div>
+    </div>
+  `;
+  $("#m-save").disabled = false;
+}
+
+// ============================================================
+// 묶음 박제 처리 (capacity 도달시 locked_price 확정)
+// ============================================================
+async function lockCompletedBundles(date, programName){
+  const cap = bundleCapacity(programName);
+  if(cap < 2) return; // 단독은 박제 의미 없음
+  
+  // 최신 데이터 다시 로드
+  const {data: events, error} = await sb.from('camp_events')
+    .select('*')
+    .eq('event_date', date)
+    .eq('program_name', programName)
+    .neq('bundle_type', 'ticket')
+    .order('bundle_seq', {ascending: true, nullsFirst: false})
+    .order('created_at', {ascending: true});
+  
+  if(error || !events) return;
+  
+  // capacity 단위로 묶어서, 완성된 묶음이면서 박제 안 된 것들 박제
+  const lockedPrice = autoPrice(programName, cap).price;
+  for(let i = 0; i < events.length; i += cap){
+    const chunk = events.slice(i, i + cap);
+    if(chunk.length !== cap) continue; // 미완성
+    const toLock = chunk.filter(e => !e.finalized);
+    if(toLock.length === 0) continue; // 이미 모두 박제됨
+    
+    const ids = toLock.map(e => e.id);
+    const {error: upErr} = await sb.from('camp_events')
+      .update({locked_price: lockedPrice, finalized: true})
+      .in('id', ids);
+    if(upErr){console.error('박제 실패:', upErr); continue}
+    console.log(`✅ 박제됨: ${date} ${programName} 묶음 (${chunk.length}곳, ${lockedPrice}원)`);
+  }
+}
+
+// ============================================================
+// 저장 (Supabase INSERT)
+// ============================================================
+async function saveEvent(){
+  const date = $("#m-date").value;
+  const name = $("#m-program").value;
+  const cat = formState.cat;
+  const qty = parseInt($("#m-qty").value)||1;
+  const p = findProgram(name);
+  if(!p){toast("프로그램 선택");return}
+
+  const isTicket = !!p.p.ticket;
+  
+  // 강사 출장 검증 (ticket 제외, date 있는 경우만)
+  if(!isTicket && date && p.i){
+    const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
+    const campSet = new Set([...sameDayInst.map(e=>e.camp_name), state.selectedCamp]);
+    const instCount = campSet.size;
+    
+    if(instCount > 5){
+      const eventsByName = {};
+      for(const e of sameDayInst){
+        eventsByName[e.program_name] = (eventsByName[e.program_name]||0) + 1;
+      }
+      const eventList = Object.entries(eventsByName)
+        .map(([n,c])=>`  · ${n}: ${c}곳`)
+        .join('\n');
+      
+      const camps = [...campSet].join(', ');
+      const instName = p.i.split('_')[1] || p.i;
+      
+      const msg = `⚠️ 강사 출장 한도 초과\n\n` +
+                  `📅 ${date}\n` +
+                  `👤 ${instName} 강사 — 총 ${instCount}곳 출장\n\n` +
+                  `[참여 캠프]\n${camps}\n\n` +
+                  `[강사가 진행할 행사]\n${eventList}\n  · ${name}: 추가 예정 (1곳)\n\n` +
+                  `⚠️ 강사 1명이 같은 날 ${instCount}곳 이동은 현실적으로 어렵습니다.\n` +
+                  `협회 사무국 또는 강사와 사전 협의 후 추가하세요.\n\n` +
+                  `그래도 추가하시겠습니까?`;
+      
+      if(!confirm(msg)) return;
+    }
+  }
+
+  // bundle_seq 결정: 같은 날·행사 내 max + 1
+  let bundleSeq = null;
+  if(!isTicket && date){
+    const existingSeqs = state.events
+      .filter(e => e.event_date === date && e.program_name === name && e.bundle_type !== 'ticket')
+      .map(e => e.bundle_seq || 0);
+    const maxSeq = existingSeqs.length > 0 ? Math.max(...existingSeqs) : 0;
+    bundleSeq = maxSeq + 1;
+  }
+
+  const newEvent = {
+    camp_name: state.selectedCamp,
+    event_date: isTicket ? null : date,
+    category: cat,
+    program_name: name,
+    bundle_type: isTicket ? "ticket" : "auto",
+    qty: isTicket ? qty : 1,
+    bundle_seq: bundleSeq,
+    created_by: state.user.id
+  };
+
+  let {error} = await sb.from('camp_events').insert(newEvent);
+  
+  // 새 컬럼(bundle_seq) 없을 때 fallback (SQL 미실행 대비)
+  if(error && error.message && error.message.includes('bundle_seq')){
+    console.warn('bundle_seq 컬럼 없음 — fallback 모드');
+    delete newEvent.bundle_seq;
+    const retry = await sb.from('camp_events').insert(newEvent);
+    error = retry.error;
+    if(!error){
+      toast("⚠️ 일정 추가됨 (박제 시스템 비활성 — 관리자 SQL 확인 필요)");
+    }
+  }
+  
+  if(error){
+    if(error.code==="42501") toast("❌ 권한 없음 (본인 캠프만 가능)");
+    else toast("❌ 저장 실패: "+error.message);
+    console.error(error);
+    return;
+  }
+  
+  $("#modal").style.display="none";
+  toast("✅ 추가 완료");
+  
+  // 묶음 박제 체크
+  if(!isTicket && date){
+    await lockCompletedBundles(date, name);
+  }
+  
+  await loadEvents();
+  renderAll();
+}
+
+// ============================================================
+// 묶음 재정렬 (취소 시 자동 재구성)
+// ============================================================
+async function reorganizeBundles(date, programName){
+  if(!date || !programName) return;
+  
+  // 1) 같은 날·행사의 모든 박제 해제
+  const {error: e1} = await sb.from('camp_events')
+    .update({locked_price: null, finalized: false})
+    .eq('event_date', date)
+    .eq('program_name', programName)
+    .neq('bundle_type', 'ticket');
+  if(e1){console.error('박제 해제 실패:', e1); return}
+  
+  // 2) bundle_seq 재할당 (created_at 순서)
+  const {data: events, error: e2} = await sb.from('camp_events')
+    .select('id, bundle_seq, created_at')
+    .eq('event_date', date)
+    .eq('program_name', programName)
+    .neq('bundle_type', 'ticket')
+    .order('created_at', {ascending: true});
+  if(e2){console.error('재정렬 조회 실패:', e2); return}
+  
+  // 변경 필요한 것만 업데이트 (불필요한 쓰기 방지)
+  for(let i = 0; i < events.length; i++){
+    const newSeq = i + 1;
+    if(events[i].bundle_seq !== newSeq){
+      await sb.from('camp_events')
+        .update({bundle_seq: newSeq})
+        .eq('id', events[i].id);
+    }
+  }
+  
+  // 3) capacity 도달한 묶음 재박제
+  await lockCompletedBundles(date, programName);
+  console.log(`🔄 묶음 재정렬 완료: ${date} ${programName}`);
+}
+
+async function deleteEvent(id){
+  if(!confirm("이 일정을 삭제하시겠습니까?\n\n같은 묶음의 다른 캠프들도 자동 재정렬됩니다."))return;
+  
+  // 삭제 전 정보 저장 (재정렬 대상 식별용)
+  const event = state.events.find(e => e.id === id);
+  
+  const {error} = await sb.from('camp_events').delete().eq('id', id);
+  if(error){toast("❌ "+error.message);return}
+  
+  // 같은 날·행사 묶음 재정렬 (자동 재구성 + 재박제)
+  if(event && event.bundle_type !== 'ticket' && event.event_date){
+    await reorganizeBundles(event.event_date, event.program_name);
+    toast("✅ 삭제 + 묶음 재정렬 완료");
+  } else {
+    toast("✅ 삭제 완료");
+  }
+  
+  await loadEvents();
+  renderAll();
+}
+
+// ============================================================
+// 이벤트 핸들러
+// ============================================================
+// 새로고침 버튼 (스마트 동작) — 실패해도 로그인 작동하도록 try/catch
+try{
+  const btnRefresh = $("#btn-refresh");
+  if(btnRefresh){
+    btnRefresh.addEventListener("click", async ()=>{
+      const btn = $("#btn-refresh");
+      btn.disabled = true;
+      const original = btn.innerHTML;
+      btn.textContent = "⏳";
+      
+      try{
+        if(state.user){
+          await loadAll();
+          toast('🔄 새로고침 완료');
+        } else {
+          location.reload();
+          return;
+        }
+      } catch(err){
+        console.error('새로고침 에러:', err);
+        toast('❌ 에러 — 페이지 다시 로드');
+        setTimeout(()=>location.reload(), 1000);
+        return;
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = original;
+    });
+    
+    // 길게 누르면 강제 캐시 무효화
+    let refreshPressTimer = null;
+    btnRefresh.addEventListener("touchstart", ()=>{
+      refreshPressTimer = setTimeout(()=>{
+        if(confirm('캐시 강제 비우고 새로고침?')){
+          try{ if(window.caches) caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))); } catch(e){}
+          try{ localStorage.clear(); } catch(e){}
+          location.reload();
+        }
+      }, 1500);
+    });
+    btnRefresh.addEventListener("touchend", ()=>{
+      if(refreshPressTimer) clearTimeout(refreshPressTimer);
+    });
+  }
+} catch(err){
+  console.warn('새로고침 버튼 등록 실패 (무시):', err);
+}
+
+try{
+  $("#btn-login").addEventListener("click",async()=>{
+    const e = $("#login-email").value.trim();
+    const p = $("#login-pw").value;
+    if(!e||!p){$("#login-msg").textContent="이메일과 비밀번호를 입력하세요";return}
+    $("#btn-login").disabled = true;
+    await login(e,p);
+    $("#btn-login").disabled = false;
+  });
+  $("#login-pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-login").click()});
+  $("#login-email").addEventListener("keydown",e=>{if(e.key==="Enter")$("#login-pw").focus()});
+  $("#btn-logout").addEventListener("click",logout);
+} catch(err){
+  console.error('🚨 로그인 버튼 등록 실패:', err);
+  alert('❌ 로그인 버튼 등록 실패 — 페이지 새로고침 필요\n\n' + (err.message || ''));
+}
+
+// 관리자 export 버튼
+document.addEventListener("click",e=>{
+  if(e.target.id==="btn-export-csv") exportCSV();
+  if(e.target.id==="btn-export-summary") exportSummary();
+  if(e.target.id==="ga-add-group") addNewGroup();
+  if(e.target.id==="btn-report") openReportModal();
+  if(e.target.id==="report-close") $("#report-modal").style.display="none";
+  if(e.target.id==="report-copy") copyReportBody();
+  if(e.target.id==="report-csv") exportCSV();
+  if(e.target.id==="report-mail") sendReportMail();
+  if(e.target.id==="btn-copy-login-kakao") copyLoginInfoKakao();
+  if(e.target.id==="btn-copy-login-csv") copyLoginInfoCsv();
+  if(e.target.classList && e.target.classList.contains("login-copy")){
+    copyToClipboard(e.target.dataset.info, '📋 복사됨');
+  }
+  if(e.target.id==="btn-inst-copy") copyInstSchedule();
+  if(e.target.id==="btn-inst-csv") copyInstCsv();
+  if(e.target.id==="btn-inst-sms") sendInstSms();
+  if(e.target.id==="btn-inst-mail") sendInstMail();
+  if(e.target.id==="btn-recruitment-kakao") copyRecruitmentKakao();
+  if(e.target.id==="btn-recruitment-csv") copyRecruitmentCsv();
+  if(e.target.id==="btn-ann-create") createAnnouncement();
+  if(e.target.classList && e.target.classList.contains("ann-banner-close")){
+    dismissAnnouncement(e.target.dataset.id);
+  }
+  if(e.target.dataset && e.target.dataset.annDel){
+    deleteAnnouncement(parseInt(e.target.dataset.annDel));
+  }
+});
+
+// 강사 선택 변경
+document.addEventListener("change",e=>{
+  if(e.target.id==="inst-picker"){
+    renderInstructorSchedule(e.target.value);
+  }
+});
+
+// 보고서 모달 배경 클릭시 닫기
+document.addEventListener("click",e=>{
+  if(e.target.id==="report-modal") $("#report-modal").style.display="none";
+});
+
+// 조편성 변경
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("ga-select")){
+    const campName = e.target.dataset.camp;
+    let newGroup = e.target.value;
+    if(newGroup === "__new__"){
+      const name = prompt("새 조 이름을 입력하세요:", "새 조");
+      if(!name || !name.trim()){
+        // 원래 값으로 복원
+        const cur = state.camps.find(c=>c.name===campName);
+        if(cur) e.target.value = cur.group_name;
+        return;
+      }
+      newGroup = name.trim();
+    }
+    changeCampGroup(campName, newGroup);
+  }
+});
+
+// 조 이름 변경 (Enter 또는 blur 시)
+document.addEventListener("keydown",e=>{
+  if(e.target.classList.contains("ga-group-name-input") && e.key==="Enter"){
+    e.target.blur();
+  }
+});
+document.addEventListener("blur",e=>{
+  if(e.target.classList && e.target.classList.contains("ga-group-name-input")){
+    const oldName = e.target.dataset.old;
+    const newName = e.target.value.trim();
+    if(oldName && newName && oldName !== newName){
+      renameGroup(oldName, newName);
+    }
+  }
+}, true);
+
+async function addNewGroup(){
+  const name = prompt("새 조 이름:", "새 조");
+  if(!name || !name.trim()) return;
+  // 빈 그룹은 캠프가 없으면 표시 못 함. 첫 캠프를 옮겨야 함.
+  // 안내만 표시
+  toast(`💡 "${name.trim()}" 조 만들려면 캠프를 옮겨주세요`);
+  // 임시로 그룹 목록에 추가하기 위해 각 select에 옵션 추가
+  document.querySelectorAll('.ga-select').forEach(sel=>{
+    const opt = document.createElement('option');
+    opt.value = name.trim();
+    opt.textContent = name.trim();
+    // __new__ 앞에 삽입
+    const newOpt = sel.querySelector('option[value="__new__"]');
+    if(newOpt) sel.insertBefore(opt, newOpt);
+    else sel.appendChild(opt);
+  });
+}
+
+// 모집 알림 배너 클릭 → 합류 카드로 스크롤
+document.addEventListener("click",e=>{
+  if(e.target.closest && e.target.closest("#recruitment-banner")){
+    const card = $("#join-opportunities-card");
+    if(card && card.style.display !== 'none'){
+      card.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+});
+
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  document.querySelectorAll(".tab-content").forEach(c=>c.style.display="none");
+  $("#tab-"+t.dataset.tab).style.display="block";
+}));
+
+$("#camp-picker").addEventListener("change",e=>{
+  state.selectedCamp = e.target.value;
+  renderBudget();
+  renderMyEvents();
+});
+
+$("#btn-add-event").addEventListener("click",()=>{
+  const camp = state.selectedCamp;
+  if(!canEdit(camp)){toast("❌ 본인 캠프만 추가 가능");return}
+  $("#m-camp-display").textContent = camp + " (" + getCampGroup(camp) + ")";
+  $("#modal").style.display = "flex";
+  formState.cat = "";
+  $("#m-date").value = "";
+  $("#m-program").innerHTML = '<option value="">먼저 카테고리 선택</option>';
+  document.querySelectorAll("#m-cat-pills .pill").forEach(p=>p.classList.remove("active"));
+  $("#m-qty-row").style.display = "none";
+  $("#m-preview").innerHTML = "";
+  $("#m-save").disabled = true;
+});
+$("#m-close").addEventListener("click",()=>$("#modal").style.display="none");
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")$("#modal").style.display="none"});
+
+document.querySelectorAll("#m-cat-pills .pill").forEach(p=>p.addEventListener("click",()=>{
+  document.querySelectorAll("#m-cat-pills .pill").forEach(x=>x.classList.remove("active"));
+  p.classList.add("active");
+  formState.cat = p.dataset.cat;
+  $("#m-program").innerHTML = '<option value="">프로그램 선택</option>'+
+    programs[formState.cat].map(pr=>`<option value="${pr.n}">${pr.n}</option>`).join("");
+  renderFormPreview();
+}));
+
+$("#m-program").addEventListener("change",()=>{
+  const p = findProgram($("#m-program").value);
+  $("#m-qty-row").style.display = (p && p.p.ticket) ? "block" : "none";
+  renderFormPreview();
+});
+$("#m-date").addEventListener("change",renderFormPreview);
+$("#m-qty").addEventListener("change",renderFormPreview);
+$("#m-save").addEventListener("click",saveEvent);
+
+$("#my-events").addEventListener("click",e=>{
+  const btn = e.target.closest(".me-btn.del");
+  if(!btn)return;
+  deleteEvent(parseInt(btn.dataset.id));
+});
+
+function toast(msg){
+  const t = document.createElement("div");
+  t.className="toast";t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+// 온라인/오프라인 감지
+window.addEventListener('online',()=>{
+  $("#online-status").classList.remove("h-offline");
+  $("#online-status").textContent = "온라인";
+});
+window.addEventListener('offline',()=>{
+  $("#online-status").classList.add("h-offline");
+  $("#online-status").textContent = "오프라인";
+});
+
+// 시작
+(async()=>{
+  if(SUPA_URL.includes("YOUR_") || SUPA_KEY.includes("YOUR_")){
+    document.body.innerHTML = '<div style="padding:20px;font-family:system-ui;text-align:center;color:#b91c1c"><h2>⚠️ 설정 필요</h2><p>HTML 상단의 <code>SUPA_URL</code>과 <code>SUPA_KEY</code>를 입력하세요</p></div>';
+    return;
+  }
+  const ok = await checkAuth();
+  if(ok){
+    await loadAll();
+    setupRealtime();
+  }
+})();
+</script>
+
+</body>
+</html>
