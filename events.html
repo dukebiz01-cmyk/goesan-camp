@@ -147,6 +147,101 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 
 .match-item{display:flex;align-items:center;gap:6px;padding:4px;font-size:11px}
 
+/* 새 일정 카드 디자인 */
+.my-event-card{
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  padding:12px;margin-bottom:8px;transition:all 0.2s
+}
+.my-event-card.discount{
+  background:linear-gradient(to bottom,#fff,#fef9e7);
+  border:2px solid #f59e0b;box-shadow:0 2px 8px rgba(245,158,11,0.15)
+}
+.my-event-card.ok{
+  background:linear-gradient(to bottom,#fff,#f0fdf4);
+  border:1px solid #86efac
+}
+.my-event-card.warn{
+  background:linear-gradient(to bottom,#fff,#fef2f2);
+  border:1px solid #fca5a5
+}
+
+.mec-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.mec-date{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:42px;font-size:10px;color:var(--muted)
+}
+.mec-date b{font-size:18px;color:var(--ink);line-height:1;font-weight:800}
+.mec-date span{margin-top:2px}
+.mec-name{flex:1;display:flex;align-items:center;gap:6px;min-width:0}
+.mec-title{font-weight:700;font-size:14px}
+
+.mec-progress-row{margin-bottom:10px}
+.mec-progress-label{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;margin-bottom:4px
+}
+.mec-progress-text{font-weight:600;color:var(--muted)}
+.mec-status-badge{
+  font-size:10px;padding:3px 8px;border-radius:8px;font-weight:700
+}
+.mec-status-badge.s-warn{background:#fef3c7;color:#92400e}
+.mec-status-badge.s-ok{background:#dcfce7;color:#166534}
+.mec-progress-bar{
+  height:8px;background:#f0efea;border-radius:4px;overflow:hidden
+}
+.mec-progress-fill{
+  height:100%;transition:width 0.3s;border-radius:4px
+}
+.mec-progress-fill.discount{background:linear-gradient(to right,#f59e0b,#fbbf24)}
+.mec-progress-fill.ok{background:#22c55e}
+.mec-progress-fill.warn{background:#fbbf24}
+
+.mec-price-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px;background:rgba(255,255,255,0.6);border-radius:8px;
+  margin-bottom:8px
+}
+.mec-price-current,.mec-price-target{flex:1;text-align:center}
+.mec-price-label{font-size:10px;color:var(--muted);margin-bottom:2px}
+.mec-price-now{font-size:14px;font-weight:700;color:var(--ink)}
+.mec-price-best{font-size:14px;font-weight:800;color:#059669}
+.mec-savings{
+  font-size:10px;color:#059669;font-weight:700;margin-top:2px;
+  background:#dcfce7;padding:2px 6px;border-radius:4px;display:inline-block
+}
+.mec-arrow{font-size:18px;color:#f59e0b;font-weight:bold}
+
+.mec-other-camps{
+  font-size:11px;color:var(--muted);
+  display:flex;flex-wrap:wrap;align-items:center;gap:4px;
+  padding:6px 8px;background:rgba(0,0,0,0.02);border-radius:6px
+}
+.mec-other-camps.mec-empty{
+  color:#9a3412;background:#fff7ed;border:1px dashed #fbbf24;
+  display:block;text-align:center;font-weight:600
+}
+.mec-other-label{font-weight:600;color:var(--ink)}
+.mec-camp-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  background:#fff;padding:3px 8px;border-radius:10px;
+  border:1px solid var(--line);font-size:10px;font-weight:600
+}
+
+/* 합류 기회 카드 */
+.join-card{
+  background:#fff7ed;border:1px solid #fbbf24;border-radius:8px;
+  padding:10px;margin-bottom:6px;cursor:pointer
+}
+.join-card:hover{background:#ffedd5}
+.join-header{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.join-date{font-size:11px;color:var(--muted);font-weight:700}
+.join-name{font-weight:700;font-size:13px}
+.join-camps{font-size:11px;color:var(--muted);margin-bottom:4px}
+.join-savings{
+  font-size:11px;font-weight:700;color:#059669;
+  background:#dcfce7;padding:4px 8px;border-radius:6px;display:inline-block
+}
+
 .role-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.2);margin-left:4px}
 .role-badge.admin{background:#fbbf24;color:#78350f}
 
@@ -196,6 +291,15 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     </div>
     <div class="bud-card" id="bud-display"></div>
     <button class="btn-add" id="btn-add-event">＋ 새 행사 추가</button>
+    
+    <div class="card" id="join-opportunities-card" style="display:none">
+      <h2 style="font-size:14px;display:flex;align-items:center;gap:6px">
+        🎁 합류하면 모두 할인!
+      </h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">다른 캠프가 추가한 행사에 합류하면 본인+상대 모두 묶음 단가 적용</div>
+      <div id="join-opportunities"></div>
+    </div>
+    
     <div class="card">
       <h2>📋 내 캠프 일정</h2>
       <div id="my-events"><div class="loading">불러오는 중</div></div>
@@ -616,38 +720,198 @@ function renderMyEvents(){
   }
   const editable = canEdit(c);
   $("#my-events").innerHTML = myEvents.map(e=>{
-    let price=0, bundle="", status="ok", statusText="";
     if(e.bundle_type==="ticket"){
-      price = ticketPrice(e.program_name,e.qty);
-      bundle = `${e.qty}매`;
-      statusText = "수시"; status="info";
-    }else{
-      const bs = bundleStatus(e.event_date,e.program_name);
-      const ap = autoPrice(e.program_name,bs.count);
-      price = ap.price;
-      bundle = ap.bundle==="bundle3"?"3묶음":ap.bundle==="bundle2"?"2묶음":ap.bundle==="bundle3-partial"?"2/3 부족":ap.bundle==="single"?"단독":"기타";
-      if(ap.warn){status="warn";statusText="단가 주의"}
-      else if(bs.count===3){status="ok";statusText=`${bs.count}곳 ✓`}
-      else if(bs.count%3===0 && bs.count>=3){status="ok";statusText=`${bs.count}곳`}
-      else if(bs.count===2 && findProgram(e.program_name)?.p.bundle2){status="ok";statusText=`2곳 ✓`}
-      else{status="warn";statusText=`${bs.count}곳`}
+      const price = ticketPrice(e.program_name,e.qty);
+      const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
+      return `
+        <div class="my-event">
+          <div class="me-date">📦 수시</div>
+          <div class="me-info">
+            <div class="me-name"><span class="badge b-${e.category}">${e.category}</span>${e.program_name}</div>
+            <div class="me-meta">${e.qty}매 · ${won(price)}</div>
+          </div>
+          <div class="me-actions">
+            <span class="me-status s-info">매수권</span>
+            ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
+          </div>
+        </div>`;
     }
+
+    const bs = bundleStatus(e.event_date, e.program_name);
+    const ap = autoPrice(e.program_name, bs.count);
+    const p = findProgram(e.program_name);
+    const currentPrice = ap.price;
+
+    // 할인 가능 여부 계산
+    let bestPrice = currentPrice;
+    let needCamps = 0;
+    let progressTarget = 1;
+    let progressNow = bs.count;
+    let savings = 0;
+
+    if(p && !ap.bundle.startsWith("bundle3") && p.p.bundle3){
+      // bundle3 가능한데 아직 3곳 안 됨
+      bestPrice = p.p.bundle3;
+      needCamps = 3 - bs.count;
+      progressTarget = 3;
+      savings = currentPrice - bestPrice;
+    } else if(p && bs.count===1 && p.p.bundle2){
+      // bundle2 가능한데 아직 1곳
+      bestPrice = p.p.bundle2;
+      needCamps = 2 - bs.count;
+      progressTarget = 2;
+      savings = currentPrice - bestPrice;
+    } else if(bs.count===3 || bs.count===6 || bs.count===9){
+      progressTarget = bs.count;
+    }
+
     const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
     const wkStr = e.event_date ? ["일","월","화","수","목","금","토"][new Date(e.event_date).getDay()] : "";
+    const pctProgress = Math.min(100, Math.round(progressNow/progressTarget*100));
+
+    // 다른 캠프 목록
+    const otherCamps = bs.camps.filter(cn=>cn!==c);
+
+    // 상태 결정
+    let status, statusText, bgCls;
+    if(savings > 0){
+      // 할인 기회 있음
+      status = "warn"; bgCls = "discount";
+      statusText = `🔍 ${needCamps}곳 모집중`;
+    } else if(bs.count===3 || bs.count===6 || bs.count===9){
+      status = "ok"; bgCls = "ok";
+      statusText = `✅ ${bs.count}곳 묶음 완성`;
+    } else if(bs.count===2 && p?.p.bundle2){
+      status = "ok"; bgCls = "ok";
+      statusText = `✅ 2곳 묶음`;
+    } else {
+      status = "warn"; bgCls = "warn";
+      statusText = `${bs.count}곳`;
+    }
+
     return `
-      <div class="my-event ${status==="warn"?"warn":""}">
-        <div class="me-date">${e.event_date?`<b>${dStr}</b>${wkStr}`:`📦 수시`}</div>
-        <div class="me-info">
-          <div class="me-name"><span class="badge b-${e.category}">${e.category}</span>${e.program_name}</div>
-          <div class="me-meta">${bundle} · ${won(price)}</div>
-        </div>
-        <div class="me-actions">
-          <span class="me-status s-${status}">${statusText}</span>
+      <div class="my-event-card ${bgCls}">
+        <div class="mec-header">
+          <div class="mec-date">
+            ${e.event_date ? `<b>${dStr}</b><span>${wkStr}</span>` : `<span>📦 수시</span>`}
+          </div>
+          <div class="mec-name">
+            <span class="badge b-${e.category}">${e.category}</span>
+            <span class="mec-title">${e.program_name}</span>
+          </div>
           ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
         </div>
+        
+        <div class="mec-progress-row">
+          <div class="mec-progress-label">
+            <span class="mec-progress-text">참여: ${progressNow}/${progressTarget}곳</span>
+            <span class="mec-status-badge s-${status}">${statusText}</span>
+          </div>
+          <div class="mec-progress-bar">
+            <div class="mec-progress-fill ${bgCls}" style="width:${pctProgress}%"></div>
+          </div>
+        </div>
+
+        <div class="mec-price-row">
+          <div class="mec-price-current">
+            <div class="mec-price-label">현재 단가</div>
+            <div class="mec-price-now">${won(currentPrice)}</div>
+          </div>
+          ${savings > 0 ? `
+            <div class="mec-arrow">→</div>
+            <div class="mec-price-target">
+              <div class="mec-price-label" style="color:#059669">${needCamps}곳 더 모이면</div>
+              <div class="mec-price-best">${won(bestPrice)}</div>
+              <div class="mec-savings">-${won(savings)} 절감!</div>
+            </div>
+          ` : ''}
+        </div>
+
+        ${otherCamps.length > 0 ? `
+          <div class="mec-other-camps">
+            <span class="mec-other-label">함께 신청한 캠프:</span>
+            ${otherCamps.map(cn=>`<span class="mec-camp-tag"><span class="gd ${groupColor(getCampGroup(cn))}"></span>${cn}</span>`).join('')}
+          </div>
+        ` : `
+          <div class="mec-other-camps mec-empty">
+            ⚠️ 아직 다른 캠프 없음 — 다른 캠프가 같은 행사 추가하면 자동으로 단가 인하
+          </div>
+        `}
       </div>
     `;
   }).join("");
+}
+
+// 다른 캠프 행사 둘러보기 (단가 절감 기회)
+function renderJoinOpportunities(){
+  const c = state.selectedCamp;
+  if(!c) return;
+  
+  // 다른 캠프가 추가했지만 묶음 미완성인 행사 찾기
+  const groups = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket") continue;
+    if(e.camp_name === c) continue; // 본인 캠프 제외
+    const k = `${e.event_date}|${e.program_name}|${e.category}`;
+    if(!groups[k]) groups[k] = {date:e.event_date, name:e.program_name, cat:e.category, camps:[]};
+    groups[k].camps.push(e.camp_name);
+  }
+  
+  // 본인이 같은 날 같은 행사 이미 추가했는지 확인
+  const myKeys = new Set(
+    state.events.filter(e=>e.camp_name===c && e.bundle_type!=="ticket")
+      .map(e=>`${e.event_date}|${e.program_name}`)
+  );
+  
+  // 합류 가능한 행사만 (3곳 미만, 본인 미참여)
+  const opportunities = Object.values(groups)
+    .filter(g => {
+      if(g.camps.length >= 3) return false;
+      if(myKeys.has(`${g.date}|${g.name}`)) return false;
+      const p = findProgram(g.name);
+      if(!p) return false;
+      // 합류시 할인 가능한지
+      if(g.camps.length === 1 && (p.p.bundle3 || p.p.bundle2)) return true;
+      if(g.camps.length === 2 && p.p.bundle3) return true;
+      return false;
+    })
+    .map(g => {
+      const p = findProgram(g.name);
+      const currentSingle = p.p.single || p.p.bundle3 || 0;
+      const newCount = g.camps.length + 1;
+      const newAp = autoPrice(g.name, newCount);
+      const savings = currentSingle - newAp.price;
+      return {...g, newPrice:newAp.price, savings, p, newCount};
+    })
+    .sort((a,b)=>b.savings - a.savings); // 절감액 큰 순
+  
+  const target = $("#join-opportunities");
+  if(!target) return;
+  
+  if(opportunities.length === 0){
+    target.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">현재 합류 가능한 행사 없음</div>';
+    return;
+  }
+  
+  target.innerHTML = opportunities.slice(0, 5).map(o => {
+    const dStr = o.date ? `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}` : "수시";
+    const need = 3 - o.camps.length;
+    return `
+      <div class="join-card">
+        <div class="join-header">
+          <span class="badge b-${o.cat}">${o.cat}</span>
+          <span class="join-date">${dStr}</span>
+          <span class="join-name">${o.name}</span>
+        </div>
+        <div class="join-camps">
+          현재 ${o.camps.length}곳: ${o.camps.join(", ")}
+        </div>
+        <div class="join-savings">
+          🎁 합류시 본인 ${won(o.newPrice)} · 모두 ${won(o.savings)} 절감
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 function renderCalendar(){
@@ -758,10 +1022,46 @@ function renderAll(){
   renderCampPicker();
   renderBudget();
   renderMyEvents();
+  renderJoinOpportunitiesCard();
   renderCalendar();
   renderIssues();
   renderAllCamps();
   if(state.isAdmin) renderAdmin();
+}
+
+function renderJoinOpportunitiesCard(){
+  const c = state.selectedCamp;
+  if(!c){$("#join-opportunities-card").style.display="none";return}
+  
+  // 합류 기회 계산 후 카드 표시 여부 결정
+  const groups = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket") continue;
+    if(e.camp_name === c) continue;
+    const k = `${e.event_date}|${e.program_name}`;
+    if(!groups[k]) groups[k] = {date:e.event_date, name:e.program_name, cat:e.category, camps:[]};
+    groups[k].camps.push(e.camp_name);
+  }
+  const myKeys = new Set(
+    state.events.filter(e=>e.camp_name===c && e.bundle_type!=="ticket")
+      .map(e=>`${e.event_date}|${e.program_name}`)
+  );
+  const hasOpps = Object.values(groups).some(g => {
+    if(g.camps.length >= 3) return false;
+    if(myKeys.has(`${g.date}|${g.name}`)) return false;
+    const p = findProgram(g.name);
+    if(!p) return false;
+    if(g.camps.length === 1 && (p.p.bundle3 || p.p.bundle2)) return true;
+    if(g.camps.length === 2 && p.p.bundle3) return true;
+    return false;
+  });
+  
+  if(hasOpps){
+    $("#join-opportunities-card").style.display = "block";
+    renderJoinOpportunities();
+  } else {
+    $("#join-opportunities-card").style.display = "none";
+  }
 }
 
 // ============================================================
