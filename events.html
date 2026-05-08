@@ -274,6 +274,35 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 }
 .ga-add-group-btn:hover{background:#f4f4f0;border-color:#3b82f6;color:#3b82f6}
 
+/* 로그인 정보 */
+.login-group{
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;background:#fafaf7
+}
+.login-group-head{
+  display:flex;align-items:center;gap:6px;
+  font-weight:700;font-size:11px;margin-bottom:6px;color:var(--ink);
+  padding-bottom:5px;border-bottom:1px dashed var(--line)
+}
+.login-row{
+  display:grid;grid-template-columns:1fr auto;gap:6px;
+  align-items:center;padding:5px 4px;font-size:11px
+}
+.login-row + .login-row{border-top:1px dashed rgba(0,0,0,0.05)}
+.login-camp{font-weight:600}
+.login-email{font-family:'Courier New',monospace;font-size:11px;color:#3b82f6;font-weight:600}
+.login-pw{font-family:'Courier New',monospace;font-size:10px;color:var(--muted);margin-left:6px}
+.login-status{font-size:9px;color:var(--muted)}
+.login-copy{
+  background:#fff;border:1px solid var(--line);
+  padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;
+  font-family:inherit
+}
+.login-copy:active{background:#dbeafe}
+.login-empty{
+  color:#dc2626;font-size:10px;font-weight:600
+}
+
 .role-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.2);margin-left:4px}
 .role-badge.admin{background:#fbbf24;color:#78350f}
 
@@ -376,6 +405,16 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
       <h2 style="font-size:13px">🔧 조편성 관리</h2>
       <div style="font-size:10px;color:var(--muted);margin-bottom:8px">캠프의 조를 자유롭게 재배치 · 같은 조 이름끼리 자동으로 묶임</div>
       <div id="admin-group-assignment"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🔑 캠프별 로그인 정보</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">협회원에게 카톡으로 안내할 때 사용 · 비밀번호 공통 1234</div>
+      <div id="admin-login-info"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+        <button class="btn btn-secondary" id="btn-copy-login-kakao" style="font-size:12px;padding:10px">📋 카톡 발송용 복사</button>
+        <button class="btn btn-secondary" id="btn-copy-login-csv" style="font-size:12px;padding:10px">📊 표 형식 복사</button>
+      </div>
     </div>
 
     <div class="card">
@@ -713,6 +752,21 @@ function showApp(){
 async function loadCamps(){
   const {data, error} = await sb.from('camps').select('*').order('group_name').order('id');
   if(error){console.error(error); state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1,group_name:c.group,budget:BUDGET}));return}
+  
+  // 각 캠프 owner의 이메일 매핑
+  const userIds = data.filter(c=>c.member_id).map(c=>c.member_id);
+  if(userIds.length > 0){
+    const {data: members} = await sb.from('members').select('user_id, email, name').in('user_id', userIds);
+    if(members){
+      const map = {};
+      members.forEach(m=>{map[m.user_id] = m});
+      data.forEach(c=>{
+        const m = map[c.member_id];
+        c.member_email = m?.email || null;
+        c.member_name = m?.name || null;
+      });
+    }
+  }
   state.camps = data;
 }
 async function loadEvents(){
@@ -1157,10 +1211,131 @@ async function renderAdmin(){
   await loadAdminData();
   renderAdminStats();
   renderAdminGroupAssignment();
+  renderAdminLoginInfo();
   renderAdminCategories();
   renderAdminCampActivity();
   renderAdminInstructorStats();
   renderAdminRecentActivity();
+}
+
+function renderAdminLoginInfo(){
+  const target = $("#admin-login-info");
+  if(!target) return;
+  
+  const grouped = {};
+  for(const c of state.camps){
+    const g = c.group_name || '기타';
+    if(!grouped[g]) grouped[g] = [];
+    grouped[g].push(c);
+  }
+  
+  const groupKeys = Object.keys(grouped).sort();
+  target.innerHTML = groupKeys.map(g=>`
+    <div class="login-group">
+      <div class="login-group-head">
+        <span class="gd ${groupColor(g)}"></span>${g}
+      </div>
+      ${grouped[g].map(c=>`
+        <div class="login-row">
+          <div>
+            <div class="login-camp">${c.name}</div>
+            ${c.member_email 
+              ? `<div><span class="login-email">${c.member_email}</span><span class="login-pw">/ 1234</span></div>`
+              : `<div class="login-empty">⚠️ owner 미매핑</div>`
+            }
+          </div>
+          ${c.member_email 
+            ? `<button class="login-copy" data-info="${c.name} - ${c.member_email} / 1234">복사</button>`
+            : ''
+          }
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// 카톡 발송용 텍스트 (협회원 안내)
+function copyLoginInfoKakao(){
+  const lines = [];
+  lines.push('🏕 괴산캠핑장협회 일정관리 시스템');
+  lines.push('');
+  lines.push('📌 접속 주소');
+  lines.push('https://dukebiz01-cmyk.github.io/goesan-camp/events.html');
+  lines.push('');
+  lines.push('🔑 본인 캠프 로그인 정보');
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  
+  const grouped = {};
+  for(const c of state.camps){
+    const g = c.group_name || '기타';
+    if(!grouped[g]) grouped[g] = [];
+    grouped[g].push(c);
+  }
+  const groupKeys = Object.keys(grouped).sort();
+  
+  for(const g of groupKeys){
+    lines.push(`[${g}]`);
+    for(const c of grouped[g]){
+      if(c.member_email){
+        lines.push(`${c.name}: ${c.member_email}`);
+      } else {
+        lines.push(`${c.name}: (계정 미생성)`);
+      }
+    }
+    lines.push('');
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('🔒 비밀번호 (공통): 1234');
+  lines.push('   ⚠️ 첫 로그인 후 변경 권장');
+  lines.push('');
+  lines.push('📋 사용법');
+  lines.push('1. 본인 캠프 자동 선택됨');
+  lines.push('2. 잔액 4,347,000원에서 시작');
+  lines.push('3. "+ 새 행사 추가" 클릭');
+  lines.push('4. 카테고리 → 프로그램 → 날짜 선택');
+  lines.push('5. 같은 날 같은 행사 신청한 다른 캠프와 자동 묶음 (할인 적용)');
+  lines.push('');
+  lines.push('💡 다른 캠프 일정도 모두 보입니다');
+  lines.push('💡 본인 캠프 일정만 수정 가능합니다');
+  lines.push('');
+  lines.push('문의: 협회 사무국');
+  
+  const text = lines.join('\n');
+  copyToClipboard(text, '📋 카톡 발송용 텍스트가 복사되었습니다');
+}
+
+// 표 형식 (개별 발송용)
+function copyLoginInfoCsv(){
+  const lines = [];
+  lines.push('캠프명\t조\t이메일\t비밀번호');
+  
+  const sorted = [...state.camps].sort((a,b)=>(a.group_name||'').localeCompare(b.group_name||'') || a.id - b.id);
+  for(const c of sorted){
+    lines.push(`${c.name}\t${c.group_name||''}\t${c.member_email || '(미생성)'}\t1234`);
+  }
+  
+  const text = lines.join('\n');
+  copyToClipboard(text, '📊 표 형식이 복사되었습니다 (엑셀/시트 붙여넣기 가능)');
+}
+
+function copyToClipboard(text, msg){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>fallbackCopy(text, msg));
+  } else {
+    fallbackCopy(text, msg);
+  }
+}
+
+function fallbackCopy(text, msg){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try{document.execCommand('copy');toast(msg)}catch(e){toast('❌ 복사 실패')}
+  document.body.removeChild(ta);
 }
 
 function renderAdminGroupAssignment(){
@@ -1793,6 +1968,11 @@ document.addEventListener("click",e=>{
   if(e.target.id==="report-copy") copyReportBody();
   if(e.target.id==="report-csv") exportCSV();
   if(e.target.id==="report-mail") sendReportMail();
+  if(e.target.id==="btn-copy-login-kakao") copyLoginInfoKakao();
+  if(e.target.id==="btn-copy-login-csv") copyLoginInfoCsv();
+  if(e.target.classList && e.target.classList.contains("login-copy")){
+    copyToClipboard(e.target.dataset.info, '📋 복사됨');
+  }
 });
 
 // 보고서 모달 배경 클릭시 닫기
