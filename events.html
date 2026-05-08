@@ -531,20 +531,25 @@ const programs = {
     {n:"솜사탕쇼",i:"A_백선일",p:{bundle3:400000,single:500000}},
     {n:"레이저쇼",i:"A_백선일",p:{bundle3:500000,single:800000}},
     {n:"통기타음악회",i:"A_통기타",p:{bundle2:330000,single:500000}},
-    {n:"마술쇼 조동희(40분)",i:"A_조동희",p:{single:550000}}
+    {n:"마술쇼 조동희(40분)",i:"A_조동희",p:{single:550000}},
+    {n:"반려견 행동 토크쇼",i:"A_반려견",p:{single:400000}}
   ],
-  B:["사과오이소박이","꽃떡퐁듀","감자핫도그만들기","과일꼬치화채","시원한 허브꽃 모히또","허브솔트","보들꽃 증편","건강 강정 만들기","추석 꽃송편","단호박 꽃단자","깍두기 만들기","꽃장식 딸기 모찌","딸기청 만들기","꽃 코디얼 빙수","호두정과","딸기 고추장","카네이션 바람떡","수레국화 양갱","캐릭터김밥","연잎밥 만들기","오이 모듬피클","얼굴 카나페","모기퇴치 꽃스머지스틱","인절미","K도넛 개성주악","발효초콜릿","곳감단자","봄향기 화전","봄꽃 코디얼","고기도둑 달래쌈장","쑥버무리","꽃식초","고기 마리네이드","과일젤리"].map(n=>({n,i:"B_정미화",p:{bundle3:165000,single:220000}})),
+  B:[...["사과오이소박이","꽃떡퐁듀","감자핫도그만들기","과일꼬치화채","시원한 허브꽃 모히또","허브솔트","보들꽃 증편","건강 강정 만들기","추석 꽃송편","단호박 꽃단자","깍두기 만들기","꽃장식 딸기 모찌","딸기청 만들기","꽃 코디얼 빙수","호두정과","딸기 고추장","카네이션 바람떡","수레국화 양갱","캐릭터김밥","연잎밥 만들기","오이 모듬피클","얼굴 카나페","모기퇴치 꽃스머지스틱","인절미","K도넛 개성주악","발효초콜릿","곳감단자","봄향기 화전","봄꽃 코디얼","고기도둑 달래쌈장","쑥버무리","꽃식초","고기 마리네이드","과일젤리"].map(n=>({n,i:"B_정미화",p:{bundle3:165000,single:220000}})),
+    {n:"4인 재료비 1매",i:"B_재료비",p:{ticket:10000}}
+  ],
   C:[
     {n:"페이스페인팅",i:"C_이은희",p:{bundle3:143000,single:220000}},
     {n:"가족캐리커쳐",i:"C_이은희",p:{bundle3:165000,single:250000}},
     {n:"타로카드",i:"C_이은희",p:{bundle3:143000,single:220000}},
     {n:"할로윈 페이스페인팅",i:"C_이은희",p:{bundle3:143000,single:220000}},
-    {n:"캐릭터 솜사탕",i:"C_캐릭터솜사탕",p:{bundle2:385000,single:495000}}
+    {n:"캐릭터 솜사탕",i:"C_캐릭터솜사탕",p:{bundle2:350000,single:495000}}
   ],
   D:[
     {n:"짚라인",i:"D_이경희",p:{bundle2:250000,single:300000}},
     {n:"슬랙라인",i:"D_이경희",p:{bundle2:250000,single:300000}},
     {n:"로켓스윙",i:"D_이경희",p:{bundle2:250000,single:300000}},
+    {n:"승마체험",i:"D_승마",p:{single:200000}},
+    {n:"사과따기 체험",i:"D_사과따기",p:{single:500000}},
     {n:"산막이 보트 1매",i:"D_보트",p:{ticket:4000}},
     {n:"소형유람선 1매",i:"D_유람선",p:{ticket:18000}},
     {n:"자체행사비",i:"D_자체",p:{single:1000000}}
@@ -1665,7 +1670,7 @@ function renderFormPreview(){
   const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
   const instTotalAfter = new Set([...sameDayInst.map(e=>e.camp_name),camp]).size;
   let cls="ok",msg="✅ 추가 가능";
-  if(instTotalAfter>5){cls="err";msg="🚨 강사 출장 불가능"}
+  if(instTotalAfter>5){cls="warn";msg="⚠️ 강사 출장 매우 많음 (협의 필요)"}
   else if(instTotalAfter>3){cls="warn";msg="⚠️ 강사 출장 부담"}
   else if(ap.warn){cls="warn";msg="⚠️ "+ap.warn}
   const matchInfo = otherCamps.length>0
@@ -1683,7 +1688,8 @@ function renderFormPreview(){
       <div class="pv-row" style="font-size:10px;color:var(--muted)">강사 ${p.i.split("_")[1]||p.i} · 이 날 ${instTotalAfter}곳 출장</div>
     </div>
   `;
-  $("#m-save").disabled = (cls==="err");
+  // 경고는 표시하되 저장은 가능 (협회/강사 협의 영역)
+  $("#m-save").disabled = false;
 }
 
 // ============================================================
@@ -1698,12 +1704,45 @@ async function saveEvent(){
   if(!p){toast("프로그램 선택");return}
 
   const isTicket = !!p.p.ticket;
+  
+  // 강사 출장 검증 (ticket 제외, date 있는 경우만)
+  if(!isTicket && date && p.i){
+    const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
+    const campSet = new Set([...sameDayInst.map(e=>e.camp_name), state.selectedCamp]);
+    const instCount = campSet.size;
+    
+    if(instCount > 5){
+      // 강사별 행사 그룹화
+      const eventsByName = {};
+      for(const e of sameDayInst){
+        eventsByName[e.program_name] = (eventsByName[e.program_name]||0) + 1;
+      }
+      const eventList = Object.entries(eventsByName)
+        .map(([n,c])=>`  · ${n}: ${c}곳`)
+        .join('\n');
+      
+      const camps = [...campSet].join(', ');
+      const instName = p.i.split('_')[1] || p.i;
+      
+      const msg = `⚠️ 강사 출장 한도 초과\n\n` +
+                  `📅 ${date}\n` +
+                  `👤 ${instName} 강사 — 총 ${instCount}곳 출장\n\n` +
+                  `[참여 캠프]\n${camps}\n\n` +
+                  `[강사가 진행할 행사]\n${eventList}\n  · ${name}: 추가 예정 (1곳)\n\n` +
+                  `⚠️ 강사 1명이 같은 날 ${instCount}곳 이동은 현실적으로 어렵습니다.\n` +
+                  `협회 사무국 또는 강사와 사전 협의 후 추가하세요.\n\n` +
+                  `그래도 추가하시겠습니까?`;
+      
+      if(!confirm(msg)) return;
+    }
+  }
+
   const newEvent = {
     camp_name: state.selectedCamp,
     event_date: isTicket ? null : date,
     category: cat,
     program_name: name,
-    bundle_type: isTicket ? "ticket" : "auto",  // 자동 결정 (실제 단가는 클라이언트 계산)
+    bundle_type: isTicket ? "ticket" : "auto",
     qty: isTicket ? qty : 1,
     created_by: state.user.id
   };
