@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>괴산캠핑장협회 일정관리</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f6f5f0;--paper:#fff;--ink:#1a1a1a;--line:#e5e3dc;--muted:#6b6b63;
+  --A:#c8425a;--B:#5a8c3f;--C:#3d6dad;--D:#a36b1f;
+  --A-bg:#fae8ec;--B-bg:#eaf3e2;--C-bg:#e3edf8;--D-bg:#f6ecd9;
+  --warn:#d97706;--danger:#b91c1c;--ok:#059669;
+  --g1:#9ca3af;--g4:#ec4899;--g5:#0ea5e9;--g6:#84cc16;
+}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;padding-bottom:80px}
+.wrap{max-width:760px;margin:0 auto;padding:12px 10px}
+header{background:linear-gradient(135deg,#1f2937,#374151);color:#fff;border-radius:14px;padding:14px;margin-bottom:10px}
+header h1{font-size:17px;font-weight:800;display:flex;align-items:center;gap:6px}
+.h-sub{font-size:11px;color:#cbd5e1;margin-top:2px;display:flex;justify-content:space-between;align-items:center}
+.h-online{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:rgba(34,197,94,0.2);padding:2px 8px;border-radius:10px;color:#86efac}
+.h-online::before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.h-offline{background:rgba(239,68,68,0.2);color:#fca5a5}
+.h-offline::before{background:#ef4444;animation:none}
+
+/* LOGIN */
+.login-card{background:#fff;border-radius:14px;padding:30px 20px;text-align:center}
+.login-card h2{font-size:18px;margin-bottom:6px}
+.login-card p{font-size:12px;color:var(--muted);margin-bottom:20px}
+.login-card input{margin-bottom:8px}
+
+.tabs{display:flex;gap:3px;margin-bottom:10px;background:#fff;padding:4px;border-radius:10px;border:1px solid var(--line);overflow-x:auto}
+.tab{flex:1;min-width:80px;padding:8px 6px;text-align:center;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab.active{background:#1f2937;color:#fff}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+.card h2{font-size:14px;font-weight:700;margin-bottom:10px}
+
+.camp-sel-wrap{margin-bottom:10px;position:relative}
+.camp-sel{width:100%;padding:14px;font-size:16px;font-weight:700;border:2px solid var(--line);border-radius:10px;background:#fff;font-family:inherit}
+.camp-sel:disabled{background:#f4f4f0;color:var(--muted)}
+.camp-locked{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--ok);background:#dcfce7;padding:3px 8px;border-radius:6px}
+
+.bud-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px}
+.bud-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.bud-label{font-size:11px;color:var(--muted);font-weight:600}
+.bud-amount{font-size:24px;font-weight:800;letter-spacing:-0.02em}
+.bud-amount.warn{color:var(--warn)}
+.bud-amount.over{color:var(--danger)}
+.bud-bar{height:10px;background:#f0efea;border-radius:5px;overflow:hidden;margin:6px 0}
+.bud-fill{height:100%;background:var(--ok);transition:width 0.3s}
+.bud-fill.warn{background:var(--warn)}
+.bud-fill.over{background:var(--danger)}
+.bud-stats{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+
+.my-event{display:grid;grid-template-columns:auto 1fr auto;gap:10px;padding:12px;background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;align-items:center}
+.my-event.warn{border-color:#fbbf24;background:#fffbeb}
+.me-date{font-size:11px;font-weight:700;color:var(--muted);text-align:center;min-width:48px}
+.me-date b{display:block;font-size:18px;color:var(--ink);font-weight:800}
+.me-info{flex:1;min-width:0}
+.me-name{font-weight:700;font-size:13px;display:flex;align-items:center;gap:5px}
+.me-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.me-status{font-size:10px;padding:3px 7px;border-radius:6px;font-weight:700;white-space:nowrap}
+.s-ok{background:#dcfce7;color:#166534}
+.s-warn{background:#fed7aa;color:#9a3412}
+.s-danger{background:#fecaca;color:#991b1b}
+.s-info{background:#dbeafe;color:#1e40af}
+.me-actions{display:flex;gap:4px;align-items:center}
+.me-btn{background:#fff;border:1px solid var(--line);padding:5px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit}
+.me-btn.del{color:var(--danger)}
+.me-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+.btn{display:block;width:100%;padding:13px;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-primary{background:#1f2937;color:#fff}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-add{background:#3b82f6;color:#fff;font-size:14px;padding:14px;border-radius:10px;width:100%;border:none;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.btn-add:disabled{background:#d1d5db;cursor:not-allowed}
+
+.form-row{margin-bottom:10px}
+.form-row label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px}
+input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fff}
+input:focus,select:focus{outline:none;border-color:#3b82f6}
+
+.cat-pills{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.pill{padding:9px 4px;border:2px solid var(--line);border-radius:8px;font-size:11px;font-weight:700;text-align:center;background:#fff;cursor:pointer}
+.pill.active.A{background:var(--A-bg);border-color:var(--A);color:var(--A)}
+.pill.active.B{background:var(--B-bg);border-color:var(--B);color:var(--B)}
+.pill.active.C{background:var(--C-bg);border-color:var(--C);color:var(--C)}
+.pill.active.D{background:var(--D-bg);border-color:var(--D);color:var(--D)}
+
+.preview{background:#f0f9ff;border:1px solid #93c5fd;border-radius:10px;padding:12px;margin:10px 0;font-size:12px}
+.preview.ok{background:#f0fdf4;border-color:#86efac}
+.preview.warn{background:#fffbeb;border-color:#fbbf24}
+.preview.err{background:#fef2f2;border-color:#fca5a5}
+.pv-title{font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.pv-row{padding:5px 0;border-bottom:1px dashed rgba(0,0,0,0.1);font-size:12px}
+.pv-row:last-child{border-bottom:none}
+.pv-row b{color:#1e3a8a}
+.pv-price{font-size:16px;font-weight:800;color:var(--ink);margin-top:6px}
+
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:flex-end;z-index:100}
+.modal{background:#fff;width:100%;max-height:90vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:18px;animation:slideUp 0.2s}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{font-size:16px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.m-close{margin-left:auto;background:#f4f4f0;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer}
+
+.month-h{display:flex;align-items:baseline;gap:8px;padding:8px 4px;margin:14px 0 6px 0;border-bottom:2px solid var(--ink)}
+.month-num{font-size:24px;font-weight:900;line-height:1}
+.month-info{font-size:11px;color:var(--muted)}
+.day{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:11px;margin-bottom:7px}
+.day-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed var(--line)}
+.d-num{font-size:20px;font-weight:800;line-height:1}
+.d-week{font-size:13px;font-weight:600;color:var(--muted)}
+.d-week.sat{color:#3d6dad}.d-week.sun{color:#c8425a}
+.event{display:flex;align-items:flex-start;gap:8px;padding:8px;border-radius:8px;margin-bottom:4px}
+.event.eA{background:var(--A-bg)}.event.eB{background:var(--B-bg)}
+.event.eC{background:var(--C-bg)}.event.eD{background:var(--D-bg)}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:5px;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
+.b-A{background:var(--A)}.b-B{background:var(--B)}
+.b-C{background:var(--C)}.b-D{background:var(--D)}
+.e-body{flex:1;min-width:0}
+.e-title{font-weight:700;font-size:12px}
+.e-camps{font-size:11px;margin-top:3px}
+.gd{display:inline-block;width:8px;height:8px;border-radius:50%}
+.gd-1{background:var(--g1)}.gd-4{background:var(--g4)}
+.gd-5{background:var(--g5)}.gd-6{background:var(--g6)}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;z-index:200;animation:fade 2.5s}
+@keyframes fade{0%{opacity:0;transform:translate(-50%,10px)}10%{opacity:1;transform:translate(-50%,0)}90%{opacity:1}100%{opacity:0}}
+
+.sum-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:9px 6px;border-bottom:1px dashed var(--line);align-items:center;font-size:12px}
+.sum-name{font-weight:600;display:flex;align-items:center;gap:6px}
+.sum-mini{font-size:10px;color:var(--muted);margin-top:1px}
+.sum-amt{text-align:right;font-variant-numeric:tabular-nums}
+.sum-bar{width:50px;height:5px;background:#eee;border-radius:3px;overflow:hidden}
+.sum-bar div{height:100%}
+.sum-bar div.ok{background:var(--ok)}
+.sum-bar div.warn{background:var(--warn)}
+.sum-bar div.over{background:var(--danger)}
+
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.issue{padding:10px;border-radius:8px;margin-bottom:6px;font-size:12px;border-left:4px solid}
+.issue.warn{background:#fef3c7;border-color:#d97706;color:#78350f}
+.issue.danger{background:#fecaca;border-color:#b91c1c;color:#991b1b}
+.issue-title{font-weight:700;margin-bottom:3px}
+
+.match-item{display:flex;align-items:center;gap:6px;padding:4px;font-size:11px}
+
+.role-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.2);margin-left:4px}
+.role-badge.admin{background:#fbbf24;color:#78350f}
+
+.loading{text-align:center;padding:40px 20px;color:var(--muted)}
+.loading::after{content:"...";animation:dots 1.5s steps(4) infinite}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <h1>🏕 괴산캠핑장협회 일정관리</h1>
+  <div class="h-sub">
+    <span id="user-info">로그인 필요</span>
+    <span class="h-online" id="online-status">온라인</span>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div id="screen-login">
+  <div class="login-card">
+    <h2>🏕 협회 로그인</h2>
+    <p>등록된 협회 회원만 사용 가능</p>
+    <input type="email" id="login-email" placeholder="이메일">
+    <input type="password" id="login-pw" placeholder="비밀번호">
+    <button class="btn btn-primary" id="btn-login" style="margin-top:8px">로그인</button>
+    <div id="login-msg" style="margin-top:10px;font-size:12px;color:var(--danger)"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="screen-app" style="display:none">
+  <div class="tabs">
+    <div class="tab active" data-tab="my">🏕 내 캠프</div>
+    <div class="tab" data-tab="cal">📅 달력</div>
+    <div class="tab" data-tab="check">⚠️ 검증</div>
+    <div class="tab" data-tab="all">📊 전체</div>
+  </div>
+
+  <div id="tab-my" class="tab-content">
+    <div class="camp-sel-wrap">
+      <select class="camp-sel" id="camp-picker"></select>
+      <span class="camp-locked" id="camp-locked-label" style="display:none">🔒 본인 캠프</span>
+    </div>
+    <div class="bud-card" id="bud-display"></div>
+    <button class="btn-add" id="btn-add-event">＋ 새 행사 추가</button>
+    <div class="card">
+      <h2>📋 내 캠프 일정</h2>
+      <div id="my-events"><div class="loading">불러오는 중</div></div>
+    </div>
+  </div>
+
+  <div id="tab-cal" class="tab-content" style="display:none">
+    <div class="card">
+      <h2>📅 전체 달력</h2>
+      <div style="font-size:11px;color:var(--muted)">묶음 자동 감지 · 다른 캠프 일정도 표시됨</div>
+    </div>
+    <div id="calendar"><div class="loading">불러오는 중</div></div>
+  </div>
+
+  <div id="tab-check" class="tab-content" style="display:none">
+    <div class="card">
+      <h2>⚠️ 충돌 / 묶음 부족 점검</h2>
+      <div id="issues"><div class="loading">분석 중</div></div>
+    </div>
+  </div>
+
+  <div id="tab-all" class="tab-content" style="display:none">
+    <div class="card">
+      <h2>📊 전체 캠프 현황</h2>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">기준 예산: 4,347,000원/캠프</div>
+      <div id="all-camps"><div class="loading">불러오는 중</div></div>
+    </div>
+  </div>
+
+  <button class="btn" style="background:#fff;color:var(--muted);border:1px solid var(--line);margin-top:14px" id="btn-logout">로그아웃</button>
+</div>
+
+</div>
+
+<!-- ADD EVENT MODAL -->
+<div class="modal-bg" id="modal" style="display:none">
+  <div class="modal">
+    <h3>＋ 새 행사 추가 <button class="m-close" id="m-close">×</button></h3>
+    <div class="form-row">
+      <label>대상 캠프</label>
+      <div style="background:#f4f4f0;padding:10px;border-radius:8px;font-weight:700" id="m-camp-display"></div>
+    </div>
+    <div class="form-row">
+      <label>📅 날짜</label>
+      <input type="date" id="m-date" min="2026-04-01" max="2026-12-31">
+    </div>
+    <div class="form-row">
+      <label>🎨 카테고리</label>
+      <div class="cat-pills" id="m-cat-pills">
+        <div class="pill A" data-cat="A">A 공연</div>
+        <div class="pill B" data-cat="B">B 먹거리</div>
+        <div class="pill C" data-cat="C">C 체험</div>
+        <div class="pill D" data-cat="D">D 활동</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>🎯 프로그램</label>
+      <select id="m-program"><option value="">먼저 카테고리 선택</option></select>
+    </div>
+    <div class="form-row" id="m-qty-row" style="display:none">
+      <label>수량 (매)</label>
+      <input type="number" id="m-qty" value="1" min="1">
+    </div>
+    <div id="m-preview"></div>
+    <button class="btn btn-primary" id="m-save" style="margin-top:8px" disabled>행사 추가</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 설정 (Supabase 키 입력 필요)
+// ============================================================
+const SUPA_URL = 'https://zzglzlbxslgojntcofez.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
+
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// ============================================================
+// 데이터 정의
+// ============================================================
+const BUDGET = 4347000;
+const ALL_CAMPS_DEFAULT = [
+  {name:"가자우리집",group:"1조 표준A"},
+  {name:"솔베이",group:"1조 표준A"},
+  {name:"도명산",group:"1조 표준A"},
+  {name:"아빠의나무",group:"2조 표준B"},
+  {name:"시냇가",group:"2조 표준B"},
+  {name:"후평숲",group:"2조 표준B"},
+  {name:"해밀터",group:"3조 표준C"},
+  {name:"원탑",group:"3조 표준C"},
+  {name:"즐거운녀석들",group:"3조 표준C"},
+  {name:"따봄스테이",group:"4조 따봄형"},
+  {name:"모래재캠핑장",group:"4조 따봄형"},
+  {name:"자연애캠핑장",group:"4조 따봄형"},
+  {name:"루파니캠핑장",group:"5조 C지원"},
+  {name:"숲속의하모니",group:"5조 C지원"},
+  {name:"아이뜰캠핑장",group:"5조 C지원"},
+  {name:"운교랜드캠핑장",group:"6조 AC형"},
+  {name:"화양숲노리",group:"6조 AC형"},
+  {name:"그린비",group:"6조 AC형"}
+];
+const groupColor = (g)=>g?.startsWith("4")?"gd-4":g?.startsWith("5")?"gd-5":g?.startsWith("6")?"gd-6":"gd-1";
+
+const programs = {
+  A:[
+    {n:"풍선쇼",i:"A_백선일",p:{bundle3:400000,single:500000}},
+    {n:"버블쇼",i:"A_백선일",p:{bundle3:400000,single:500000}},
+    {n:"마술쇼",i:"A_백선일",p:{bundle3:400000,single:500000}},
+    {n:"솜사탕쇼",i:"A_백선일",p:{bundle3:400000,single:500000}},
+    {n:"레이저쇼",i:"A_백선일",p:{bundle3:500000,single:800000}},
+    {n:"통기타음악회",i:"A_통기타",p:{bundle2:330000,single:500000}},
+    {n:"마술쇼 조동희(40분)",i:"A_조동희",p:{single:550000}}
+  ],
+  B:["사과오이소박이","꽃떡퐁듀","감자핫도그만들기","과일꼬치화채","시원한 허브꽃 모히또","허브솔트","보들꽃 증편","건강 강정 만들기","추석 꽃송편","단호박 꽃단자","깍두기 만들기","꽃장식 딸기 모찌","딸기청 만들기","꽃 코디얼 빙수","호두정과","딸기 고추장","카네이션 바람떡","수레국화 양갱","캐릭터김밥","연잎밥 만들기","오이 모듬피클","얼굴 카나페","모기퇴치 꽃스머지스틱","인절미","K도넛 개성주악","발효초콜릿","곳감단자","봄향기 화전","봄꽃 코디얼","고기도둑 달래쌈장","쑥버무리","꽃식초","고기 마리네이드","과일젤리"].map(n=>({n,i:"B_정미화",p:{bundle3:165000,single:220000}})),
+  C:[
+    {n:"페이스페인팅",i:"C_이은희",p:{bundle3:143000,single:220000}},
+    {n:"가족캐리커쳐",i:"C_이은희",p:{bundle3:165000,single:250000}},
+    {n:"타로카드",i:"C_이은희",p:{bundle3:143000,single:220000}},
+    {n:"할로윈 페이스페인팅",i:"C_이은희",p:{bundle3:143000,single:220000}},
+    {n:"캐릭터 솜사탕",i:"C_캐릭터솜사탕",p:{bundle2:385000,single:495000}}
+  ],
+  D:[
+    {n:"짚라인",i:"D_이경희",p:{bundle2:250000,single:300000}},
+    {n:"슬랙라인",i:"D_이경희",p:{bundle2:250000,single:300000}},
+    {n:"로켓스윙",i:"D_이경희",p:{bundle2:250000,single:300000}},
+    {n:"산막이 보트 1매",i:"D_보트",p:{ticket:4000}},
+    {n:"소형유람선 1매",i:"D_유람선",p:{ticket:18000}},
+    {n:"자체행사비",i:"D_자체",p:{single:1000000}}
+  ]
+};
+function findProgram(name){for(const c of"ABCD")for(const p of programs[c])if(p.n===name)return{...p,cat:c};return null}
+
+// ============================================================
+// 앱 상태
+// ============================================================
+const state = {
+  user: null,
+  member: null,    // members 테이블 row (role 포함)
+  isAdmin: false,
+  myCamp: null,    // owner인 경우 본인 캠프
+  selectedCamp: null,
+  camps: [],       // DB에서 로드
+  events: []       // DB에서 로드
+};
+let formState = {cat:""};
+
+const $ = s=>document.querySelector(s);
+const won = n=>n.toLocaleString()+"원";
+
+// ============================================================
+// 핵심 비즈니스 로직
+// ============================================================
+function bundleStatus(date,name){
+  const m = state.events.filter(e=>e.event_date===date && e.program_name===name && !e.qty_special);
+  return {count:m.length, camps:m.map(e=>e.camp_name)};
+}
+function autoPrice(name,count){
+  const p = findProgram(name); if(!p) return {price:0,bundle:"none"};
+  const pr = p.p;
+  if(count>=3 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3"};
+  if(count===2 && pr.bundle2) return {price:pr.bundle2,bundle:"bundle2"};
+  if(count===2 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3-partial",warn:"3업체묶음 단가 받으려면 1곳 더 필요"};
+  if(pr.single) return {price:pr.single,bundle:"single"};
+  if(pr.bundle3) return {price:pr.bundle3,bundle:"single-as-bundle3",warn:"단독은 단가 협상 필요"};
+  return {price:0,bundle:"none"};
+}
+function ticketPrice(name,qty){
+  const p = findProgram(name);
+  return (p && p.p.ticket || 0) * (qty||1);
+}
+function campSpent(camp){
+  let total = 0;
+  for(const e of state.events){
+    if(e.camp_name !== camp) continue;
+    if(e.bundle_type === "ticket"){total += ticketPrice(e.program_name,e.qty);continue}
+    const bs = bundleStatus(e.event_date,e.program_name);
+    const ap = autoPrice(e.program_name,bs.count);
+    total += ap.price;
+  }
+  return total;
+}
+function getIssues(){
+  const issues = [];
+  const groups = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket")continue;
+    const k = `${e.event_date}|${e.program_name}`;
+    if(!groups[k])groups[k]={date:e.event_date,name:e.program_name,cat:e.category,camps:[]};
+    groups[k].camps.push(e.camp_name);
+  }
+  for(const g of Object.values(groups)){
+    const n = g.camps.length;
+    const p = findProgram(g.name);
+    if(!p)continue;
+    if(n===1 && p.p.bundle3){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - 1곳만 신청 (단독)`,detail:`bundle3 단가(${p.p.bundle3.toLocaleString()}원) 받으려면 2곳 더 필요`,camps:g.camps});
+    }
+    if(n===2 && !p.p.bundle2 && p.p.bundle3){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - 2곳 신청`,detail:`bundle3 단가 받으려면 1곳 더 필요`,camps:g.camps});
+    }
+    if(n===4||n===5){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - ${n}곳 (애매)`,detail:`bundle3는 3곳 단위. 1곳 빼거나 ${6-n}곳 더 추가 권장`,camps:g.camps});
+    }
+  }
+  // 강사 충돌
+  const slots = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket")continue;
+    const p = findProgram(e.program_name);
+    if(!p || p.i.startsWith("D_보트")||p.i.startsWith("D_유람선")||p.i.startsWith("D_자체"))continue;
+    const k = `${e.event_date}|${p.i}`;
+    if(!slots[k])slots[k]={date:e.event_date,inst:p.i,events:{}};
+    if(!slots[k].events[e.program_name])slots[k].events[e.program_name]=[];
+    slots[k].events[e.program_name].push(e.camp_name);
+  }
+  for(const s of Object.values(slots)){
+    const total = Object.values(s.events).reduce((a,b)=>a+b.length,0);
+    if(total>3){
+      const detail = Object.entries(s.events).map(([n,cs])=>`${n}: ${cs.length}곳`).join(", ");
+      issues.push({type:total>=6?"danger":"warn",date:s.date,title:`${s.date} ${s.inst.split("_")[1]||s.inst} 강사 ${total}곳 출장 ${total>=6?"불가능":"과부하"}`,detail});
+    }
+  }
+  for(const c of state.camps.map(x=>x.name)){
+    const t = campSpent(c);
+    if(t>BUDGET){
+      issues.push({type:"danger",date:"",title:`${c} 예산 초과`,detail:`사용 ${t.toLocaleString()}원 / 예산 ${BUDGET.toLocaleString()}원 (${(t-BUDGET).toLocaleString()}원 초과)`});
+    }
+  }
+  issues.sort((a,b)=>(a.date||"zzz").localeCompare(b.date||"zzz"));
+  return issues;
+}
+
+// ============================================================
+// 인증
+// ============================================================
+async function checkAuth(){
+  const {data:{session}} = await sb.auth.getSession();
+  if(!session){showLogin();return false}
+  state.user = session.user;
+
+  // members 테이블에서 역할 조회
+  const {data:m, error} = await sb.from('members').select('*').eq('user_id',session.user.id).maybeSingle();
+  if(error){console.warn('members lookup',error)}
+  state.member = m;
+  state.isAdmin = m && m.role === 'admin';
+
+  // 본인이 owner인 캠프 찾기
+  const {data:myCampRow} = await sb.from('camps').select('*').eq('member_id',session.user.id).maybeSingle();
+  state.myCamp = myCampRow ? myCampRow.name : null;
+
+  showApp();
+  return true;
+}
+
+async function login(email,pw){
+  const {error} = await sb.auth.signInWithPassword({email,password:pw});
+  if(error){$("#login-msg").textContent = "❌ " + error.message; return false}
+  await checkAuth();
+  await loadAll();
+  return true;
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  location.reload();
+}
+
+function showLogin(){
+  $("#screen-login").style.display = "block";
+  $("#screen-app").style.display = "none";
+}
+function showApp(){
+  $("#screen-login").style.display = "none";
+  $("#screen-app").style.display = "block";
+  const role = state.isAdmin ? '<span class="role-badge admin">관리자</span>' : (state.myCamp ? '<span class="role-badge">캠프 owner</span>' : '<span class="role-badge">회원</span>');
+  $("#user-info").innerHTML = `${state.user.email}${role}`;
+}
+
+// ============================================================
+// 데이터 로드
+// ============================================================
+async function loadCamps(){
+  const {data, error} = await sb.from('camps').select('*').order('group_name').order('id');
+  if(error){console.error(error); state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1,group_name:c.group,budget:BUDGET}));return}
+  state.camps = data;
+}
+async function loadEvents(){
+  const {data, error} = await sb.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
+  if(error){console.error(error); state.events = [];return}
+  state.events = data;
+}
+async function loadAll(){
+  await loadCamps();
+  await loadEvents();
+  // 초기 선택 캠프
+  if(!state.selectedCamp){
+    state.selectedCamp = state.myCamp || (state.camps[0]?.name);
+  }
+  renderAll();
+}
+
+// ============================================================
+// 실시간 동기화
+// ============================================================
+function setupRealtime(){
+  sb.channel('events-changes').on('postgres_changes',
+    {event:'*', schema:'public', table:'camp_events'},
+    (payload)=>{
+      console.log('실시간 변경',payload);
+      loadEvents().then(()=>{renderAll(); toast('🔄 다른 캠프가 일정을 업데이트했습니다')});
+    }
+  ).subscribe();
+}
+
+// ============================================================
+// 렌더
+// ============================================================
+function getCampGroup(name){
+  const c = state.camps.find(x=>x.name===name);
+  return c ? c.group_name || c.group : "";
+}
+
+function renderCampPicker(){
+  const sel = $("#camp-picker");
+  // 그룹별 그룹화
+  const grouped = {};
+  for(const c of state.camps){
+    const g = c.group_name || c.group || "기타";
+    if(!grouped[g])grouped[g]=[];
+    grouped[g].push(c);
+  }
+  sel.innerHTML = Object.entries(grouped).map(([g,cs])=>
+    `<optgroup label="${g}">${cs.map(c=>`<option value="${c.name}" ${c.name===state.selectedCamp?"selected":""}>${c.name}</option>`).join("")}</optgroup>`
+  ).join("");
+
+  // owner인 경우 캠프 변경 제한 (admin 제외)
+  if(state.myCamp && !state.isAdmin){
+    sel.value = state.myCamp;
+    sel.disabled = true;
+    $("#camp-locked-label").style.display = "block";
+  }else{
+    sel.disabled = false;
+    $("#camp-locked-label").style.display = "none";
+  }
+}
+
+function renderBudget(){
+  const c = state.selectedCamp;
+  if(!c){$("#bud-display").innerHTML='<div class="empty">캠프를 선택하세요</div>';return}
+  const spent = campSpent(c);
+  const remain = BUDGET - spent;
+  const pct = Math.min(100,Math.round(spent/BUDGET*100));
+  const cls = remain<0?"over":pct>=90?"warn":"ok";
+  $("#bud-display").innerHTML = `
+    <div class="bud-row">
+      <div class="bud-label">${c} (${getCampGroup(c)})</div>
+      <div class="bud-amount ${cls}">${won(remain)}</div>
+    </div>
+    <div class="bud-bar"><div class="bud-fill ${cls}" style="width:${pct}%"></div></div>
+    <div class="bud-stats"><span>사용 ${won(spent)}</span><span>예산 ${won(BUDGET)}</span></div>
+  `;
+}
+
+function canEdit(camp){
+  return state.isAdmin || state.myCamp === camp;
+}
+
+function renderMyEvents(){
+  const c = state.selectedCamp;
+  const myEvents = state.events.filter(e=>e.camp_name===c).sort((a,b)=>(a.event_date||"z").localeCompare(b.event_date||"z"));
+  if(myEvents.length===0){
+    $("#my-events").innerHTML = '<div class="empty">아직 일정이 없습니다<br>위의 "+ 새 행사 추가"로 시작하세요</div>';
+    return;
+  }
+  const editable = canEdit(c);
+  $("#my-events").innerHTML = myEvents.map(e=>{
+    let price=0, bundle="", status="ok", statusText="";
+    if(e.bundle_type==="ticket"){
+      price = ticketPrice(e.program_name,e.qty);
+      bundle = `${e.qty}매`;
+      statusText = "수시"; status="info";
+    }else{
+      const bs = bundleStatus(e.event_date,e.program_name);
+      const ap = autoPrice(e.program_name,bs.count);
+      price = ap.price;
+      bundle = ap.bundle==="bundle3"?"3묶음":ap.bundle==="bundle2"?"2묶음":ap.bundle==="bundle3-partial"?"2/3 부족":ap.bundle==="single"?"단독":"기타";
+      if(ap.warn){status="warn";statusText="단가 주의"}
+      else if(bs.count===3){status="ok";statusText=`${bs.count}곳 ✓`}
+      else if(bs.count%3===0 && bs.count>=3){status="ok";statusText=`${bs.count}곳`}
+      else if(bs.count===2 && findProgram(e.program_name)?.p.bundle2){status="ok";statusText=`2곳 ✓`}
+      else{status="warn";statusText=`${bs.count}곳`}
+    }
+    const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
+    const wkStr = e.event_date ? ["일","월","화","수","목","금","토"][new Date(e.event_date).getDay()] : "";
+    return `
+      <div class="my-event ${status==="warn"?"warn":""}">
+        <div class="me-date">${e.event_date?`<b>${dStr}</b>${wkStr}`:`📦 수시`}</div>
+        <div class="me-info">
+          <div class="me-name"><span class="badge b-${e.category}">${e.category}</span>${e.program_name}</div>
+          <div class="me-meta">${bundle} · ${won(price)}</div>
+        </div>
+        <div class="me-actions">
+          <span class="me-status s-${status}">${statusText}</span>
+          ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderCalendar(){
+  const byMonth = {};
+  const noDate = [];
+  for(const e of state.events){
+    if(!e.event_date){noDate.push(e);continue}
+    const m = e.event_date.slice(0,7);
+    if(!byMonth[m])byMonth[m]={};
+    if(!byMonth[m][e.event_date])byMonth[m][e.event_date]=[];
+    byMonth[m][e.event_date].push(e);
+  }
+  const months = Object.keys(byMonth).sort();
+  if(months.length===0 && noDate.length===0){$("#calendar").innerHTML='<div class="empty">일정 없음</div>';return}
+  let ndHTML = "";
+  if(noDate.length>0){
+    const grouped = {};
+    for(const e of noDate){
+      const k = `${e.program_name}|${e.category}`;
+      if(!grouped[k])grouped[k]={...e,camps:[],qtyTotal:0};
+      grouped[k].camps.push(e.camp_name);
+      grouped[k].qtyTotal += (e.qty||1);
+    }
+    ndHTML = `
+      <div class="month-h"><div style="font-size:16px;font-weight:800">📦 수시 / 연간</div></div>
+      <div class="day">
+        ${Object.values(grouped).map(g=>`
+          <div class="event e${g.category}">
+            <span class="badge b-${g.category}">${g.category}</span>
+            <div class="e-body">
+              <div class="e-title">${g.program_name}</div>
+              <div class="e-camps">${g.camps.length}곳 · ${g.qtyTotal}매</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+  $("#calendar").innerHTML = ndHTML + months.map(m=>{
+    const mn = parseInt(m.slice(5,7));
+    const dates = Object.keys(byMonth[m]).sort();
+    return `
+      <div class="month-h"><div class="month-num">${String(mn).padStart(2,"0")}</div><div class="month-info">${m}</div></div>
+      ${dates.map(d=>{
+        const evs = byMonth[m][d];
+        const dt = new Date(d);
+        const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+        const wkCls = dt.getDay()===0?"sun":dt.getDay()===6?"sat":"";
+        const grouped = {};
+        for(const e of evs){
+          const k = e.program_name; if(!grouped[k])grouped[k]={...e,camps:[]};
+          grouped[k].camps.push(e.camp_name);
+        }
+        return `
+          <div class="day">
+            <div class="day-head"><div class="d-num">${parseInt(d.slice(8,10))}</div><div class="d-week ${wkCls}">${wk}</div></div>
+            ${Object.values(grouped).map(g=>`
+              <div class="event e${g.category}">
+                <span class="badge b-${g.category}">${g.category}</span>
+                <div class="e-body">
+                  <div class="e-title">${g.program_name}</div>
+                  <div class="e-camps">${g.camps.length}곳: ${g.camps.join(", ")}</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }).join("")}
+    `;
+  }).join("");
+}
+
+function renderIssues(){
+  const issues = getIssues();
+  if(issues.length===0){$("#issues").innerHTML='<div class="empty">✅ 모든 일정이 정상입니다</div>';return}
+  $("#issues").innerHTML = issues.map(i=>`
+    <div class="issue ${i.type}">
+      <div class="issue-title">${i.title}</div>
+      <div>${i.detail}${i.camps?` · 캠프: ${i.camps.join(", ")}`:""}</div>
+    </div>
+  `).join("");
+}
+
+function renderAllCamps(){
+  $("#all-camps").innerHTML = state.camps.map(c=>{
+    const t = campSpent(c.name);
+    const remain = BUDGET - t;
+    const pct = Math.min(100,Math.round(t/BUDGET*100));
+    const cls = remain<0?"over":pct>=90?"warn":"ok";
+    const grp = c.group_name || c.group;
+    return `
+      <div class="sum-row">
+        <div>
+          <div class="sum-name"><span class="gd ${groupColor(grp)}"></span>${c.name}</div>
+          <div class="sum-mini">${grp}</div>
+        </div>
+        <div class="sum-amt">
+          <div>${won(t)}</div>
+          <div class="sum-mini" style="color:${remain<0?"var(--danger)":"var(--ok)"}">${remain<0?"초과":"잔액"} ${won(Math.abs(remain))}</div>
+        </div>
+        <div class="sum-bar"><div class="${cls}" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderAll(){
+  renderCampPicker();
+  renderBudget();
+  renderMyEvents();
+  renderCalendar();
+  renderIssues();
+  renderAllCamps();
+}
+
+function renderFormPreview(){
+  const date = $("#m-date").value;
+  const cat = formState.cat;
+  const name = $("#m-program").value;
+  const qty = parseInt($("#m-qty").value)||1;
+  const camp = state.selectedCamp;
+  if(!cat||!name){$("#m-preview").innerHTML="";$("#m-save").disabled=true;return}
+  const p = findProgram(name);
+  if(!p)return;
+  if(p.p.ticket){
+    const total = p.p.ticket * qty;
+    $("#m-preview").innerHTML = `<div class="preview ok"><div class="pv-title">📦 매수권</div><div>${name} × ${qty}매</div><div class="pv-price">${won(total)}</div></div>`;
+    $("#m-save").disabled = false;
+    return;
+  }
+  if(!date){$("#m-preview").innerHTML='<div class="preview warn">📅 날짜 선택</div>';$("#m-save").disabled=true;return}
+  const existing = state.events.filter(e=>e.event_date===date && e.program_name===name && e.bundle_type!=="ticket");
+  const otherCamps = existing.filter(e=>e.camp_name!==camp).map(e=>e.camp_name);
+  const alreadyMine = existing.some(e=>e.camp_name===camp);
+  if(alreadyMine){$("#m-preview").innerHTML='<div class="preview err">⚠️ 이미 추가됨</div>';$("#m-save").disabled=true;return}
+  const sameDayConflict = state.events.filter(e=>{
+    if(e.camp_name!==camp||e.event_date!==date||e.bundle_type==="ticket")return false;
+    const op = findProgram(e.program_name);
+    return op && op.i === p.i;
+  });
+  const newCount = existing.length + 1;
+  const ap = autoPrice(name,newCount);
+  const sameDayInst = state.events.filter(e=>e.event_date===date && e.bundle_type!=="ticket" && findProgram(e.program_name)?.i===p.i);
+  const instTotalAfter = new Set([...sameDayInst.map(e=>e.camp_name),camp]).size;
+  let cls="ok",msg="✅ 추가 가능";
+  if(instTotalAfter>5){cls="err";msg="🚨 강사 출장 불가능"}
+  else if(instTotalAfter>3){cls="warn";msg="⚠️ 강사 출장 부담"}
+  else if(ap.warn){cls="warn";msg="⚠️ "+ap.warn}
+  const matchInfo = otherCamps.length>0
+    ? otherCamps.map(c=>`<div class="match-item"><span class="gd ${groupColor(getCampGroup(c))}"></span>${c}</div>`).join("")
+    : '<div style="font-size:11px;color:var(--muted)">아직 다른 캠프 없음 (단독)</div>';
+  $("#m-preview").innerHTML = `
+    <div class="preview ${cls}">
+      <div class="pv-title">${msg}</div>
+      <div class="pv-row"><b>같은 행사 신청 (${otherCamps.length}곳):</b></div>
+      <div>${matchInfo}</div>
+      <div class="pv-row"><b>본인 추가시 묶음:</b> ${newCount}곳 (${ap.bundle})</div>
+      <div class="pv-row"><b>본인 부담:</b></div>
+      <div class="pv-price">${won(ap.price)}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:6px">예산 잔액: ${won(BUDGET-campSpent(camp))} → 추가 후 ${won(BUDGET-campSpent(camp)-ap.price)}</div>
+      <div class="pv-row" style="font-size:10px;color:var(--muted)">강사 ${p.i.split("_")[1]||p.i} · 이 날 ${instTotalAfter}곳 출장</div>
+    </div>
+  `;
+  $("#m-save").disabled = (cls==="err");
+}
+
+// ============================================================
+// 저장 (Supabase INSERT)
+// ============================================================
+async function saveEvent(){
+  const date = $("#m-date").value;
+  const name = $("#m-program").value;
+  const cat = formState.cat;
+  const qty = parseInt($("#m-qty").value)||1;
+  const p = findProgram(name);
+  if(!p){toast("프로그램 선택");return}
+
+  const isTicket = !!p.p.ticket;
+  const newEvent = {
+    camp_name: state.selectedCamp,
+    event_date: isTicket ? null : date,
+    category: cat,
+    program_name: name,
+    bundle_type: isTicket ? "ticket" : "auto",  // 자동 결정 (실제 단가는 클라이언트 계산)
+    qty: isTicket ? qty : 1,
+    created_by: state.user.id
+  };
+
+  const {error} = await sb.from('camp_events').insert(newEvent);
+  if(error){
+    if(error.code==="42501") toast("❌ 권한 없음 (본인 캠프만 가능)");
+    else toast("❌ 저장 실패: "+error.message);
+    console.error(error);
+    return;
+  }
+  $("#modal").style.display="none";
+  toast("✅ 추가 완료 (실시간 동기화 중)");
+  await loadEvents();
+  renderAll();
+}
+
+async function deleteEvent(id){
+  if(!confirm("이 일정을 삭제하시겠습니까?"))return;
+  const {error} = await sb.from('camp_events').delete().eq('id',id);
+  if(error){toast("❌ "+error.message);return}
+  toast("삭제됨");
+  await loadEvents();
+  renderAll();
+}
+
+// ============================================================
+// 이벤트 핸들러
+// ============================================================
+$("#btn-login").addEventListener("click",async()=>{
+  const e = $("#login-email").value.trim();
+  const p = $("#login-pw").value;
+  if(!e||!p){$("#login-msg").textContent="이메일과 비밀번호를 입력하세요";return}
+  $("#btn-login").disabled = true;
+  await login(e,p);
+  $("#btn-login").disabled = false;
+});
+$("#login-pw").addEventListener("keydown",e=>{if(e.key==="Enter")$("#btn-login").click()});
+$("#btn-logout").addEventListener("click",logout);
+
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  document.querySelectorAll(".tab-content").forEach(c=>c.style.display="none");
+  $("#tab-"+t.dataset.tab).style.display="block";
+}));
+
+$("#camp-picker").addEventListener("change",e=>{
+  state.selectedCamp = e.target.value;
+  renderBudget();
+  renderMyEvents();
+});
+
+$("#btn-add-event").addEventListener("click",()=>{
+  const camp = state.selectedCamp;
+  if(!canEdit(camp)){toast("❌ 본인 캠프만 추가 가능");return}
+  $("#m-camp-display").textContent = camp + " (" + getCampGroup(camp) + ")";
+  $("#modal").style.display = "flex";
+  formState.cat = "";
+  $("#m-date").value = "";
+  $("#m-program").innerHTML = '<option value="">먼저 카테고리 선택</option>';
+  document.querySelectorAll("#m-cat-pills .pill").forEach(p=>p.classList.remove("active"));
+  $("#m-qty-row").style.display = "none";
+  $("#m-preview").innerHTML = "";
+  $("#m-save").disabled = true;
+});
+$("#m-close").addEventListener("click",()=>$("#modal").style.display="none");
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")$("#modal").style.display="none"});
+
+document.querySelectorAll("#m-cat-pills .pill").forEach(p=>p.addEventListener("click",()=>{
+  document.querySelectorAll("#m-cat-pills .pill").forEach(x=>x.classList.remove("active"));
+  p.classList.add("active");
+  formState.cat = p.dataset.cat;
+  $("#m-program").innerHTML = '<option value="">프로그램 선택</option>'+
+    programs[formState.cat].map(pr=>`<option value="${pr.n}">${pr.n}</option>`).join("");
+  renderFormPreview();
+}));
+
+$("#m-program").addEventListener("change",()=>{
+  const p = findProgram($("#m-program").value);
+  $("#m-qty-row").style.display = (p && p.p.ticket) ? "block" : "none";
+  renderFormPreview();
+});
+$("#m-date").addEventListener("change",renderFormPreview);
+$("#m-qty").addEventListener("change",renderFormPreview);
+$("#m-save").addEventListener("click",saveEvent);
+
+$("#my-events").addEventListener("click",e=>{
+  const btn = e.target.closest(".me-btn.del");
+  if(!btn)return;
+  deleteEvent(parseInt(btn.dataset.id));
+});
+
+function toast(msg){
+  const t = document.createElement("div");
+  t.className="toast";t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
+}
+
+// 온라인/오프라인 감지
+window.addEventListener('online',()=>{
+  $("#online-status").classList.remove("h-offline");
+  $("#online-status").textContent = "온라인";
+});
+window.addEventListener('offline',()=>{
+  $("#online-status").classList.add("h-offline");
+  $("#online-status").textContent = "오프라인";
+});
+
+// 시작
+(async()=>{
+  if(SUPA_URL.includes("YOUR_") || SUPA_KEY.includes("YOUR_")){
+    document.body.innerHTML = '<div style="padding:20px;font-family:system-ui;text-align:center;color:#b91c1c"><h2>⚠️ 설정 필요</h2><p>HTML 상단의 <code>SUPA_URL</code>과 <code>SUPA_KEY</code>를 입력하세요</p></div>';
+    return;
+  }
+  const ok = await checkAuth();
+  if(오케이){
+    await loadAll();
+    setupRealtime();
+  }
+})();
+</script>
+
+</body>
+</html>
