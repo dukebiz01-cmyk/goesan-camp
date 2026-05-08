@@ -242,6 +242,38 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
   background:#dcfce7;padding:4px 8px;border-radius:6px;display:inline-block
 }
 
+/* 조편성 관리 */
+.ga-group-block{
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;background:#fafaf7
+}
+.ga-group-head{
+  display:flex;align-items:center;gap:6px;
+  font-weight:700;font-size:12px;margin-bottom:6px;
+  padding-bottom:5px;border-bottom:1px dashed var(--line)
+}
+.ga-group-name-input{
+  flex:1;padding:4px 8px;border:1px solid var(--line);border-radius:5px;
+  font-family:inherit;font-size:12px;font-weight:700;background:#fff
+}
+.ga-group-count{font-size:10px;color:var(--muted);font-weight:600}
+.ga-row{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px;
+  align-items:center;padding:5px 4px;font-size:12px
+}
+.ga-row + .ga-row{border-top:1px dashed rgba(0,0,0,0.05)}
+.ga-camp-name{font-weight:600}
+.ga-select{
+  padding:5px 8px;border:1px solid var(--line);border-radius:5px;
+  font-size:11px;background:#fff;font-family:inherit;min-width:90px
+}
+.ga-add-group-btn{
+  width:100%;padding:8px;background:#fff;border:1px dashed var(--line);
+  border-radius:6px;font-size:11px;color:var(--muted);font-weight:600;
+  cursor:pointer;font-family:inherit;margin-top:6px
+}
+.ga-add-group-btn:hover{background:#f4f4f0;border-color:#3b82f6;color:#3b82f6}
+
 .role-badge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.2);margin-left:4px}
 .role-badge.admin{background:#fbbf24;color:#78350f}
 
@@ -338,6 +370,12 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     <div class="card">
       <h2 style="font-size:13px">📊 통계 요약</h2>
       <div id="admin-stats"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🔧 조편성 관리</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">캠프의 조를 자유롭게 재배치 · 같은 조 이름끼리 자동으로 묶임</div>
+      <div id="admin-group-assignment"></div>
     </div>
 
     <div class="card">
@@ -1071,10 +1109,76 @@ async function renderAdmin(){
   // 활동 로그용 사용자 정보 로드
   await loadAdminData();
   renderAdminStats();
+  renderAdminGroupAssignment();
   renderAdminCategories();
   renderAdminCampActivity();
   renderAdminInstructorStats();
   renderAdminRecentActivity();
+}
+
+function renderAdminGroupAssignment(){
+  // 그룹별로 캠프 묶기
+  const groupMap = {};
+  for(const c of state.camps){
+    const g = c.group_name || "기타";
+    if(!groupMap[g]) groupMap[g] = [];
+    groupMap[g].push(c);
+  }
+  const groupList = Object.keys(groupMap).sort();
+  
+  // 다른 그룹으로 옮길 수 있는 옵션 목록
+  const allGroupOptions = groupList.map(g=>`<option value="${g}">${g}</option>`).join('');
+  
+  $("#admin-group-assignment").innerHTML = `
+    ${groupList.map(g=>{
+      const camps = groupMap[g];
+      return `
+        <div class="ga-group-block">
+          <div class="ga-group-head">
+            <span class="gd ${groupColor(g)}"></span>
+            <input class="ga-group-name-input" value="${g}" data-old="${g}">
+            <span class="ga-group-count">${camps.length}곳</span>
+          </div>
+          ${camps.map(c=>`
+            <div class="ga-row">
+              <span class="ga-camp-name">${c.name}</span>
+              <span style="font-size:10px;color:var(--muted)">${c.member_id?'✅ owner 매핑됨':'⚠️ owner 미매핑'}</span>
+              <select class="ga-select" data-camp="${c.name}">
+                ${allGroupOptions}
+                <option value="__new__">+ 새 조로 이동</option>
+              </select>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('')}
+    <button class="ga-add-group-btn" id="ga-add-group">+ 새 조 만들기</button>
+  `;
+  
+  // 현재 선택값 설정 (HTML에서 selected 안 먹는 경우 대비)
+  document.querySelectorAll('.ga-select').forEach(sel=>{
+    const camp = state.camps.find(c=>c.name===sel.dataset.camp);
+    if(camp) sel.value = camp.group_name;
+  });
+}
+
+async function changeCampGroup(campName, newGroup){
+  const {error} = await sb.from('camps').update({group_name: newGroup}).eq('name', campName);
+  if(error){toast('❌ '+error.message);return}
+  toast(`✅ ${campName} → ${newGroup}`);
+  await loadCamps();
+  renderAll();
+}
+
+async function renameGroup(oldName, newName){
+  if(oldName === newName) return;
+  if(!newName.trim()){toast('❌ 빈 이름 불가');renderAdminGroupAssignment();return}
+  // 같은 그룹의 모든 캠프 그룹명 변경
+  const {error} = await sb.from('camps').update({group_name: newName}).eq('group_name', oldName);
+  if(error){toast('❌ '+error.message);return}
+  toast(`✅ "${oldName}" → "${newName}"`);
+  await loadCamps();
+  renderAll();
 }
 
 const adminCache = {users: {}};
@@ -1425,7 +1529,61 @@ $("#btn-logout").addEventListener("click",logout);
 document.addEventListener("click",e=>{
   if(e.target.id==="btn-export-csv") exportCSV();
   if(e.target.id==="btn-export-summary") exportSummary();
+  if(e.target.id==="ga-add-group") addNewGroup();
 });
+
+// 조편성 변경
+document.addEventListener("change",e=>{
+  if(e.target.classList.contains("ga-select")){
+    const campName = e.target.dataset.camp;
+    let newGroup = e.target.value;
+    if(newGroup === "__new__"){
+      const name = prompt("새 조 이름을 입력하세요:", "새 조");
+      if(!name || !name.trim()){
+        // 원래 값으로 복원
+        const cur = state.camps.find(c=>c.name===campName);
+        if(cur) e.target.value = cur.group_name;
+        return;
+      }
+      newGroup = name.trim();
+    }
+    changeCampGroup(campName, newGroup);
+  }
+});
+
+// 조 이름 변경 (Enter 또는 blur 시)
+document.addEventListener("keydown",e=>{
+  if(e.target.classList.contains("ga-group-name-input") && e.key==="Enter"){
+    e.target.blur();
+  }
+});
+document.addEventListener("blur",e=>{
+  if(e.target.classList && e.target.classList.contains("ga-group-name-input")){
+    const oldName = e.target.dataset.old;
+    const newName = e.target.value.trim();
+    if(oldName && newName && oldName !== newName){
+      renameGroup(oldName, newName);
+    }
+  }
+}, true);
+
+async function addNewGroup(){
+  const name = prompt("새 조 이름:", "새 조");
+  if(!name || !name.trim()) return;
+  // 빈 그룹은 캠프가 없으면 표시 못 함. 첫 캠프를 옮겨야 함.
+  // 안내만 표시
+  toast(`💡 "${name.trim()}" 조 만들려면 캠프를 옮겨주세요`);
+  // 임시로 그룹 목록에 추가하기 위해 각 select에 옵션 추가
+  document.querySelectorAll('.ga-select').forEach(sel=>{
+    const opt = document.createElement('option');
+    opt.value = name.trim();
+    opt.textContent = name.trim();
+    // __new__ 앞에 삽입
+    const newOpt = sel.querySelector('option[value="__new__"]');
+    if(newOpt) sel.insertBefore(opt, newOpt);
+    else sel.appendChild(opt);
+  });
+}
 
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
