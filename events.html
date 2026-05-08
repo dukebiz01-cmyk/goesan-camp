@@ -400,10 +400,11 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
 
     <div class="card">
       <h2 style="font-size:13px">📥 데이터 내보내기</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <button class="btn btn-secondary" id="btn-export-csv" style="font-size:12px;padding:10px">📋 CSV 다운로드</button>
         <button class="btn btn-secondary" id="btn-export-summary" style="font-size:12px;padding:10px">📄 요약 텍스트</button>
       </div>
+      <button class="btn btn-primary" id="btn-report" style="font-size:13px;padding:12px;width:100%;background:#1f2937;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer">📧 관공서 보고서 작성/발송</button>
     </div>
   </div>
 
@@ -443,6 +444,47 @@ input:focus,select:focus{outline:none;border-color:#3b82f6}
     </div>
     <div id="m-preview"></div>
     <button class="btn btn-primary" id="m-save" style="margin-top:8px" disabled>행사 추가</button>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-bg" id="report-modal" style="display:none">
+  <div class="modal">
+    <h3>📧 관공서 보고서 작성 <button class="m-close" id="report-close">×</button></h3>
+    
+    <div style="background:#dbeafe;border-left:4px solid #3b82f6;padding:10px;border-radius:6px;font-size:11px;margin-bottom:12px;line-height:1.5">
+      <b>📌 사용 방법</b><br>
+      1. 받는 사람 이메일 입력<br>
+      2. 보고서 미리보기 확인 (필요시 수정)<br>
+      3. CSV 다운로드 (첨부용)<br>
+      4. "메일 열기" → 메일 앱이 자동 실행되면 첨부파일 추가 후 발송
+    </div>
+
+    <div class="form-row">
+      <label>📨 받는 사람 (이메일)</label>
+      <input type="email" id="report-email" placeholder="goesan@korea.kr">
+    </div>
+
+    <div class="form-row">
+      <label>📝 제목</label>
+      <input type="text" id="report-subject" value="2026년 괴산캠핑장협회 활성화 프로그램 운영계획">
+    </div>
+
+    <div class="form-row">
+      <label>📋 보고서 본문 (수정 가능)</label>
+      <textarea id="report-body" style="width:100%;min-height:280px;font-family:'Courier New',monospace;font-size:11px;padding:10px;border:1px solid var(--line);border-radius:8px;resize:vertical;background:#fafaf7"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button class="btn btn-secondary" id="report-copy" style="font-size:12px;padding:10px">📋 본문 복사</button>
+      <button class="btn btn-secondary" id="report-csv" style="font-size:12px;padding:10px">💾 CSV 첨부파일</button>
+    </div>
+    <button class="btn btn-primary" id="report-mail" style="background:#3b82f6;color:#fff">📧 메일 앱 열기</button>
+    
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5">
+      💡 메일 앱이 안 열리면 "본문 복사" 후 직접 붙여넣기<br>
+      💡 CSV 파일은 별도 첨부 (메일 본문에 자동 첨부 안 됨)
+    </div>
   </div>
 </div>
 
@@ -1416,6 +1458,183 @@ function exportSummary(){
   toast('📄 요약 다운로드 완료');
 }
 
+// ============================================================
+// 관공서 보고서 생성
+// ============================================================
+function generateReport(){
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}년 ${today.getMonth()+1}월 ${today.getDate()}일`;
+  const total = state.events.length;
+  const totalSpent = state.camps.reduce((s,c)=>s+campSpent(c.name), 0);
+  const totalBudget = state.camps.length * BUDGET;
+  const pct = Math.round(totalSpent/totalBudget*100);
+  
+  const lines = [];
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('   2026년 괴산캠핑장협회');
+  lines.push('   활성화 프로그램 운영계획');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push(`작성일: ${todayStr}`);
+  lines.push(`작성: 괴산캠핑장협회 사무국`);
+  lines.push('');
+  lines.push('■ 총괄');
+  lines.push(`  • 참여 캠핑장: ${state.camps.length}곳`);
+  lines.push(`  • 운영 행사: ${total}건`);
+  lines.push(`  • 총 편성액: ${totalSpent.toLocaleString()}원`);
+  lines.push(`  • 총 예산: ${totalBudget.toLocaleString()}원`);
+  lines.push(`  • 사용률: ${pct}%`);
+  lines.push('');
+  
+  // 카테고리별 통계
+  const cats = {A:0,B:0,C:0,D:0};
+  for(const e of state.events) cats[e.category] = (cats[e.category]||0)+1;
+  lines.push('■ 카테고리별 분포');
+  lines.push(`  • A 공연 : ${cats.A}건`);
+  lines.push(`  • B 먹거리: ${cats.B}건`);
+  lines.push(`  • C 체험 : ${cats.C}건`);
+  lines.push(`  • D 활동 : ${cats.D}건`);
+  lines.push('');
+  
+  // 강사별 출장
+  const inst = {};
+  for(const e of state.events){
+    if(e.bundle_type==='ticket') continue;
+    const p = findProgram(e.program_name);
+    if(!p) continue;
+    const cat = p.i.charAt(0);
+    const name = p.i.split('_')[1] || p.i;
+    const key = `${cat} ${name}`;
+    inst[key] = (inst[key] || 0) + 1;
+  }
+  if(Object.keys(inst).length > 0){
+    lines.push('■ 강사별 출장');
+    Object.entries(inst).sort((a,b)=>b[1]-a[1]).forEach(([k,n])=>{
+      lines.push(`  • ${k}: ${n}회`);
+    });
+    lines.push('');
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('   캠핑장별 상세 일정');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  
+  // 그룹별 캠프 정렬
+  const groupMap = {};
+  for(const c of state.camps){
+    const g = c.group_name || '기타';
+    if(!groupMap[g]) groupMap[g] = [];
+    groupMap[g].push(c);
+  }
+  
+  const groupKeys = Object.keys(groupMap).sort();
+  for(const group of groupKeys){
+    lines.push(`【 ${group} 】`);
+    lines.push('');
+    for(const camp of groupMap[group]){
+      const events = state.events.filter(e=>e.camp_name===camp.name)
+        .sort((a,b)=>(a.event_date||'z').localeCompare(b.event_date||'z'));
+      const spent = campSpent(camp.name);
+      const remain = BUDGET - spent;
+      lines.push(`◆ ${camp.name}`);
+      lines.push(`   편성: ${spent.toLocaleString()}원 / 예산: ${BUDGET.toLocaleString()}원 / 잔액: ${remain.toLocaleString()}원`);
+      if(events.length === 0){
+        lines.push(`   (일정 미편성)`);
+      } else {
+        for(const e of events){
+          const dStr = e.event_date ? e.event_date : '수시';
+          let price = 0, note = '';
+          if(e.bundle_type === 'ticket'){
+            price = ticketPrice(e.program_name, e.qty);
+            note = `${e.qty}매`;
+          } else {
+            const bs = bundleStatus(e.event_date, e.program_name);
+            price = autoPrice(e.program_name, bs.count).price;
+            const otherCamps = bs.camps.filter(cn=>cn!==camp.name);
+            if(bs.count >= 3){
+              note = `${bs.count}곳묶음`;
+            } else if(bs.count === 2){
+              note = `2곳`;
+            } else {
+              note = `단독`;
+            }
+            if(otherCamps.length > 0){
+              note += `(${otherCamps.join('·')})`;
+            }
+          }
+          lines.push(`   · ${dStr} [${e.category}] ${e.program_name} - ${note} ${price.toLocaleString()}원`);
+        }
+      }
+      lines.push('');
+    }
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  lines.push('이상 보고드립니다.');
+  lines.push('');
+  lines.push('괴산캠핑장협회 사무국');
+  lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  return lines.join('\n');
+}
+
+function openReportModal(){
+  if(!state.isAdmin){toast('관리자만 가능');return}
+  const report = generateReport();
+  $("#report-body").value = report;
+  $("#report-modal").style.display = "flex";
+}
+
+function copyReportBody(){
+  const ta = $("#report-body");
+  ta.select();
+  ta.setSelectionRange(0, 99999);
+  try{
+    navigator.clipboard.writeText(ta.value);
+    toast('📋 보고서 본문이 클립보드에 복사됨');
+  }catch(err){
+    document.execCommand('copy');
+    toast('📋 보고서 복사됨');
+  }
+}
+
+function sendReportMail(){
+  const email = $("#report-email").value.trim();
+  const subject = $("#report-subject").value.trim();
+  const body = $("#report-body").value;
+  
+  if(!email){
+    toast('❌ 받는 사람 이메일을 입력하세요');
+    $("#report-email").focus();
+    return;
+  }
+  
+  // 본문이 너무 길면 짧은 버전 사용
+  const today = new Date().toISOString().slice(0,10);
+  let mailBody = body;
+  
+  // mailto URL 인코딩 — 길이 제한 대응
+  const encoded = encodeURIComponent(mailBody);
+  if(encoded.length > 7000){
+    if(confirm('보고서가 길어서 메일 본문에 일부만 들어갑니다. CSV 파일을 먼저 다운로드해서 첨부하시겠습니까?')){
+      exportCSV();
+    }
+    // 짧은 버전 사용
+    mailBody = body.split('━━━').slice(0, 4).join('━━━') + '\n\n... (상세 내역은 첨부 CSV 파일 참조) ...\n\n괴산캠핑장협회 사무국';
+  }
+  
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`;
+  
+  // 새창에서 mailto 열기 (모바일/PC 호환)
+  const a = document.createElement('a');
+  a.href = mailto;
+  a.target = '_blank';
+  a.click();
+  
+  toast('📧 메일 앱이 열립니다 (안 열리면 본문 복사 사용)');
+}
+
 function renderFormPreview(){
   const date = $("#m-date").value;
   const cat = formState.cat;
@@ -1530,6 +1749,16 @@ document.addEventListener("click",e=>{
   if(e.target.id==="btn-export-csv") exportCSV();
   if(e.target.id==="btn-export-summary") exportSummary();
   if(e.target.id==="ga-add-group") addNewGroup();
+  if(e.target.id==="btn-report") openReportModal();
+  if(e.target.id==="report-close") $("#report-modal").style.display="none";
+  if(e.target.id==="report-copy") copyReportBody();
+  if(e.target.id==="report-csv") exportCSV();
+  if(e.target.id==="report-mail") sendReportMail();
+});
+
+// 보고서 모달 배경 클릭시 닫기
+document.addEventListener("click",e=>{
+  if(e.target.id==="report-modal") $("#report-modal").style.display="none";
 });
 
 // 조편성 변경
