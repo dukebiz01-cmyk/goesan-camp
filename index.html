@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.14-20260510-menu-event-info">
+<meta name="app-version" content="gca-v4.15-20260510-admin-delete">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -186,13 +186,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="toast" id="toast"></div>
 
 <!--
-GCA v4.14 MENU / EVENT / INFO
+GCA v4.15 ADMIN DELETE
 기준: v4.13 캠핑협회 클린 재시작
-방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조
+방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 관리자 삭제 기능
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.14 · 2026.05.10 · 메뉴/이벤트/정보 정리</div>
+<div class="version-mark" id="version-mark">GCA v4.15 · 2026.05.10 · 관리자 삭제 기능</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -203,7 +203,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.14 · 2026.05.10 · 메뉴/이벤트/정보 정리';
+const APP_VERSION='GCA v4.15 · 2026.05.10 · 관리자 삭제 기능';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -642,8 +642,16 @@ async function loadNotices(){
   ]);
   if(nr.error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(nr.error.message)+'</div>';return;}
   const rids=new Set((rr.data||[]).map(r=>r.notice_id));
+  const isAdmin=App.role==='admin';
   if(!nr.data.length){list.innerHTML='<div class="empty"><div class="emptyic">📋</div>공지가 없습니다</div>';return;}
-  list.innerHTML='<div class="card">'+nr.data.map(n=>'<div class="row '+(rids.has(n.id)?'':'unread')+(n.is_pinned?' pinned':'')+'" onclick="openNotice(\''+n.id+'\')"><div class="rdot '+(rids.has(n.id)?'read':'')+'"></div><div class="rmain"><div class="rt">'+(n.is_pinned?'📌 ':'')+esc(n.title)+'</div><div class="rm">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+'</div></div></div>').join('')+'</div>';
+  list.innerHTML='<div class="card">'+nr.data.map(n=>{
+    const id=jsq(n.id);
+    const read=rids.has(n.id);
+    return '<div class="row '+(read?'':'unread')+(n.is_pinned?' pinned':'')+'" onclick="openNotice(\''+id+'\')">'+
+      '<div class="rdot '+(read?'read':'')+'"></div><div class="rmain"><div class="rt">'+(n.is_pinned?'📌 ':'')+esc(n.title)+'</div><div class="rm">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+'</div></div>'+ 
+      (isAdmin?'<div style="display:flex;gap:6px;align-items:center;flex-shrink:0" onclick="event.stopPropagation()"><button class="btn br btn-sm" onclick="delNotice(\''+id+'\')">삭제</button></div>':'')+
+      '</div>';
+  }).join('')+'</div>';
 }
 async function openNotice(id){
   const {data:n}=await db.from('notices').select('*, members!notices_created_by_fkey(name)').eq('id',id).single();
@@ -667,13 +675,26 @@ async function submitNotice(){
   toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
 }
 async function delNotice(id){
-  if(!confirm('삭제하시겠습니까?'))return;
+  if(App.role!=='admin'){toast('관리자만 삭제할 수 있습니다');return;}
+  if(!confirm('이 공지를 삭제하시겠습니까?\n\n첨부 DB 기록과 읽음 기록도 함께 정리됩니다.'))return;
   load(true);
-  await db.from('attachments').delete().eq('target_type','notice').eq('target_id',id);
-  const {error}=await db.from('notices').delete().eq('id',id);
-  load(false);
-  if(error){toast('삭제 오류: '+error.message);return;}
-  closePan();toast('삭제되었습니다');loadNotices();loadBadges();
+  try{
+    let rpc=await db.rpc('delete_notice_admin_v4_15',{p_notice_id:id});
+    if(rpc.error){
+      console.warn('delete_notice_admin_v4_15 fallback:',rpc.error.message);
+      await db.from('notice_reads').delete().eq('notice_id',id);
+      await db.from('attachments').delete().eq('target_type','notice').eq('target_id',id);
+      const {error}=await db.from('notices').delete().eq('id',id);
+      if(error)throw error;
+    }
+    load(false);
+    closePan();toast('공지 삭제 완료');loadNotices();loadBadges();
+  }catch(e){
+    load(false);
+    console.error('delNotice error:',e);
+    toast('공지 삭제 오류');
+    alert('공지 삭제 오류\n\n'+(e.message||String(e))+'\n\nSQL v4.15 관리자 삭제 RPC 실행 여부와 RLS 정책을 확인하세요.');
+  }
 }
 
 async function loadMeetings(){
@@ -796,8 +817,33 @@ function renderP(p,mv={}){
     '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
     (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
     (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':blocked?'<div class="vdone">'+esc(blocked)+'</div>':'')+
-    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'&&p.vote_deadline?'<button class="btn bo btn-sm" onclick="clearVoteDeadline(\''+jsq(p.id)+'\')">⏱️ 마감 없음 전환</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
+    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'&&p.vote_deadline?'<button class="btn bo btn-sm" onclick="clearVoteDeadline(\''+jsq(p.id)+'\')">⏱️ 마감 없음 전환</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'<button class="btn br btn-sm" onclick="delProposal(\''+jsq(p.id)+'\')">🗑️ 삭제</button></div>':'')+'</div>';
 }
+
+async function delProposal(id){
+  if(App.role!=='admin'){toast('관리자만 삭제할 수 있습니다');return;}
+  if(!confirm('이 투표안을 삭제하시겠습니까?\n\n관련 투표 기록과 첨부 DB 기록도 함께 정리됩니다. 삭제 후 복구할 수 없습니다.'))return;
+  load(true);
+  try{
+    let rpc=await db.rpc('delete_budget_proposal_admin_v4_15',{p_proposal_id:id});
+    if(rpc.error){
+      console.warn('delete_budget_proposal_admin_v4_15 fallback:',rpc.error.message);
+      await db.from('votes').delete().eq('proposal_id',id);
+      await db.from('attachments').delete().eq('target_type','proposal').eq('target_id',id);
+      await db.from('attachments').delete().eq('proposal_id',id);
+      const {error}=await db.from('budget_proposals').delete().eq('id',id);
+      if(error)throw error;
+    }
+    load(false);
+    closePan();toast('투표안 삭제 완료');loadBudget();loadBadges();
+  }catch(e){
+    load(false);
+    console.error('delProposal error:',e);
+    toast('투표안 삭제 오류');
+    alert('투표안 삭제 오류\n\n'+(e.message||String(e))+'\n\nSQL v4.15 관리자 삭제 RPC 실행 여부와 RLS 정책을 확인하세요.');
+  }
+}
+
 async function castVote(pid,vote){
   if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
   if(!App.member.is_voter||App.role==='county'){toast('투표권이 없는 계정입니다');return;}
@@ -1010,7 +1056,7 @@ async function openProposal(id){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
     fileHtml='<div class="p-sec"><div class="p-sec-t">첨부 서류</div>'+rows.join('')+'</div>';
   }
-  showPan(vp.title||'예산안','<div class="p-meta">등록: '+esc(proposalAuthorName(vp)||'')+' · '+fd(vp.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(vp.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(vp.category||'항목 미지정')+'</span><span class="tag tgr">'+esc(vp.budget_source||'출처 미지정')+'</span><span class="tag '+(vp.approval_rule==='two_thirds'?'tr':'tg')+'">'+(vp.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(vp.description||'').replace(/\n/g,'<br>')+'</div>'+(vp.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[vp.status]||vp.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+yes+'</strong> · 반대 <strong>'+no+'</strong> · 참여 '+tot+' / '+(vp.total_voters||'?')+'<br>정족수 '+tot+' / '+(vp.quorum_count||'?')+' '+(tot>=(vp.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(vp.finalized_at?'<br>확정: '+fdt(vp.finalized_at):'')+(vp.final_result_text?'<br>결과: '+esc(vp.final_result_text):'')+'</div></div>':'')+fileHtml);
+  showPan(vp.title||'예산안','<div class="p-meta">등록: '+esc(proposalAuthorName(vp)||'')+' · '+fd(vp.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(vp.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(vp.category||'항목 미지정')+'</span><span class="tag tgr">'+esc(vp.budget_source||'출처 미지정')+'</span><span class="tag '+(vp.approval_rule==='two_thirds'?'tr':'tg')+'">'+(vp.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(vp.description||'').replace(/\n/g,'<br>')+'</div>'+(vp.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[vp.status]||vp.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+yes+'</strong> · 반대 <strong>'+no+'</strong> · 참여 '+tot+' / '+(vp.total_voters||'?')+'<br>정족수 '+tot+' / '+(vp.quorum_count||'?')+' '+(tot>=(vp.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(vp.finalized_at?'<br>확정: '+fdt(vp.finalized_at):'')+(vp.final_result_text?'<br>결과: '+esc(vp.final_result_text):'')+'</div></div>':'')+fileHtml+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delProposal(\''+jsq(id)+'\')">🗑️ 투표안 삭제</button></div>':''));
 }
 function isRelationshipError(err){
   const msg=String(err?.message||'');
