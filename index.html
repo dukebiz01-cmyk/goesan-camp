@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.6-20260509-check-constraint-fix">
+<meta name="app-version" content="gca-v4.7-20260509-deadline-input-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.6 · 2026.05.09 · 23514 제약조건 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.7 · 2026.05.09 · 마감입력 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.6 · 2026.05.09 · 23514 제약조건 안정화';
+const APP_VERSION='GCA v4.7 · 2026.05.09 · 마감입력 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -231,6 +231,62 @@ function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function jsq(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ')}
 function cleanText(s){return String(s??'').trim()}
 function validDate(d){return d instanceof Date&&!Number.isNaN(d.getTime())}
+function pad2(n){return String(n).padStart(2,'0')}
+function localDateTimeValue(d){
+  if(!validDate(d))return'';
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+'T'+pad2(d.getHours())+':'+pad2(d.getMinutes());
+}
+function makeLocalDateStrict(y,m,day,h=23,mi=59){
+  y=Number(y);m=Number(m);day=Number(day);h=Number(h);mi=Number(mi);
+  if(!Number.isInteger(y)||!Number.isInteger(m)||!Number.isInteger(day)||!Number.isInteger(h)||!Number.isInteger(mi))return null;
+  if(y<2020||y>2100||m<1||m>12||day<1||day>31||h<0||h>23||mi<0||mi>59)return null;
+  const d=new Date(y,m-1,day,h,mi,0,0);
+  if(d.getFullYear()!==y||d.getMonth()!==m-1||d.getDate()!==day||d.getHours()!==h||d.getMinutes()!==mi)return null;
+  return d;
+}
+function parseDeadlineInput(raw){
+  const original=String(raw||'').trim();
+  if(!original)return {ok:true,iso:null,label:'마감 없음'};
+  const normalized=original.replace(/\s+/g,'').toLowerCase();
+  if(['없음','마감없음','수동','수동마감','무','none','null','-'].includes(normalized))return {ok:true,iso:null,label:'마감 없음'};
+  let s=original.trim().replace(/오전/g,'AM').replace(/오후/g,'PM');
+  let meridiem=null;
+  if(/\bPM\b/i.test(s))meridiem='PM';
+  if(/\bAM\b/i.test(s))meridiem='AM';
+  s=s.replace(/\b(AM|PM)\b/ig,'').trim();
+  function hourFix(h){h=Number(h||0);if(meridiem==='PM'&&h<12)h+=12;if(meridiem==='AM'&&h===12)h=0;return h;}
+  let m=s.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})(?:[T\s]+(\d{1,2})(?::(\d{1,2}))?)?$/);
+  if(m){
+    const hasTime=typeof m[4]!=='undefined';
+    const d=makeLocalDateStrict(m[1],m[2],m[3],hasTime?hourFix(m[4]):23,hasTime?Number(m[5]||0):59);
+    if(!d)return {ok:false,message:'존재하지 않는 날짜입니다. 예: 2026-05-20 18:00'};
+    return {ok:true,iso:d.toISOString(),label:fdt(d.toISOString())};
+  }
+  m=s.match(/^(?:(\d{4})\s*년\s*)?(\d{1,2})\s*월\s*(\d{1,2})\s*일(?:\s*(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분?)?)?$/);
+  if(m){
+    const y=Number(m[1]||new Date().getFullYear());
+    const hasTime=typeof m[4]!=='undefined';
+    const d=makeLocalDateStrict(y,m[2],m[3],hasTime?hourFix(m[4]):23,hasTime?Number(m[5]||0):59);
+    if(!d)return {ok:false,message:'존재하지 않는 날짜입니다. 예: 5월20일 18시'};
+    return {ok:true,iso:d.toISOString(),label:fdt(d.toISOString())};
+  }
+  m=s.match(/^(\d{1,2})[-./](\d{1,2})(?:[T\s]+(\d{1,2})(?::(\d{1,2}))?)?$/);
+  if(m){
+    const y=new Date().getFullYear();
+    const hasTime=typeof m[3]!=='undefined';
+    const d=makeLocalDateStrict(y,m[1],m[2],hasTime?hourFix(m[3]):23,hasTime?Number(m[4]||0):59);
+    if(!d)return {ok:false,message:'존재하지 않는 날짜입니다. 예: 5-20 18:00'};
+    return {ok:true,iso:d.toISOString(),label:fdt(d.toISOString())};
+  }
+  return {ok:false,message:'마감일시 형식이 올바르지 않습니다. 예: 2026-05-20 18:00 / 2026-05-20T18:00 / 5월20일 18시 / 빈칸(마감 없음)'};
+}
+function updateStartVoteMode(){
+  const mode=v('sv-mode')||'none';
+  const wrap=g('sv-deadline-wrap');
+  if(wrap)wrap.style.display=mode==='deadline'?'block':'none';
+  const help=g('sv-deadline-help');
+  if(help)help.textContent=mode==='deadline'?'날짜 선택 또는 직접 입력 중 하나만 사용해도 됩니다.':'마감시간 없이 관리자 수동 마감으로 진행됩니다.';
+}
 function fd(iso){if(!iso)return'';const d=new Date(iso);if(!validDate(d))return'';return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
 function fdt(iso){if(!iso)return'';const d=new Date(iso);if(!validDate(d))return'';return fd(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function todayLocalDate(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
@@ -758,17 +814,35 @@ async function activeVoterCount(){
 }
 async function startVoting(id){
   if(App.role!=='admin'){toast('관리자만 투표를 시작할 수 있습니다');return;}
-  const dline=prompt('투표 마감일시 입력\n예: 2026-05-20T18:00\n빈칸으로 두면 마감시간 없이 수동 마감합니다.');
-  if(dline===null)return;
   const voterCount=await activeVoterCount();
   const defaultQuorum=Math.max(1,Math.ceil((voterCount||1)/2));
-  const quorum=prompt('정족수(최소 참여 회원 수)를 입력하세요',String(defaultQuorum));if(quorum===null)return;
-  const qn=parseInt(quorum,10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');return;}
+  const d=new Date(Date.now()+2*24*60*60*1000);d.setHours(18,0,0,0);
+  g('mo-body').innerHTML=`<div class="mot">🗳️ 투표 시작</div>
+    <input type="hidden" id="sv-id" value="${esc(id)}">
+    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">마감시간을 안 두려면 아래 설정을 그대로 두고 시작하세요. 날짜를 지정할 때는 선택창을 쓰면 형식 오류가 나지 않습니다.</div>
+    <div class="ff"><label>마감 방식</label><select id="sv-mode" onchange="updateStartVoteMode()"><option value="none" selected>마감 없음 · 관리자 수동 마감</option><option value="deadline">마감일시 지정</option></select><div id="sv-deadline-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">마감시간 없이 관리자 수동 마감으로 진행됩니다.</div></div>
+    <div class="ff" id="sv-deadline-wrap" style="display:none"><label>마감일시 선택</label><input type="datetime-local" id="sv-deadline" value="${localDateTimeValue(d)}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin:7px 0 5px;line-height:1.5">직접 입력도 가능: 2026-05-20 18:00 / 5월20일 18시</div><input type="text" id="sv-deadline-text" placeholder="직접 입력은 선택사항"></div>
+    <div class="ff"><label>정족수</label><input type="number" inputmode="numeric" id="sv-quorum" min="1" value="${defaultQuorum}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">현재 투표권 회원 ${voterCount}명 기준 기본값 ${defaultQuorum}명</div></div>
+    <div class="ff"><label>승인 기준</label><select id="sv-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div>
+    <div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitStartVoting()">투표 시작</button></div>`;
+  g('mover').classList.add('open');
+  updateStartVoteMode();
+}
+async function submitStartVoting(){
+  if(App.role!=='admin'){toast('관리자만 투표를 시작할 수 있습니다');return;}
+  const id=v('sv-id');if(!id){toast('예산안 ID를 찾지 못했습니다');return;}
+  const voterCount=await activeVoterCount();
+  const qn=parseInt(v('sv-quorum'),10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');const q=g('sv-quorum');if(q)q.focus();return;}
   let iso=null;
-  if(dline.trim()){
-    const dt=new Date(dline.trim());if(!validDate(dt)){toast('마감일시 형식이 올바르지 않습니다');return;}iso=dt.toISOString();
+  if((v('sv-mode')||'none')==='deadline'){
+    const manual=v('sv-deadline-text');
+    const raw=manual||v('sv-deadline');
+    const parsed=parseDeadlineInput(raw);
+    if(!parsed.ok){toast(parsed.message);alert(parsed.message);return;}
+    iso=parsed.iso;
+    if(iso&&new Date(iso)<=new Date(Date.now()+30000)){toast('마감일시는 현재 이후여야 합니다');alert('마감일시는 현재 이후로 지정하세요. 마감 없이 진행하려면 [마감 없음]을 선택하세요.');return;}
   }
-  const rule=confirm('2/3 이상 찬성이 필요하면 [확인], 과반이면 [취소]')?'two_thirds':'simple_majority';
+  const rule=(v('sv-rule')==='two_thirds')?'two_thirds':'simple_majority';
   const lock='start:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
   let {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
@@ -779,7 +853,7 @@ async function startVoting(id){
   }
   load(false);_actionLocks.delete(lock);
   if(error){const msg=budgetErrText(error);toast(msg.slice(0,120));alert('투표 시작 오류\n\n'+msg);return;}
-  toast('투표가 시작되었습니다 ✓');loadBudget();loadBadges();
+  toast('투표가 시작되었습니다 ✓');closeMo();loadBudget();loadBadges();
 }
 async function finalize(id){
   if(App.role!=='admin'){toast('관리자만 마감 처리할 수 있습니다');return;}
