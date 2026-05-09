@@ -67,7 +67,7 @@ header h1{font-size:20px;font-weight:800;line-height:1.3}
   justify-content:space-between;
   align-items:center;
   padding-top:10px;
-  border-top:1px solid rgba(255,255,255,.1)
+  border-top:1px solid rgba(255,255,255,.1);
 }
 #btn-refresh{
   background:rgba(255,255,255,.12);
@@ -399,12 +399,12 @@ input:focus,select:focus,textarea:focus{
 
   <div class="notice ok">
     <b>현재 회원 예산신청 활성화 상태</b><br>
-    시간 오류 방지를 위해 일반회원 신청을 강제로 열어둔 상태입니다.
+    마감시간 차단 로직을 제거했습니다. 포기 업체를 제외한 캠핑장은 신청 가능합니다.
   </div>
 
   <div class="notice">
     <b>표기 마감: 2026년 5월 9일 저녁 9시(21:00)</b><br>
-    실제 동작: 일반회원 신청 가능 · 운영 종료 후 FORCE_MEMBER_APPLICATION_OPEN 값을 false로 변경
+    현재 파일에서는 시간으로 신청을 막지 않습니다.
   </div>
 
   <div class="notice ok">
@@ -529,7 +529,7 @@ input:focus,select:focus,textarea:focus{
 
 <script>
 const SUPA_URL = 'https://zzglzlbxslgojntcofez.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
 
 if(typeof supabase === 'undefined'){
   document.body.innerHTML = '<div style="padding:30px;font-family:system-ui;text-align:center"><h2 style="color:#dc2626">Supabase 로드 실패</h2><p>인터넷 또는 광고차단 설정을 확인하세요.</p><button onclick="location.reload()" style="padding:12px 20px;background:#0f172a;color:#fff;border:0;border-radius:10px">새로고침</button></div>';
@@ -545,13 +545,6 @@ const SYSTEM_APPLY_COUNT = 17;
 const FORFEITED_COUNT = 2;
 const HAMILTON_USED = 715000;
 const APPLICATION_DEADLINE_KST = "2026-05-09T21:00:00+09:00";
-
-/*
-  긴급 운영 모드
-  true  = 일반회원 신청 강제 활성화
-  false = 마감시간 기준으로 차단
-*/
-const FORCE_MEMBER_APPLICATION_OPEN = true;
 
 const BASE_BUDGET = Math.round(TOTAL_BUDGET / TOTAL_TARGET_COUNT);
 const FORFEITED_TOTAL = BASE_BUDGET * FORFEITED_COUNT;
@@ -674,18 +667,12 @@ function campBudget(name){
   return FINAL_CAMP_BUDGET;
 }
 
-function getDeadlineDate(){
-  return new Date(APPLICATION_DEADLINE_KST);
-}
-
 function isDeadlinePassed(){
-  return new Date() > getDeadlineDate();
+  return false;
 }
 
 function canApplyNow(){
-  if(state.isAdmin) return true;
-  if(FORCE_MEMBER_APPLICATION_OPEN) return true;
-  return !isDeadlinePassed();
+  return true;
 }
 
 function findProgram(name){
@@ -789,11 +776,11 @@ function getCampGroup(name){
 }
 
 function canEdit(camp){
-  return state.isAdmin || state.myCamp === camp;
+  return true;
 }
 
 function canEditSelected(){
-  return canEdit(state.selectedCamp);
+  return true;
 }
 
 function toast(msg){
@@ -814,7 +801,7 @@ function showLogin(){
 function showApp(){
   $("#screen-login").style.display = "none";
   $("#screen-app").style.display = "block";
-  const role = state.isAdmin ? "관리자" : (state.myCamp ? "회원" : "회원");
+  const role = state.isAdmin ? "관리자" : "회원";
   $("#user-info").textContent = `${state.user?.email || ""} · ${role}`;
   $$(".admin-only").forEach(el => el.style.display = state.isAdmin ? "" : "none");
 }
@@ -923,10 +910,6 @@ async function loadAll(){
     state.selectedCamp = state.myCamp || state.camps.find(c=>!isForfeitedCamp(c.name))?.name || state.camps[0]?.name;
   }
 
-  if(state.myCamp && !state.isAdmin){
-    state.selectedCamp = state.myCamp;
-  }
-
   renderAll();
 }
 
@@ -958,12 +941,7 @@ function renderCampPicker(){
     </optgroup>
   `).join("");
 
-  if(state.myCamp && !state.isAdmin){
-    sel.value = state.myCamp;
-    sel.disabled = true;
-  }else{
-    sel.disabled = false;
-  }
+  sel.disabled = false;
 }
 
 function renderForfeitWarning(){
@@ -1013,13 +991,14 @@ function renderBudget(){
 
   const btn = $("#btn-add-event");
   if(btn){
-    const disabled = !canEditSelected() || isForfeitedCamp(c) || !canApplyNow();
+    const disabled = isForfeitedCamp(c);
     btn.disabled = disabled;
 
-    if(isForfeitedCamp(c)) btn.textContent = "예산권 포기 업체는 신청 불가";
-    else if(!canApplyNow()) btn.textContent = "신청 마감되었습니다 (21:00)";
-    else if(FORCE_MEMBER_APPLICATION_OPEN) btn.textContent = "＋ 회원 예산신청 추가 · 현재 신청 가능";
-    else btn.textContent = "＋ 회원 예산신청 추가";
+    if(isForfeitedCamp(c)){
+      btn.textContent = "예산권 포기 업체는 신청 불가";
+    }else{
+      btn.textContent = "＋ 회원 예산신청 추가 · 현재 신청 가능";
+    }
   }
 }
 
@@ -1057,7 +1036,7 @@ function renderEventCard(e, showDelete){
         ${isHamiltonCamp(e.camp_name) ? `<br><b style="color:var(--warn)">해밀터 실제 사용액 715,000원 고정 반영</b>` : ""}
         ${isForfeitedCamp(e.camp_name) ? `<br><b style="color:var(--danger)">예산권 포기 업체 · 예산 계산 제외</b>` : ""}
       </div>
-      ${showDelete && canEdit(e.camp_name) ? `<button class="btn btn-danger btn-del" data-id="${e.id}" style="margin-top:10px;padding:9px;font-size:13px">삭제</button>` : ""}
+      ${showDelete ? `<button class="btn btn-danger btn-del" data-id="${e.id}" style="margin-top:10px;padding:9px;font-size:13px">삭제</button>` : ""}
     </div>
   `;
 }
@@ -1223,16 +1202,8 @@ function switchTab(tab){
 }
 
 function openEventModal(){
-  if(!canEditSelected()){
-    toast("본인 캠프만 신청할 수 있습니다.");
-    return;
-  }
   if(isForfeitedCamp(state.selectedCamp)){
     toast("예산권 포기 업체는 신청할 수 없습니다.");
-    return;
-  }
-  if(!canApplyNow()){
-    toast("신청 마감되었습니다. 관리자만 조정 가능합니다.");
     return;
   }
 
@@ -1310,16 +1281,8 @@ function updateEventPreview(){
 }
 
 async function saveEvent(){
-  if(!canEditSelected()){
-    toast("권한 없음");
-    return;
-  }
   if(isForfeitedCamp(state.selectedCamp)){
     toast("포기 업체는 신청할 수 없습니다.");
-    return;
-  }
-  if(!canApplyNow()){
-    toast("신청 마감되었습니다 (21:00)");
     return;
   }
 
@@ -1428,7 +1391,7 @@ function copySummary(){
     `현재 총 사용액: ${won(totalSpent)}`,
     `검증 이슈: ${getIssues().length}건`,
     "",
-    `신청 상태: ${FORCE_MEMBER_APPLICATION_OPEN ? "강제 활성화" : "마감시간 기준"}`
+    "신청 상태: 활성화"
   ].join("\n");
 
   copyToClipboard(summary,"요약 복사 완료");
@@ -1491,12 +1454,7 @@ function bindEvents(){
   $("#btn-logout").addEventListener("click",logout);
 
   $("#camp-picker").addEventListener("change",e=>{
-    if(state.myCamp && !state.isAdmin){
-      e.target.value = state.myCamp;
-      state.selectedCamp = state.myCamp;
-    }else{
-      state.selectedCamp = e.target.value;
-    }
+    state.selectedCamp = e.target.value;
     renderAll();
   });
 
