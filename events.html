@@ -850,12 +850,14 @@ input:focus,select:focus{
 
 <!-- LOGIN -->
 <div id="screen-login">
+  <noscript><div style="background:#fef2f2;border:2px solid #dc2626;color:#dc2626;padding:16px;border-radius:12px;margin-bottom:12px;text-align:center;font-weight:700">⚠️ JavaScript가 비활성화되어 있습니다.<br>브라우저 설정에서 JavaScript를 활성화해주세요.</div></noscript>
+  <div id="js-fallback" style="background:#fef2f2;border:2px solid #dc2626;color:#dc2626;padding:16px;border-radius:12px;margin-bottom:12px;text-align:center;font-weight:700;display:block">⚠️ JavaScript 로딩 중... 5초 이상 이 메시지가 보이면 페이지 새로고침 (캐시 비우기 권장)</div>
   <div class="login-card">
     <h2>🏕 협회 로그인</h2>
     <p>등록된 협회 회원만 사용 가능</p>
     <input type="email" id="login-email" placeholder="이메일">
     <input type="password" id="login-pw" placeholder="비밀번호">
-    <button class="btn btn-primary" id="btn-login" style="margin-top:8px">로그인</button>
+    <button class="btn btn-primary" id="btn-login" onclick="window.doLogin&&window.doLogin()" style="margin-top:8px">로그인</button>
     <div id="login-msg" style="margin-top:10px;font-size:12px;color:var(--danger)"></div>
     <div id="diag-status" style="margin-top:14px;padding:8px;background:#f0fdf4;border:1px solid #86efac;border-radius:6px;font-size:10px;color:#166534;text-align:left;font-family:monospace;line-height:1.5"></div>
   </div>
@@ -1131,6 +1133,18 @@ input:focus,select:focus{
 // ============================================================
 const SUPA_URL = 'https://zzglzlbxslgojntcofez.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
+
+// JS 실행 즉시 fallback 박스 숨기기 (가장 먼저)
+try{
+  const fb = document.getElementById('js-fallback');
+  if(fb) fb.style.display = 'none';
+} catch(e){}
+
+// Supabase CDN 로드 확인
+if(typeof supabase === 'undefined'){
+  document.body.innerHTML = '<div style="padding:30px;font-family:system-ui;text-align:center"><h2 style="color:#dc2626">❌ Supabase 라이브러리 로드 실패</h2><p style="margin-top:14px;color:#64748b">네트워크 연결을 확인하세요.<br>또는 광고 차단 앱이 차단했을 수 있습니다.</p><button onclick="location.reload()" style="margin-top:18px;padding:12px 24px;background:#0f172a;color:#fff;border:0;border-radius:10px;font-size:14px;cursor:pointer">🔄 다시 시도</button></div>';
+  throw new Error('Supabase not loaded');
+}
 
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
@@ -2818,34 +2832,4 @@ function renderAdminCampActivity(){
   $("#admin-camp-activity").innerHTML = `
     <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">🏆 활성 TOP 5</div>
     ${top5.map((s,i)=>`
-      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:6px;border-bottom:1px dashed var(--line);font-size:12px;align-items:center">
-        <span style="font-weight:700;color:${i===0?'#d97706':'#6b6b63'}">#${i+1}</span>
-        <div>
-          <div style="font-weight:600">${s.name}</div>
-          <div style="font-size:10px;color:var(--muted)">${s.group} · ${s.events}건</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:11px;font-weight:700">${s.pct}%</div>
-          <div style="font-size:9px;color:var(--muted)">${(s.spent/10000).toFixed(0)}만원</div>
-        </div>
-      </div>
-    `).join('')}
-    ${inactive.length>0?`
-      <div style="margin-top:12px;padding:8px;background:#fef3c7;border-radius:6px;font-size:11px;color:#78350f">
-        ⚠️ 미참여 캠프 ${inactive.length}곳: ${inactive.map(s=>s.name).join(', ')}
-      </div>
-    `:''}
-  `;
-}
-
-function renderAdminInstructorStats(){
-  const inst = {};
-  for(const e of state.events){
-    if(e.bundle_type==='ticket') continue;
-    const p = findProgram(e.program_name);
-    if(!p) continue;
-    const key = p.i.replace('_',' ').replace(/^(A|B|C|D) /,'$1: ');
-    inst[key] = (inst[key]||0) + 1;
-  }
-  const sorted = Object.entries(inst).sort((a,b)=>b[1]-a[1]);
-  if(sorted.length===0){$("#admin-instructor-stat
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:6px;border-bottom:1px dashed 
