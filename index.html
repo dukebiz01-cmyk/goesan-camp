@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.9-20260509-deadline-repair">
+<meta name="app-version" content="gca-v4.11-20260509-p0001-nuclear-repair">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.10 · 2026.05.09 · 수동마감 전환</div>
+<div class="version-mark" id="version-mark">GCA v4.11 · 2026.05.09 · P0001 강제정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.10 · 2026.05.09 · 수동마감 전환';
+const APP_VERSION='GCA v4.11 · 2026.05.09 · P0001 강제정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -755,7 +755,7 @@ function voteBlockedReason(p,myv,hasDeadline,deadline){
   if(p.status!=='voting')return '';
   if(App.role==='county')return '군청 계정은 투표권이 없습니다';
   if(!App.member?.is_voter)return '투표권이 없는 계정입니다';
-  // v4.10: 투표 마감은 시간 기준이 아니라 관리자 수동 마감(status 변경) 기준으로만 판단합니다.
+  // v4.11: 투표 마감은 시간 기준이 아니라 관리자 수동 마감(status 변경) 기준으로만 판단합니다.
   return '';
 }
 function renderP(p,mv={}){
@@ -789,7 +789,11 @@ async function castVote(pid,vote){
     await refreshMemberLinkForVote();
     let error=null;
     let data=null;
-    let r=await db.rpc('cast_budget_vote_v4_10',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    let r=await db.rpc('cast_budget_vote_v4_11',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    if(r.error&&isRpcFallbackable(r.error)){
+      console.warn('cast_budget_vote_v4_11 fallback to cast_budget_vote_v4_10:',r.error.message);
+      r=await db.rpc('cast_budget_vote_v4_10',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    }
     if(r.error&&isRpcFallbackable(r.error)){
       console.warn('cast_budget_vote_v4_10 fallback to cast_budget_vote_v4_9:',r.error.message);
       r=await db.rpc('cast_budget_vote_v4_9',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
@@ -822,7 +826,7 @@ async function votePreflight(pid){
   if(error)return {ok:false,message:'예산안 확인 실패: '+budgetErrText(error)};
   if(!p)return {ok:false,message:'예산안을 찾을 수 없습니다.'};
   if(p.status!=='voting')return {ok:false,message:'현재 투표 중인 안건이 아닙니다. 현재 상태: '+(budgetStatusMaps().stM[p.status]||p.status||'알 수 없음')};
-  // v4.10: vote_deadline 값이 과거로 남아 있어도 회원 투표를 막지 않습니다.
+  // v4.11: vote_deadline 값이 과거로 남아 있어도 회원 투표를 막지 않습니다.
   // 실제 마감은 관리자가 [마감 처리]를 눌러 status를 바꾸는 방식으로만 처리합니다.
   const my=await loadMyVotes([pid]);
   if(my?.[pid])return {ok:false,message:'이미 이 안건에 투표했습니다. 투표는 1회만 가능합니다.'};
@@ -874,7 +878,7 @@ async function startVoting(id){
   const d=new Date(Date.now()+2*24*60*60*1000);d.setHours(18,0,0,0);
   g('mo-body').innerHTML=`<div class="mot">🗳️ 투표 시작</div>
     <input type="hidden" id="sv-id" value="${esc(id)}">
-    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">v4.10부터 투표는 마감시간 없이 관리자 수동 마감으로만 진행됩니다. 기존 과거 마감값은 SQL에서 자동 해제됩니다.</div>
+    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">v4.11부터 예전 투표 RPC/정책을 강제 정리하고, 투표는 관리자 수동 마감으로만 진행됩니다.</div>
     <div class="ff"><label>마감 방식</label><select id="sv-mode" onchange="updateStartVoteMode()"><option value="none" selected>마감 없음 · 관리자 수동 마감</option></select><div id="sv-deadline-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">마감시간 없이 관리자 수동 마감으로 진행됩니다.</div></div>
     <div class="ff" id="sv-deadline-wrap" style="display:none"><label>마감일시 선택</label><input type="datetime-local" id="sv-deadline" value="${localDateTimeValue(d)}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin:7px 0 5px;line-height:1.5">직접 입력도 가능: 2026-05-20 18:00 / 5월20일 18시</div><input type="text" id="sv-deadline-text" placeholder="직접 입력은 선택사항"></div>
     <div class="ff"><label>정족수</label><input type="number" inputmode="numeric" id="sv-quorum" min="1" value="${defaultQuorum}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">현재 투표권 회원 ${voterCount}명 기준 기본값 ${defaultQuorum}명</div></div>
@@ -975,7 +979,7 @@ async function openProposal(id){
     q2.data.forEach(f=>{if(!seen.has(f.id)){files.push(f);seen.add(f.id);}});
   }
   const yes=Number(vp.vote_yes)||0,no=Number(vp.vote_no)||0,tot=yes+no;const {stM}=budgetStatusMaps();
-  const deadlineText='마감 없음 · 관리자 수동마감';
+  const deadlineText=vp.vote_deadline?fdt(vp.vote_deadline):'마감 없음 · 관리자 수동마감';
   let fileHtml='';
   if(files?.length){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
@@ -997,7 +1001,7 @@ function isPolicyError(err){
 }
 function isRpcFallbackable(err){
   const msg=String(err?.message||'')+' '+String(err?.details||'')+' '+String(err?.hint||'');
-  return err?.code==='PGRST202'||err?.code==='P0001'||/Could not find the function|function .* does not exist|schema cache|No function matches|Could not choose the best candidate function|투표마감|마감시간|deadline/i.test(msg);
+  return err?.code==='PGRST202'||err?.code==='P0001'||/Could not find the function|function .* does not exist|schema cache|No function matches|Could not choose the best candidate function|투표마감|마감시간|deadline|P0001/i.test(msg);
 }
 function isDuplicateVoteError(err){
   const msg=String(err?.message||'')+' '+String(err?.details||'');
@@ -1022,8 +1026,7 @@ function stripRiskyBudgetColumnsForCheck(payload){
 function budgetErrText(err){
   if(!err)return '알 수 없는 오류';
   const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
-  if(/마감|deadline|closed/i.test(detail))return '투표마감시간 오류입니다. v4.10 SQL을 먼저 실행해 마감시간 검사를 제거하고, HTML도 v4.10으로 교체하세요. 원문: '+detail;
-  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. v4.10 SQL을 실행해야 합니다. 원문: '+detail;
+  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. budget_registration_repair_v4_4.sql을 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
   if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 예산안 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
@@ -1036,7 +1039,7 @@ function voteErrorText(err){
   if(/회원 정보를 찾을 수 없습니다|member.*not found|current_member/i.test(detail))return '회원 매칭 오류입니다. 로그인 계정과 members.email 또는 members.user_id 연결이 맞지 않습니다. vote_cast_repair_v4_8.sql을 먼저 실행하고 다시 로그인하세요. 원문: '+detail;
   if(/투표권이 없는|not.*voter|county/i.test(detail))return '투표권이 없는 계정입니다. members.is_voter=true, role=member/admin인지 확인하세요. 원문: '+detail;
   if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 예산안을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
-  if(/마감|deadline|closed/i.test(detail))return '투표마감시간 오류입니다. v4.10 SQL을 먼저 실행해 마감시간 검사를 제거하고, HTML도 v4.10으로 교체하세요. 원문: '+detail;
+  if(/P0001|마감|deadline|closed/i.test(detail))return 'P0001/투표마감 잔존 오류입니다. v4.11 SQL을 실행해 예전 투표 RPC·정책·마감 트리거를 강제 삭제 후 재생성하고, HTML도 v4.11로 교체하세요. 원문: '+detail;
   return budgetErrText(err);
 }
 function stripUnknownBudgetColumns(payload,err){
