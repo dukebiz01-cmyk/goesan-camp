@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.15-20260510-admin-delete">
+<meta name="app-version" content="gca-v4.16-20260510-refresh-session">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -186,13 +186,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="toast" id="toast"></div>
 
 <!--
-GCA v4.15 ADMIN DELETE
+GCA v4.16 REFRESH SESSION FIX
 기준: v4.13 캠핑협회 클린 재시작
-방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 관리자 삭제 기능
+방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 관리자 삭제 기능 + 새로고침 세션 유지
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.15 · 2026.05.10 · 관리자 삭제 기능</div>
+<div class="version-mark" id="version-mark">GCA v4.16 · 2026.05.10 · 새로고침 세션 유지</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -203,7 +203,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.15 · 2026.05.10 · 관리자 삭제 기능';
+const APP_VERSION='GCA v4.16 · 2026.05.10 · 새로고침 세션 유지';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -525,9 +525,14 @@ async function logout(){
   if(!confirm('로그아웃 하시겠습니까?')) return;
   load(true);
   try{
-    const {error}=await db.auth.signOut({scope:'local'});
-    if(error){
-      console.warn('signOut error:', error.message);
+    const signoutPromise=db.auth.signOut({scope:'local'});
+    const timeoutPromise=new Promise(resolve=>setTimeout(()=>resolve({timeout:true}),2500));
+    const result=await Promise.race([signoutPromise,timeoutPromise]);
+    if(result?.timeout){
+      console.warn('signOut timeout: local session will be cleared manually');
+      clearLocalSupabaseSession();
+    }else if(result?.error){
+      console.warn('signOut error:', result.error.message);
       clearLocalSupabaseSession();
     }
   }catch(e){
@@ -582,34 +587,38 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{localStorage.removeItem('gca_mc');}catch(e){}
   if(g('kk-oc'))g('kk-oc').href=KK_OC;if(g('kk-ch'))g('kk-ch').href=KK_CH;
 
-  const mayProcessOAuthReturn=hasFreshOAuthIntent()||isOAuthReturnUrl();
   try{
-    if(mayProcessOAuthReturn){
-      const {data:{session}}=await db.auth.getSession();
-      clearManualOAuthIntent();
-      if(session){
-        const ok=await loadMember(session.user);
-        if(ok)showApp();
-        else await forceManualLoginScreen();
-      }else showLogin();
+    const {data:{session}}=await db.auth.getSession();
+    if(isOAuthReturnUrl())clearManualOAuthIntent();
+    if(session?.user){
+      const ok=await loadMember(session.user);
+      if(ok)showApp();
+      else showLogin();
     }else{
-      /* 보안 정책: 페이지 진입 시 저장된 Supabase 세션을 자동 사용하지 않는다. */
-      await forceManualLoginScreen();
+      clearManualOAuthIntent();
+      showLogin();
     }
-  }catch(e){console.error('session boot error',e);await forceManualLoginScreen();}
+  }catch(e){
+    console.error('session boot error',e);
+    showLogin();
+  }
 
   _authBootDone=true;
   db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session){
+    if(ev==='SIGNED_IN'&&session?.user){
       if(!_authBootDone)return;
-      if(!_manualLoginInProgress&&!App.user){
-        await forceManualLoginScreen();
-        return;
+      try{
+        const ok=await loadMember(session.user);
+        if(ok)showApp();
+        else showLogin();
+      }catch(e){
+        console.error('auth error',e);
+        showLogin();
       }
-      try{const ok=await loadMember(session.user);if(ok)showApp();else await forceManualLoginScreen();}catch(e){console.error('auth error',e);await forceManualLoginScreen();}
     }else if(ev==='SIGNED_OUT'){
       clearManualOAuthIntent();
-      Object.assign(App,{user:null,member:null,role:null});showLogin();
+      Object.assign(App,{user:null,member:null,role:null});
+      showLogin();
     }
   });
 });
