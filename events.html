@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- VERSION: member-budget-application-active-until-17 -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -868,7 +869,7 @@ input:focus,select:focus{
     <div id="recruitment-banner" style="display:none"></div>
     
     <div class="bud-card" id="bud-display"></div>
-    <button class="btn-add" id="btn-add-event">＋ 새 행사 추가</button>
+    <button class="btn-add" id="btn-add-event">＋ 회원 예산신청 추가</button>
     
     <div class="card" id="join-opportunities-card" style="display:none">
       <h2 style="font-size:14px;display:flex;align-items:center;gap:6px">
@@ -1155,7 +1156,7 @@ const TOTAL_CAMP_COUNT = 21;
 const SEPARATE_APPLICATION_COUNT = 3;
 const EVENT_PAGE_CAMP_COUNT = 18;
 const FORFEITED_CAMP_NAME = "아빠의나무";
-const APPLICATION_DEADLINE_KST = "2026-05-09T14:00:00+09:00"; // 신청 마감: 2026-05-09 14:00 KST
+const APPLICATION_DEADLINE_KST = "2026-05-09T17:00:00+09:00"; // 신청 마감: 2026-05-09 17:00 KST — 일반회원 예산신청 활성화
 
 const BASE_BUDGET = Math.round(TOTAL_PROJECT_BUDGET / TOTAL_CAMP_COUNT);       // 4,761,905원
 const FORFEITED_BUDGET = BASE_BUDGET;                                          // 아빠의나무 포기분
@@ -1279,7 +1280,7 @@ function budgetPct(spent, limit){
   return limit > 0 ? Math.min(100, Math.round(spent / limit * 100)) : 0;
 }
 function applicationDeadlineText(){
-  return '2026년 5월 9일 14:00';
+  return '2026년 5월 9일 17:00';
 }
 function isApplicationClosed(){
   const t = new Date(APPLICATION_DEADLINE_KST).getTime();
@@ -1295,7 +1296,7 @@ function budgetRedistributionHtml(){
     신청 마감: <b>${applicationDeadlineText()}</b> · ${FORFEITED_CAMP_NAME} 신청/예산 제외<br>
     기준: 총 ${won(TOTAL_PROJECT_BUDGET)} ÷ ${TOTAL_CAMP_COUNT}곳 = <b>${won(BASE_BUDGET)}</b><br>
     포기분 ${won(FORFEITED_BUDGET)} ÷ ${TOTAL_CAMP_COUNT}곳 = <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b>/곳<br>
-    이 페이지 이용 캠핑장은 <b>${budgetBreakdownText('가자우리집')}</b> 한도로 신청합니다.
+    ${SEPARATE_APPLICATION_COUNT}곳은 별도 신청, 이벤트 페이지 이용 ${EVENT_PAGE_CAMP_COUNT}곳은 <b>${budgetBreakdownText('가자우리집')}</b> 한도로 신청합니다.
   `;
 }
 function renderBudgetNotices(){
@@ -1313,9 +1314,10 @@ function renderDeadlineBudgetBanner(){
   el.style.display = 'block';
   el.innerHTML = `
     <div style="background:${closed?'#fef2f2':'#eff6ff'};border:1px solid ${closed?'#fecaca':'#bfdbfe'};border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:${closed?'#991b1b':'#1e40af'};line-height:1.6">
-      ⏰ <b>신청 마감 ${applicationDeadlineText()}</b> ${closed?'· 마감됨':'· 진행 중'}<br>
+      ⏰ <b>신청 마감 ${applicationDeadlineText()}</b> ${closed?'· 마감됨':'· 일반회원 예산신청 활성화'}<br>
+      ✅ 일반회원은 <b>17:00까지 추가 신청 가능</b> · 관리자만 17:00 이후 조정 가능<br>
       💰 적용 예산: 기준 ${won(BASE_BUDGET)} + <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b> = ${won(BUDGET)} / 캠프<br>
-      <span style="color:#64748b">${FORFEITED_CAMP_NAME} 예산권 포기분을 21곳 기준으로 재분배했습니다.</span>
+      <span style="color:#64748b">${FORFEITED_CAMP_NAME} 예산권 포기분을 21곳 기준으로 쪼개고, 이 이벤트 페이지 이용 ${EVENT_PAGE_CAMP_COUNT}곳에는 추가금으로 표시합니다.</span>
     </div>
   `;
 }
@@ -1326,7 +1328,7 @@ function syncAddButtonState(){
   const closed = isApplicationClosed() && !state.isAdmin;
   const allowed = canEdit(state.selectedCamp);
   btn.disabled = !allowed;
-  btn.textContent = forfeited ? '예산권 포기 — 신청 불가' : closed ? '신청 마감 — 관리자만 가능' : '＋ 새 행사 추가';
+  btn.textContent = forfeited ? '예산권 포기 — 신청 불가' : closed ? '신청 마감 — 관리자만 가능' : '＋ 회원 예산신청 추가';
 }
 
 // ============================================================
@@ -1770,7 +1772,7 @@ function renderBudget(){
   `;
   if(addBtn){
     addBtn.disabled = !canEdit(c);
-    addBtn.textContent = isApplicationClosed() && !state.isAdmin ? '신청 마감 — 관리자만 가능' : '＋ 새 행사 추가';
+    addBtn.textContent = isApplicationClosed() && !state.isAdmin ? '신청 마감 — 관리자만 가능' : '＋ 회원 예산신청 추가';
   }
 }
 
@@ -2784,7 +2786,7 @@ function copyLoginInfoKakao(){
   lines.push('');
   lines.push('📋 사용법');
   lines.push('1. 본인 캠프 자동 선택됨');
-  lines.push('2. 잔액 4,347,000원에서 시작');
+  lines.push(`2. 잔액 ${won(BUDGET)}에서 시작`);
   lines.push('3. "+ 새 행사 추가" 클릭');
   lines.push('4. 카테고리 → 프로그램 → 날짜 선택');
   lines.push('5. 같은 날 같은 행사 신청한 다른 캠프와 자동 묶음 (할인 적용)');
@@ -3095,7 +3097,7 @@ function renderProgramOptions(selectedName=''){
 function openEventModal(prefill={}){
   if(!state.selectedCamp){toast('캠프를 먼저 선택하세요');return;}
   if(isForfeitedCampName(state.selectedCamp)){toast('❌ 아빠의나무는 예산권 포기로 신청할 수 없습니다');return;}
-  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (14:00)');return;}
+  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   formState = {cat: prefill.cat || ''};
@@ -3279,7 +3281,7 @@ async function saveEvent(){
   if(!p){toast('프로그램을 선택하세요');return;}
   if(!state.selectedCamp){toast('캠프를 선택하세요');return;}
   if(isForfeitedCampName(state.selectedCamp)){toast('❌ 아빠의나무는 예산권 포기로 신청할 수 없습니다');return;}
-  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (14:00)');return;}
+  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   const isTicket = !!p.p.ticket;
