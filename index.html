@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-member-fix-v3-20260509">
+<meta name="app-version" content="gca-member-hardening-v4-20260509">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -48,7 +48,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-font-smoothing:antialiased}
 body{font-family:var(--fd);background:radial-gradient(circle at top right,rgba(24,92,66,.06),transparent 22%),var(--cream);color:var(--ch);min-height:100vh;line-height:1.85;word-break:keep-all}
-button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed;transform:none!important}a{text-decoration:none;color:inherit}
 .lovo{position:fixed;inset:0;background:rgba(245,247,241,.82);backdrop-filter:blur(12px);z-index:600;display:none;align-items:center;justify-content:center}.lovo.show{display:flex}
 .spin{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(18,18,18,.88);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:500;opacity:0;transition:all .25s;white-space:nowrap;max-width:90vw;text-align:center;font-weight:700}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -178,7 +178,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='gca-member-fix-v3-20260509';
+const APP_VERSION='gca-member-hardening-v4-20260509';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -186,6 +186,9 @@ let assocMapInstance=null;
 let _mapCamps=[];
 let _allEvents=[];
 let _evFilter='upcoming';
+let _currentPage='notices';
+let campLayer=null;
+let _authBootDone=false;
 
 const MEMBER_CAMPS=[
   {n:"가자우리집",lat:36.7493059,lng:127.8985382,o:"안미선",e:"gaja@camp.kr",a:"칠성면 쌍곡로 504",c:"칠성"},
@@ -211,17 +214,26 @@ const MEMBER_CAMPS=[
 const REGION_COLORS={"청천":"#2563EB","칠성":"#059669","감물":"#F59E0B","괴산":"#DC2626","사리":"#7C3AED","장연":"#0891B2"};
 
 function g(id){return document.getElementById(id)}
-function v(id){return(g(id)||{}).value?.trim()||''}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function fd(iso){if(!iso)return'';const d=new Date(iso);return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
-function fdt(iso){if(!iso)return'';const d=new Date(iso);return fd(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function v(id){const el=g(id);return el&&typeof el.value==='string'?el.value.trim():''}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
+function jsq(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r?\n/g,' ')}
+function cleanText(s){return String(s??'').trim()}
+function validDate(d){return d instanceof Date&&!Number.isNaN(d.getTime())}
+function fd(iso){if(!iso)return'';const d=new Date(iso);if(!validDate(d))return'';return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0')}
+function fdt(iso){if(!iso)return'';const d=new Date(iso);if(!validDate(d))return'';return fd(iso)+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function todayLocalDate(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function fext(name){return((name||'').split('.').pop()||'def').toLowerCase()}
-function won(n){n=Number(n)||0;if(n>=10000){const m=Math.floor(n/10000),r=n%10000;return m+'만'+(r>0?Math.round(r/1000)+'천':'')+'원';}return n.toLocaleString()+'원'}
-function load(on){g('lovo').classList.toggle('show',!!on)}
-function toast(msg){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
-function closeMo(){g('mover').classList.remove('open')}
-function showPan(title,body){g('pan-title').textContent=title;g('pan-body').innerHTML=body;g('pover').classList.add('open');g('pan').classList.add('open')}
-function closePan(){g('pover').classList.remove('open');g('pan').classList.remove('open')}
+function won(n){n=Number(n)||0;if(n>=100000000)return Math.floor(n/100000000)+'억'+(n%100000000?Math.floor((n%100000000)/10000)+'만':'')+'원';if(n>=10000){const m=Math.floor(n/10000),r=n%10000;return m+'만'+(r>0?Math.round(r/1000)+'천':'')+'원';}return n.toLocaleString()+'원'}
+function errMsg(error){return error?.message||String(error||'알 수 없는 오류')}
+function isMissingColumn(error,col){const m=(error?.message||'').toLowerCase();return error?.code==='42703'||m.includes('column')&&m.includes(String(col).toLowerCase())}
+function load(on){const el=g('lovo');if(el)el.classList.toggle('show',!!on)}
+function toast(msg){const t=g('toast');if(!t){console.log(msg);return;}t.textContent=String(msg||'');t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2500)}
+function closeMo(){const el=g('mover');if(el)el.classList.remove('open')}
+function showPan(title,body){g('pan-title').textContent=title||'';g('pan-body').innerHTML=body||'';g('pover').classList.add('open');g('pan').classList.add('open')}
+function closePan(){const po=g('pover'),pa=g('pan');if(po)po.classList.remove('open');if(pa)pa.classList.remove('open')}
+function normRegion(s){return String(s||'').replace(/(읍|면)$/,'')}
+function deriveRegion(address){const txt=String(address||'');const m=txt.match(/(괴산읍|감물면|장연면|연풍면|칠성면|문광면|청천면|청안면|사리면|소수면|불정면)/);return m?normRegion(m[1]):''}
+function normalizeCamp(row){const addr=row.address||row.addr||row.a||'';return {n:row.camp_name||row.name||row.n||'',lat:Number(row.lat??row.latitude),lng:Number(row.lng??row.lon??row.longitude),o:row.owner_name||row.owner||row.o||'',e:row.email||row.e||'',a:addr,c:normRegion(row.region||row.area||row.c||deriveRegion(addr))}}
 
 async function getAttachmentUrl(f){
   if(f.file_path){
@@ -275,15 +287,44 @@ function applyBF(){
 
 async function loadMember(user){
   App.user=user;
-  let {data,error}=await db.from('members').select('*').eq('user_id',user.id).eq('is_active',true).maybeSingle();
+  let data=null;
+  let firstError=null;
+
+  const byUser=await db.from('members').select('*').eq('user_id',user.id).eq('is_active',true).maybeSingle();
+  if(byUser.error&&byUser.error.code!=='PGRST116')firstError=byUser.error;
+  data=byUser.data||null;
+
   if(!data){
-    const r=await db.rpc('claim_member_profile');
-    if(!r.error&&r.data){data=Array.isArray(r.data)?r.data[0]:r.data;}
-    else if(r.error){console.warn('claim_member_profile error:',r.error.message);}
+    try{
+      const r=await db.rpc('claim_member_profile');
+      if(!r.error&&r.data)data=Array.isArray(r.data)?r.data[0]:r.data;
+      else if(r.error)console.warn('claim_member_profile error:',r.error.message);
+    }catch(e){console.warn('claim_member_profile exception:',e)}
   }
-  if(error&&error.code!=='PGRST116'){setLerr('회원 조회 오류: '+error.message);return false;}
-  if(!data){setLerr('계정이 등록되지 않았습니다. 협회 관리자에게 문의하세요.');return false;}
-  App.member=data;App.role=data.role;return true;
+
+  if(!data&&user.email){
+    const email=String(user.email).trim().toLowerCase();
+    const byEmail=await db.from('members').select('*').ilike('email',email).eq('is_active',true).maybeSingle();
+    if(!byEmail.error&&byEmail.data){
+      data=byEmail.data;
+      if(!data.user_id){
+        const up=await db.from('members').update({user_id:user.id}).eq('id',data.id).is('user_id',null).select('*').maybeSingle();
+        if(!up.error&&up.data)data=up.data;
+        else if(up.error)console.warn('member user_id link skipped:',up.error.message);
+      }
+    }else if(byEmail.error&&byEmail.error.code!=='PGRST116'){
+      console.warn('member email fallback error:',byEmail.error.message);
+    }
+  }
+
+  if(!data){
+    if(firstError)console.warn('member lookup first error:',firstError.message);
+    setLerr('계정이 등록되지 않았습니다. 협회 관리자에게 회원 이메일과 로그인 이메일이 같은지 확인하세요.');
+    return false;
+  }
+  App.member=data;
+  App.role=data.role||'member';
+  return true;
 }
 async function loginKakao(){
   load(true);
@@ -291,12 +332,15 @@ async function loginKakao(){
   if(error){load(false);setLerr(error.message);}
 }
 async function loginEmail(){
-  const e=v('ei'),p=g('pi').value;
+  const e=v('ei').toLowerCase(),p=g('pi')?.value||'';
   if(!e||!p){setLerr('이메일과 비밀번호를 입력하세요');return;}
   load(true);
   const {data:authData,error:authErr}=await db.auth.signInWithPassword({email:e,password:p});
-  load(false);if(authErr){setLerr('로그인 실패: '+authErr.message);return;}
-  if(authData?.user){try{const r=await loadMember(authData.user);if(r)showApp();else setLerr('계정이 등록되지 않았습니다.');}catch(e){setLerr('오류: '+e.message);}}
+  if(authErr){load(false);setLerr('로그인 실패: '+authErr.message);return;}
+  if(authData?.user){
+    try{const r=await loadMember(authData.user);load(false);if(r)showApp();else showLogin();}
+    catch(e2){load(false);setLerr('오류: '+errMsg(e2));}
+  }else{load(false);setLerr('로그인 세션을 확인하지 못했습니다. 다시 시도하세요.');}
 }
 function clearLocalSupabaseSession(){
   try{
@@ -345,49 +389,68 @@ function showApp(){
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
   const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
-  g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+(roleLabel[App.role]||App.role);
+  g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
   ['btn-notice','btn-meeting','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
-  initMC();nav('notices',true);loadBadges();
+  initMC();
+  const hash=(location.hash||'').replace('#','');
+  const allowed=['notices','meetings','budget','map','library'];
+  nav(allowed.includes(hash)?hash:'notices',false);
+  loadBadges();
 }
 function nav(page,push=true){
+  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,map:showAssocMap,library:loadLibrary};
+  if(!loaders[page])page='notices';
+  _currentPage=page;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
   const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',map:'회원 캠프 지도',library:'자료실'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
-  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,map:showAssocMap,library:loadLibrary};
-  if(loaders[page])loaders[page]();
-  if(push)history.pushState({page},'','#'+page);
+  loaders[page]();
+  if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
 }
 window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page,false);else nav('notices',false);});
 
 document.addEventListener('DOMContentLoaded',async()=>{
   console.log('GCA APP VERSION', APP_VERSION);
   try{localStorage.removeItem('gca_mc');}catch(e){}
-  g('kk-oc').href=KK_OC;g('kk-ch').href=KK_CH;
-  const {data:{session}}=await db.auth.getSession();
-  if(session){try{const ok=await loadMember(session.user);if(ok)showApp();else showLogin();}catch(e){console.error(e);showLogin();}}
-  else showLogin();
+  if(g('kk-oc'))g('kk-oc').href=KK_OC;if(g('kk-ch'))g('kk-ch').href=KK_CH;
+  try{
+    const {data:{session}}=await db.auth.getSession();
+    if(session){const ok=await loadMember(session.user);if(ok)showApp();else showLogin();}
+    else showLogin();
+  }catch(e){console.error('session boot error',e);showLogin();}
+  _authBootDone=true;
   db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session){try{const ok=await loadMember(session.user);if(ok)showApp();else showLogin();}catch(e){console.error('auth error',e);showLogin();}}
-    else if(ev==='SIGNED_OUT'){Object.assign(App,{user:null,member:null,role:null});showLogin();}
+    if(ev==='SIGNED_IN'&&session){
+      if(!_authBootDone)return;
+      try{const ok=await loadMember(session.user);if(ok)showApp();else showLogin();}catch(e){console.error('auth error',e);showLogin();}
+    }else if(ev==='SIGNED_OUT'){
+      Object.assign(App,{user:null,member:null,role:null});showLogin();
+    }
   });
 });
 
 async function loadBadges(){
   const bn=g('bdg-n'),bv=g('bdg-b');if(bn)bn.style.display='none';if(bv)bv.style.display='none';
-  if(App.member){
-    const {data:reads}=await db.from('notice_reads').select('notice_id').eq('member_id',App.member.id);
-    const rids=(reads||[]).map(r=>r.notice_id);
-    let q=db.from('notices').select('*',{count:'exact',head:true});
-    if(rids.length)q=q.not('id','in','('+rids.map(i=>'"'+i+'"').join(',')+')');
-    const {count}=await q;
-    if(count>0&&bn){bn.textContent=count;bn.style.display='';}
+  if(App.member&&bn){
+    const [nr,rr]=await Promise.all([
+      db.from('notices').select('id'),
+      db.from('notice_reads').select('notice_id').eq('member_id',App.member.id)
+    ]);
+    if(!nr.error){
+      const readSet=new Set((rr.data||[]).map(r=>r.notice_id));
+      const unread=(nr.data||[]).filter(n=>!readSet.has(n.id)).length;
+      if(unread>0){bn.textContent=unread;bn.style.display='';}
+    }else console.warn('notice badge error:',nr.error.message);
   }
-  const {count:vc}=await db.from('budget_proposals').select('*',{count:'exact',head:true}).eq('status','voting');
-  if(vc>0&&bv){bv.textContent=vc;bv.style.display='';}
+  if(bv){
+    const {count,error}=await db.from('budget_proposals').select('id',{count:'exact',head:true}).eq('status','voting');
+    if(!error&&count>0){bv.textContent=count;bv.style.display='';}
+    else if(error)console.warn('budget badge error:',error.message);
+  }
 }
 
 async function loadNotices(){
@@ -422,7 +485,15 @@ async function submitNotice(){
   load(false);if(error){toast('오류: '+error.message);return;}
   toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
 }
-async function delNotice(id){if(!confirm('삭제하시겠습니까?'))return;await db.from('notices').delete().eq('id',id);closePan();toast('삭제되었습니다');loadNotices();loadBadges();}
+async function delNotice(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  load(true);
+  await db.from('attachments').delete().eq('target_type','notice').eq('target_id',id);
+  const {error}=await db.from('notices').delete().eq('id',id);
+  load(false);
+  if(error){toast('삭제 오류: '+error.message);return;}
+  closePan();toast('삭제되었습니다');loadNotices();loadBadges();
+}
 
 async function loadMeetings(){
   const list=g('meeting-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
@@ -469,15 +540,19 @@ function budgetStatusMaps(){
 function renderP(p,mv={}){
   const tot=(p.vote_yes||0)+(p.vote_no||0),yesPct=tot>0?Math.round((p.vote_yes||0)/tot*100):0;
   const qmet=tot>=(p.quorum_count||1),myv=mv[p.id],now=new Date();
-  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv&&p.vote_deadline&&new Date(p.vote_deadline)>now;
+  const deadline=p.vote_deadline?new Date(p.vote_deadline):null;
+  const hasDeadline=validDate(deadline);
+  const isPastDeadline=hasDeadline&&deadline<=now;
+  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv&&(!hasDeadline||deadline>now);
   const {stM,stC}=budgetStatusMaps();
-  const isPastDeadline=p.vote_deadline&&new Date(p.vote_deadline)<=now;
-  return '<div class="pc '+esc(p.status)+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+p.id+'\')">'+
-    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title)+'</div><div class="pc-meta">'+esc(p.category||'')+' · '+esc(p.budget_source||'')+'</div></div>'+
-    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status)+'</span></div></div>'+
-    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(p.quorum_count||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+(p.vote_yes||0)+' · ❌ '+(p.vote_no||0)+' · 참여 '+tot+'/'+(p.total_voters||'?')+'</span><span style="color:var(--amber)">'+(p.vote_deadline?'마감 '+fdt(p.vote_deadline):'')+'</span></div>':'')+
-    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+p.id+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+p.id+'\',\'no\')">❌ 반대</button></div>':myv?'<div class="vdone">'+(myv==='yes'?'✅ 찬성으로 투표':'❌ 반대로 투표')+' · 변경 불가</div>':'')+
-    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+p.id+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'&&isPastDeadline?'<button class="btn br btn-sm" onclick="finalize(\''+p.id+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
+  const deadlineText=hasDeadline?'마감 '+fdt(p.vote_deadline):'마감 없음';
+  const deadlineStyle=isPastDeadline?'color:var(--red)':'color:var(--amber)';
+  return '<div class="pc '+esc(p.status)+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
+    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title)+'</div><div class="pc-meta">'+esc(p.category||'')+' · '+esc(p.budget_source||'')+'</div></div>'+ 
+    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status)+'</span></div></div>'+ 
+    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(p.quorum_count||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+(p.vote_yes||0)+' · ❌ '+(p.vote_no||0)+' · 참여 '+tot+'/'+(p.total_voters||'?')+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
+    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':myv?'<div class="vdone">'+(myv==='yes'?'✅ 찬성으로 투표':'❌ 반대로 투표')+' · 변경 불가</div>':'')+
+    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
 }
 async function castVote(pid,vote){
   if(!App.member)return;load(true);
@@ -486,12 +561,18 @@ async function castVote(pid,vote){
   toast(vote==='yes'?'✅ 찬성 투표 완료':'❌ 반대 투표 완료');loadBudget();loadBadges();
 }
 async function startVoting(id){
-  const dline=prompt('투표 마감일시 (예: 2026-05-20T18:00)');if(!dline)return;
-  const quorum=prompt('정족수 (최소 참여 회원 수, 예: 8)');if(!quorum)return;
-  const dt=new Date(dline);if(isNaN(dt.getTime())){toast('마감일시 형식이 올바르지 않습니다');return;}
+  const dline=prompt('투표 마감일시 입력\n예: 2026-05-20T18:00\n빈칸으로 두면 마감시간 없이 수동 마감합니다.');
+  if(dline===null)return;
+  const defaultQuorum=Math.max(1,Math.ceil((parseInt(g('mc-num')?.textContent,10)||App.member?.total_voters||8)/2));
+  const quorum=prompt('정족수(최소 참여 회원 수)를 입력하세요',String(defaultQuorum));if(quorum===null)return;
+  const qn=parseInt(quorum,10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');return;}
+  let iso=null;
+  if(dline.trim()){
+    const dt=new Date(dline.trim());if(!validDate(dt)){toast('마감일시 형식이 올바르지 않습니다');return;}iso=dt.toISOString();
+  }
   const rule=confirm('2/3 이상 찬성이 필요하면 [확인], 과반이면 [취소]')?'two_thirds':'simple_majority';
   load(true);
-  const {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:dt.toISOString(),p_quorum_count:parseInt(quorum,10),p_approval_rule:rule});
+  const {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
   load(false);if(error){toast('투표 시작 오류: '+error.message);return;}
   toast('투표가 시작되었습니다 ✓');loadBudget();loadBadges();
 }
@@ -499,28 +580,38 @@ async function finalize(id){
   if(!confirm('투표를 마감 처리합니다. 결과가 확정됩니다. 진행하시겠습니까?'))return;
   load(true);const {data,error}=await db.rpc('finalize_budget_proposal',{p_proposal_id:id});load(false);
   if(error){toast('마감 오류: '+error.message);return;}
-  const status=data?.status;
+  const row=Array.isArray(data)?data[0]:(data||{});
+  const status=row.status||row.final_status;
   const msg=status==='approved'?'✅ 가결 확정':status==='rejected'?'❌ 부결 확정':status==='quorum_failed'?'⚠️ 정족수 미달':'마감 처리 완료';
   toast(msg);loadBudget();loadBadges();
 }
 async function openProposal(id){
-  const {data:p}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').eq('id',id).single();
+  const {data:p,error}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').eq('id',id).single();
+  if(error){toast('예산안 조회 오류: '+error.message);return;}
   if(!p)return;
-  const {data:files}=await db.from('attachments').select('*').or(`proposal_id.eq.${id},target_id.eq.${id}`);
+  let files=[];
+  const q1=await db.from('attachments').select('*').eq('target_type','proposal').eq('target_id',id);
+  if(!q1.error&&q1.data)files=q1.data;
+  const q2=await db.from('attachments').select('*').eq('proposal_id',id);
+  if(!q2.error&&q2.data){
+    const seen=new Set(files.map(f=>f.id));
+    q2.data.forEach(f=>{if(!seen.has(f.id)){files.push(f);seen.add(f.id);}});
+  }
   const tot=(p.vote_yes||0)+(p.vote_no||0);const {stM}=budgetStatusMaps();
+  const deadlineText=p.vote_deadline?fdt(p.vote_deadline):'마감 없음';
   let fileHtml='';
   if(files?.length){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
     fileHtml='<div class="p-sec"><div class="p-sec-t">첨부 서류</div>'+rows.join('')+'</div>';
   }
-  showPan(p.title,'<div class="p-meta">등록: '+esc(p.members?.name||'')+' · '+fd(p.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(p.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(p.category||'')+'</span><span class="tag tgr">'+esc(p.budget_source||'')+'</span><span class="tag '+(p.approval_rule==='two_thirds'?'tr':'tg')+'">'+(p.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(p.description||'').replace(/\n/g,'<br>')+'</div>'+(p.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[p.status]||p.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+(p.vote_yes||0)+'</strong> · 반대 <strong>'+(p.vote_no||0)+'</strong> · 참여 '+tot+' / '+(p.total_voters||'?')+'<br>정족수 '+tot+' / '+(p.quorum_count||'?')+' '+(tot>=(p.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+fdt(p.vote_deadline||'')+(p.finalized_at?'<br>확정: '+fdt(p.finalized_at):'')+(p.final_result_text?'<br>결과: '+esc(p.final_result_text):'')+'</div></div>':'')+fileHtml);
+  showPan(p.title,'<div class="p-meta">등록: '+esc(p.members?.name||'')+' · '+fd(p.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(p.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(p.category||'')+'</span><span class="tag tgr">'+esc(p.budget_source||'')+'</span><span class="tag '+(p.approval_rule==='two_thirds'?'tr':'tg')+'">'+(p.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(p.description||'').replace(/\n/g,'<br>')+'</div>'+(p.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[p.status]||p.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+(p.vote_yes||0)+'</strong> · 반대 <strong>'+(p.vote_no||0)+'</strong> · 참여 '+tot+' / '+(p.total_voters||'?')+'<br>정족수 '+tot+' / '+(p.quorum_count||'?')+' '+(tot>=(p.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(p.finalized_at?'<br>확정: '+fdt(p.finalized_at):'')+(p.final_result_text?'<br>결과: '+esc(p.final_result_text):'')+'</div></div>':'')+fileHtml);
 }
 async function submitProposal(){
-  const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=parseInt(v('pr-amt'),10),desc=v('pr-desc'),rule=v('pr-rule');
-  if(!title||!amt||!desc){toast('모든 항목을 입력하세요');return;}
+  const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=Number(v('pr-amt')),desc=v('pr-desc'),rule=v('pr-rule');
+  if(!title||!Number.isFinite(amt)||amt<=0||!desc){toast('제목, 금액, 세부 계획을 정확히 입력하세요');return;}
   load(true);
-  const {data,error}=await db.from('budget_proposals').insert({created_by:App.member.id,title,category:cat,budget_source:src,amount:amt,description:desc,approval_rule:rule,status:'draft'}).select().single();
-  if(!error&&data){const fi=g('pr-file');if(fi.files.length)await uploadAtt(fi.files,'proposal',data.id);}
+  const {data,error}=await db.from('budget_proposals').insert({created_by:App.member.id,title,category:cat,budget_source:src,amount:Math.round(amt),description:desc,approval_rule:rule,status:'draft'}).select().single();
+  if(!error&&data){const fi=g('pr-file');if(fi?.files?.length)await uploadAtt(fi.files,'proposal',data.id);}
   load(false);if(error){toast('오류: '+error.message);return;}
   toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();
 }
@@ -542,10 +633,15 @@ function openMemberModal(){
 async function submitMember(){
   if(App.role!=='admin'){toast('관리자만 회원을 등록할 수 있습니다');return;}
   const role=v('m-role');
-  const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:v('m-email')||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
+  const email=v('m-email').toLowerCase();
+  const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
   if(!payload.name){toast('회원 이름을 입력하세요');return;}
   if(!payload.email){toast('이메일을 입력하세요. 로그인 연결에 필요합니다');return;}
-  load(true);const {error}=await db.from('members').insert(payload);load(false);
+  load(true);
+  const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
+  if(existing.data){load(false);toast('이미 등록된 이메일입니다');return;}
+  const {error}=await db.from('members').insert(payload);
+  load(false);
   if(error){toast('회원 등록 오류: '+error.message);return;}
   toast('회원 등록 완료 ✓');closeMo();initMC();
 }
@@ -561,58 +657,86 @@ function openModal(type){
 }
 
 async function loadCampsFromDB(){
-  const {data,error}=await db.from('camps').select('*').eq('is_active',true).order('region');
-  if(error){console.error('camps error:',error.message);return MEMBER_CAMPS;}
-  if(!data||!data.length)return MEMBER_CAMPS;
-  return data.map(c=>({n:c.camp_name,lat:Number(c.lat),lng:Number(c.lng),o:c.owner_name||'',e:c.email||'',a:c.address||'',c:c.region||''})).filter(c=>c.lat&&c.lng);
+  let res=await db.from('camps').select('*').eq('is_active',true);
+  if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
+  if(res.error){console.error('camps error:',res.error.message);return MEMBER_CAMPS;}
+  if(!res.data||!res.data.length)return MEMBER_CAMPS;
+  const camps=res.data.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&c.n);
+  camps.sort((a,b)=>(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
+  return camps.length?camps:MEMBER_CAMPS;
 }
 function updateMapStats(camps){
-  const counts={};camps.forEach(c=>{counts[c.c]=(counts[c.c]||0)+1});
-  const regions=Object.keys(counts).filter(Boolean);
-  const top=regions.sort((a,b)=>counts[b]-counts[a])[0]||'';
+  const counts={};camps.forEach(c=>{const r=c.c||'기타';counts[r]=(counts[r]||0)+1});
+  const regions=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b,'ko'));
+  const top=regions[0]||'';
   if(g('stat-total'))g('stat-total').textContent=camps.length;
   if(g('stat-regions'))g('stat-regions').textContent=regions.length;
   if(g('stat-main'))g('stat-main').textContent=top?counts[top]:0;
-  const leg=g('region-legend');if(leg){leg.innerHTML='<div class="region-legend-t">📍 면별 색상</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+'면 ('+counts[r]+'곳)</div>').join('');}
+  const leg=g('region-legend');if(leg){leg.innerHTML='<div class="region-legend-t">📍 면별 색상</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');}
+}
+function renderCampMarkers(camps){
+  if(!assocMapInstance||typeof L==='undefined')return;
+  if(!campLayer)campLayer=L.layerGroup().addTo(assocMapInstance);else campLayer.clearLayers();
+  camps.forEach(c=>{
+    const color=REGION_COLORS[c.c]||'#185c42';
+    const initial=esc((c.c||'?').charAt(0));
+    const icon=L.divIcon({className:'camp-marker',html:`<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:Manrope,sans-serif">${initial}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-26]});
+    L.marker([c.lat,c.lng],{icon}).addTo(campLayer).bindPopup(`<b>${esc(c.n)}</b>👤 ${esc(c.o)}<br>📍 ${esc(c.a)}<br>📧 <span style="font-size:11px;color:#5e6d61">${esc(c.e)}</span>`);
+  });
+  if(camps.length){const bounds=L.latLngBounds(camps.map(c=>[c.lat,c.lng]));assocMapInstance.fitBounds(bounds,{padding:[40,40]});}
 }
 async function showAssocMap(){
   _mapCamps=await loadCampsFromDB();updateMapStats(_mapCamps);
-  if(assocMapInstance){setTimeout(()=>assocMapInstance.invalidateSize(),100);loadEventsList();return;}
-  assocMapInstance=L.map('assoc-map').setView([36.76,127.83],11);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(assocMapInstance);
-  _mapCamps.forEach(c=>{
-    const color=REGION_COLORS[c.c]||'#185c42';
-    const icon=L.divIcon({className:'camp-marker',html:`<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:Manrope,sans-serif">${esc((c.c||'?').charAt(0))}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-26]});
-    L.marker([c.lat,c.lng],{icon}).addTo(assocMapInstance).bindPopup(`<b>${esc(c.n)}</b>👤 ${esc(c.o)}<br>📍 ${esc(c.a)}<br>📧 <span style="font-size:11px;color:#5e6d61">${esc(c.e)}</span>`);
-  });
-  if(_mapCamps.length){const bounds=L.latLngBounds(_mapCamps.map(c=>[c.lat,c.lng]));assocMapInstance.fitBounds(bounds,{padding:[40,40]});}
+  const mapEl=g('assoc-map');
+  if(typeof L==='undefined'){
+    if(mapEl)mapEl.innerHTML='<div class="ev-empty" style="margin:18px">지도 라이브러리를 불러오지 못했습니다. 인터넷 연결 또는 CDN 차단을 확인하세요.</div>';
+    loadEventsList();return;
+  }
+  if(!assocMapInstance){
+    assocMapInstance=L.map('assoc-map').setView([36.76,127.83],11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(assocMapInstance);
+  }
+  renderCampMarkers(_mapCamps);
+  setTimeout(()=>assocMapInstance.invalidateSize(),120);
   loadEventsList();
 }
 async function loadEventsList(){
-  const list=g('events-list'),stats=g('events-stats');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const list=g('events-list'),stats=g('events-stats');if(!list)return;list.innerHTML='<div class="loading">불러오는 중...</div>';
   try{
     const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
-    if(error){list.innerHTML='<div class="ev-empty">불러오기 실패: '+esc(error.message)+'</div>';return;}
-    _allEvents=data||[];const today=new Date().toISOString().slice(0,10);const upcoming=_allEvents.filter(e=>e.event_date&&e.event_date>=today).length;const locked=_allEvents.filter(e=>e.finalized).length;
-    stats.innerHTML=`총 ${_allEvents.length}건 · 다가오는 ${upcoming}건 · 확정 ${locked}건`;bindEventsFilter();renderEventsList();
-  }catch(err){console.error(err);list.innerHTML='<div class="ev-empty">불러오기 오류</div>';}
+    if(error){
+      console.warn('camp_events load error:',error.message);
+      list.innerHTML='<div class="ev-empty">행사 테이블을 읽지 못했습니다.<br>'+esc(error.message)+'</div>';
+      if(stats)stats.textContent='행사 데이터 연결 확인 필요';
+      return;
+    }
+    _allEvents=data||[];
+    const today=todayLocalDate();
+    const upcoming=_allEvents.filter(e=>!e.event_date||String(e.event_date)>=today).length;
+    const locked=_allEvents.filter(e=>!!e.finalized).length;
+    if(stats)stats.innerHTML=`총 ${_allEvents.length}건 · 다가오는 ${upcoming}건 · 확정 ${locked}건`;
+    bindEventsFilter();renderEventsList();
+  }catch(err){console.error(err);list.innerHTML='<div class="ev-empty">불러오기 오류: '+esc(errMsg(err))+'</div>';}
 }
 function bindEventsFilter(){
   document.querySelectorAll('[data-evf]').forEach(btn=>{if(btn._bef)return;btn._bef=1;btn.addEventListener('click',()=>{_evFilter=btn.dataset.evf;document.querySelectorAll('[data-evf]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEventsList();});});
 }
 function renderEventsList(){
-  const list=g('events-list'),today=new Date().toISOString().slice(0,10);let filtered=_allEvents;
-  if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||e.event_date>=today);
-  else if(_evFilter==='locked')filtered=filtered.filter(e=>e.finalized);
+  const list=g('events-list'),today=todayLocalDate();if(!list)return;let filtered=[..._allEvents];
+  if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||String(e.event_date)>=today);
+  else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
   else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>e.category===_evFilter);
   if(!filtered.length){list.innerHTML='<div class="ev-empty">📭 해당 조건의 일정이 없습니다</div>';return;}
   const display=filtered.slice(0,30);
   list.innerHTML=display.map(e=>{
-    const isTicket=e.bundle_type==='ticket'||!e.event_date;
-    const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+parseInt(e.event_date.slice(5,7))+'월<span class="ev-d">'+parseInt(e.event_date.slice(8,10))+'일</span></div>';
-    const catName={A:'공연',B:'먹거리',C:'체험',D:'활동'}[e.category]||e.category;
+    const evDate=String(e.event_date||'');
+    const isTicket=e.bundle_type==='ticket'||!evDate;
+    const mm=evDate&&evDate.length>=10?parseInt(evDate.slice(5,7),10):0;
+    const dd=evDate&&evDate.length>=10?parseInt(evDate.slice(8,10),10):0;
+    const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+mm+'월<span class="ev-d">'+dd+'일</span></div>';
+    const catName={A:'공연',B:'먹거리',C:'체험',D:'활동'}[e.category]||e.category||'기타';
     const status=e.finalized?'<span class="ev-status ev-locked">🔒 확정</span>':'<span class="ev-status ev-pending">⏳ 검토</span>';
-    return '<div class="ev-card">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e.program_name||'')+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e.category)+'">'+esc(e.category||'')+' '+esc(catName||'')+'</span><span>🏕 '+esc(e.camp_name||'')+'</span>'+(e.qty>1?'<span>· '+e.qty+'매</span>':'')+'</div></div>'+status+'</div>';
+    return '<div class="ev-card">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e.program_name||e.title||'')+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e.category||'')+'">'+esc(e.category||'')+' '+esc(catName||'')+'</span><span>🏕 '+esc(e.camp_name||'')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div></div>'+status+'</div>';
   }).join('')+(filtered.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-30)+'건 더보기는 <a href="events.html" style="color:var(--g);font-weight:700">일정 시스템</a>에서</div>':'');
 }
 </script>
