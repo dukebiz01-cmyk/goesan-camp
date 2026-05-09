@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.15-20260509-event-category-data">
+<meta name="app-version" content="gca-v4.16-20260509-event-calendar-cleanup">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -76,13 +76,50 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 
 .budget-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}.bs-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1);min-height:76px}.bs-n{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1;color:var(--g)}.bs-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px;letter-spacing:-.01em}.bs-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.35}.bs-card.warn .bs-n{color:var(--amber)}.bs-card.danger .bs-n{color:var(--red)}.ph-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.net-banner{position:fixed;left:10px;right:10px;top:10px;z-index:700;background:#111;color:#fff;border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.18);display:none}.net-banner.show{display:block}.sys-box{background:#f5f8f4;border:1px solid var(--cd);border-radius:14px;padding:12px;margin-bottom:10px}.sys-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--cd);padding:8px 0;font-size:12px}.sys-row:last-child{border-bottom:none}.sys-k{color:var(--mid);font-weight:800}.sys-v{font-weight:800;text-align:right;word-break:break-all}.sys-ok{color:var(--green)}.sys-warn{color:var(--amber)}.sys-bad{color:var(--red)}.draft-bar{background:#fff8e6;border:1px solid #f2d28a;border-radius:12px;padding:9px 10px;font-size:11px;color:#a16207;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.draft-bar .btn{padding:5px 9px;font-size:11px;border-radius:9px}.draft-actions{display:flex;gap:6px;flex-shrink:0}
 
-.cal-toolbar,.content-toolbar,.support-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cal-toolbar select,.cal-toolbar input,.content-toolbar input,.support-toolbar select{border:1.5px solid var(--bdr);border-radius:12px;background:#f4f7f3;padding:9px 11px;font-size:13px;font-weight:700;color:var(--ch);outline:none}.cal-toolbar .btn,.support-toolbar .btn,.content-toolbar .btn{white-space:nowrap}.cal-summary,.support-summary,.content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.mini-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1)}.mini-n{font-family:var(--fh);font-size:21px;font-weight:800;line-height:1;color:var(--g)}.mini-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px}.mini-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.4}.cal-camp{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.cal-camp-h{padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd);display:flex;align-items:center;justify-content:space-between;gap:8px}.cal-camp-title{font-weight:900;font-size:15px}.cal-camp-count{font-size:11px;color:var(--g);font-weight:900;background:var(--gp);padding:3px 8px;border-radius:999px}.cal-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cd)}.cal-item:last-child{border-bottom:none}.cal-date{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}.cal-date b{display:block;font-size:17px}.cal-title{font-size:14px;font-weight:800;line-height:1.35}.cal-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}.support-list .ev-card{grid-template-columns:auto 1fr auto}.support-camp-table{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.support-row{display:grid;grid-template-columns:1.2fr .7fr .7fr .7fr;gap:8px;padding:10px 13px;border-bottom:1px solid var(--cd);font-size:12px;align-items:center}.support-row:last-child{border-bottom:none}.support-row.head{background:#f5f8f4;color:var(--mid);font-weight:900;font-size:11px}.support-row strong{font-weight:900}.content-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:14px;box-shadow:var(--s1);min-height:118px}.content-card h3{font-size:15px;font-weight:900;line-height:1.35;margin-bottom:6px}.content-card p{font-size:12px;color:var(--mid);line-height:1.65}.content-pill{display:inline-flex;padding:3px 8px;border-radius:999px;background:var(--gp);color:var(--g);font-size:10px;font-weight:900;margin-bottom:8px}.danger-line{border-color:#f0c2c2!important;color:var(--red)!important;background:#fffafa!important}
+.cal-toolbar,.content-toolbar,.support-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cal-toolbar select,.cal-toolbar input,.content-toolbar input,.support-toolbar select{border:1.5px solid var(--bdr);border-radius:12px;background:#f4f7f3;padding:9px 11px;font-size:13px;font-weight:700;color:var(--ch);outline:none}.cal-toolbar .btn,.support-toolbar .btn,.content-toolbar .btn{white-space:nowrap}.cal-summary,.support-summary,.content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.mini-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1)}.mini-n{font-family:var(--fh);font-size:21px;font-weight:800;line-height:1;color:var(--g)}.mini-n.over{color:var(--red)}.mini-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px}.mini-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.4}.cal-camp{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.cal-camp-h{padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd);display:flex;align-items:center;justify-content:space-between;gap:8px}.cal-camp-title{font-weight:900;font-size:15px}.cal-camp-count{font-size:11px;color:var(--g);font-weight:900;background:var(--gp);padding:3px 8px;border-radius:999px}.cal-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cd)}.cal-item:last-child{border-bottom:none}.cal-date{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}.cal-date b{display:block;font-size:17px}.cal-title{font-size:14px;font-weight:800;line-height:1.35}.cal-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}.support-list .ev-card{grid-template-columns:auto 1fr auto}.support-camp-table{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.support-row{display:grid;grid-template-columns:1.2fr .7fr .7fr .7fr;gap:8px;padding:10px 13px;border-bottom:1px solid var(--cd);font-size:12px;align-items:center}.support-row:last-child{border-bottom:none}.support-row.head{background:#f5f8f4;color:var(--mid);font-weight:900;font-size:11px}.support-row strong{font-weight:900}.content-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:14px;box-shadow:var(--s1);min-height:118px}.content-card h3{font-size:15px;font-weight:900;line-height:1.35;margin-bottom:6px}.content-card p{font-size:12px;color:var(--mid);line-height:1.65}.content-pill{display:inline-flex;padding:3px 8px;border-radius:999px;background:var(--gp);color:var(--g);font-size:10px;font-weight:900;margin-bottom:8px}.danger-line{border-color:#f0c2c2!important;color:var(--red)!important;background:#fffafa!important}
 
 .catalog-board{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1)}
 .catalog-board-title{font-size:12px;font-weight:900;color:var(--mid);letter-spacing:.02em;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}.catalog-board-title b{color:var(--ch)}
 .catalog-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.catalog-cat{border:1px solid var(--cd);border-radius:14px;padding:11px 10px;background:#fff;min-height:98px}.catalog-cat-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}.catalog-cat-code{width:25px;height:25px;border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900}.catalog-cat-name{font-size:13px;font-weight:900}.catalog-cat-n{font-family:var(--fh);font-size:19px;font-weight:900;line-height:1;color:var(--g);margin:5px 0}.catalog-cat-desc{font-size:10px;color:var(--mid);line-height:1.45}.catalog-tagline{font-size:11px;color:var(--mid);line-height:1.6;margin-top:9px;background:#f6f8f4;border-radius:10px;padding:8px 10px}.program-catalog{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;margin-bottom:14px;box-shadow:var(--s1);overflow:hidden}.program-catalog-h{padding:12px 14px;background:#f5f8f4;border-bottom:1px solid var(--cd);font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}.program-provider{padding:11px 14px;border-bottom:1px solid var(--cd);display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:flex-start}.program-provider:last-child{border-bottom:none}.provider-name{font-size:12px;font-weight:900;color:var(--ch)}.provider-meta{font-size:10px;color:var(--mid);margin-top:2px}.provider-programs{display:flex;gap:5px;flex-wrap:wrap}.program-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--cd);background:#fff;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;color:var(--mid)}.program-chip strong{color:var(--ch)}.ev-price-note{font-size:10px;color:var(--mid);font-weight:700;background:#f4f7f3;border-radius:7px;padding:2px 6px}.budget-policy{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.policy-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;box-shadow:var(--s1)}.policy-card .pnum{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--g);line-height:1}.policy-card .plbl{font-size:10px;color:var(--mid);font-weight:900;margin-top:5px}.policy-card .pmeta{font-size:10px;color:var(--mid);line-height:1.4;margin-top:3px}@media(max-width:700px){.catalog-cats,.budget-policy{grid-template-columns:1fr 1fr}.program-provider{grid-template-columns:1fr}.provider-programs{margin-top:3px}}
 
 @media(max-width:700px){.cal-summary,.support-summary,.content-grid{grid-template-columns:1fr}.cal-item{grid-template-columns:48px 1fr}.cal-item .ev-status{grid-column:2}.support-row{grid-template-columns:1fr .5fr .5fr .5fr}.bnav{padding-left:4px;padding-right:4px}.bn{flex-basis:62px;min-width:62px}}
+
+
+.support-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:18px;padding:22px 18px;box-shadow:var(--s1);margin-bottom:14px}
+.support-empty-k{display:inline-flex;background:var(--gp);color:var(--g);border-radius:999px;padding:5px 10px;font-size:11px;font-weight:900;margin-bottom:10px}
+.support-empty-t{font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px}
+.support-empty-d{font-size:13px;color:var(--mid);line-height:1.75}
+.cal-toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1)}
+.cal-ledger{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;box-shadow:var(--s1);overflow:hidden;margin-bottom:14px}
+.cal-ledger-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd)}
+.cal-ledger-title{font-size:14px;font-weight:900;letter-spacing:-.02em}
+.cal-ledger-sub{font-size:11px;color:var(--mid);font-weight:800}
+.cal-money-row{display:grid;grid-template-columns:76px 1.05fr .85fr .7fr .7fr;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cd);font-size:12px}
+.cal-money-row:last-child{border-bottom:none}
+.cal-money-row.head{background:#fbfcf9;color:var(--mid);font-size:11px;font-weight:900}
+.cal-day{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}
+.cal-day b{display:block;font-size:17px}
+.cal-event-name{font-size:14px;font-weight:900;line-height:1.35}
+.cal-event-meta{font-size:11px;color:var(--mid);display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.cal-provider-name{font-size:13px;font-weight:900}
+.cal-provider-meta{font-size:11px;color:var(--mid);margin-top:2px}
+.cal-money{font-family:var(--fh);font-size:14px;font-weight:900;text-align:right;white-space:nowrap}
+.cal-money.ok{color:var(--green)}.cal-money.warn{color:var(--amber)}.cal-money.over{color:var(--red)}
+.cal-source{font-size:10px;color:var(--mid);text-align:right;margin-top:2px}
+.cal-provider-board,.cal-camp-board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.cal-board-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:14px;box-shadow:var(--s1)}
+.cal-board-title{font-size:12px;color:var(--mid);font-weight:900;margin-bottom:9px;letter-spacing:.02em}
+.cal-small-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--cd);font-size:12px}
+.cal-small-row:last-child{border-bottom:none}
+.cal-small-row strong{font-size:12px;font-weight:900}
+.cal-small-row span{font-family:var(--fh);font-weight:900}
+.cal-budget-note{background:#f7faf6;border:1px solid var(--cd);border-radius:14px;padding:11px 12px;font-size:12px;color:var(--mid);line-height:1.7;margin-bottom:14px}
+@media(max-width:700px){
+  .cal-provider-board,.cal-camp-board{grid-template-columns:1fr}
+  .cal-money-row{grid-template-columns:52px 1fr;gap:9px}
+  .cal-money-row.head{display:none}
+  .cal-money-row .cal-provider-name,.cal-money-row .cal-provider-meta,.cal-money-row .cal-money,.cal-money-row .cal-source{grid-column:2;text-align:left}
+}
 
 .version-mark{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:120;background:rgba(253,254,251,.88);border:1px solid rgba(24,33,26,.09);color:#6b756c;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:-.01em;box-shadow:0 4px 14px rgba(24,33,26,.05);backdrop-filter:blur(10px);pointer-events:none}
 @media(max-width:700px){.version-mark{left:50%;right:auto;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));font-size:9px;white-space:nowrap}}
@@ -167,20 +204,20 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <div class="page" id="page-calendar">
-    <div class="ph"><div><div class="ph-title">캘린더 세팅</div><div class="ph-sub">camp_events 데이터를 기준으로 캠핑장별 행사일정을 월별로 정리합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadCalendarPage()">↻ 새로고침</button><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
-    <div class="cal-toolbar" id="calendar-controls"><div class="loading">캘린더 준비 중...</div></div>
+    <div class="ph"><div><div class="ph-title">행사캘린더</div><div class="ph-sub">예산 · 업체별 사용금액 · 잔여금액 · 행사 날짜 · 행사 업체를 한 화면에서 확인합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadCalendarPage()">↻ 새로고침</button><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
+    <div class="budget-policy" id="calendar-policy"></div>
+    <div class="cal-toolbar" id="calendar-controls"><div class="loading">행사캘린더 준비 중...</div></div>
     <div class="cal-summary" id="calendar-summary"></div>
     <div id="calendar-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
   <div class="page" id="page-support">
-    <div class="ph"><div><div class="ph-title">지원사업</div><div class="ph-sub">event.html에서 추출한 프로그램·업체·단가 데이터를 기준으로 신청 현황을 카테고리별 취합합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadSupportPage()">↻ 새로고침</button><button class="btn bo btn-sm" onclick="downloadEventCatalog()">카탈로그 JSON</button><a href="events.html" class="btn bp btn-sm">신청·관리 →</a></div></div>
-    <div class="support-toolbar"><select id="support-filter" onchange="renderSupportPage()"><option value="all">전체 상태/분류</option><option value="locked">확정</option><option value="pending">검토</option><option value="A">A 공연</option><option value="B">B 먹거리</option><option value="C">C 체험</option><option value="D">D 활동</option></select><select id="support-program-filter" onchange="renderSupportPage()"><option value="all">전체 프로그램</option></select><span style="font-size:12px;color:var(--mid);font-weight:800">A/B/C/D 카테고리는 event.html 프로그램 카탈로그 기준으로 자동 보정됩니다.</span></div>
-    <div id="support-policy" class="budget-policy"></div>
-    <div id="support-category-dashboard" class="catalog-board"></div>
-    <div class="support-summary" id="support-summary"></div>
-    <div id="support-camps"></div>
-    <div class="support-list" id="support-list"><div class="loading">불러오는 중...</div></div>
+    <div class="ph"><div><div class="ph-title">지원사업</div><div class="ph-sub">요청에 따라 이 메뉴는 현재 비워둡니다. 지원사업 취합은 추후 별도 정책 확정 후 연결합니다.</div></div><div class="ph-actions"><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
+    <div class="support-empty">
+      <div class="support-empty-k">지원사업 메뉴 비움</div>
+      <div class="support-empty-t">현재 행사·예산 데이터는 <b>행사캘린더</b>에서만 계산합니다.</div>
+      <div class="support-empty-d">중복 취합으로 데이터가 꼬이지 않도록 지원사업 메뉴는 빈 상태로 유지합니다. 추후 보조금 신청서, 증빙서류, 정산 리포트 구조가 확정되면 별도 연결하는 방식이 안전합니다.</div>
+    </div>
   </div>
 
   <div class="page" id="page-content">
@@ -195,7 +232,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
     <div class="bn active" data-page="notices" onclick="nav('notices')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><span class="bn-lb">공지</span></div><div class="bnb" id="bdg-n" style="display:none"></div></div>
     <div class="bn" data-page="meetings" onclick="nav('meetings')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="bn-lb">회의</span></div></div>
     <div class="bn" data-page="budget" onclick="nav('budget')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="bn-lb">투표</span></div><div class="bnb" id="bdg-b" style="display:none"></div></div>
-    <div class="bn" data-page="calendar" onclick="nav('calendar')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></div><span class="bn-lb">캘린더</span></div></div>
+    <div class="bn" data-page="calendar" onclick="nav('calendar')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></div><span class="bn-lb">행사</span></div></div>
     <div class="bn" data-page="support" onclick="nav('support')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 17l-6.5 4 2-7.5L2 9h7z"/></svg></div><span class="bn-lb">지원</span></div></div>
     <div class="bn" data-page="content" onclick="nav('content')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4v15.5A2.5 2.5 0 0 0 6.5 22H20V6a2 2 0 0 0-2-2H4z"/><path d="M8 8h6M8 12h8"/></svg></div><span class="bn-lb">콘텐츠</span></div></div>
     <div class="bn" data-page="map" onclick="nav('map')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="bn-lb">지도</span></div></div>
@@ -206,7 +243,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.15 · 2026.05.09 · 행사데이터 카테고리 세팅</div>
+<div class="version-mark" id="version-mark">GCA v4.16 · 2026.05.09 · 행사캘린더 정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -217,7 +254,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.15 · 2026.05.09 · 행사데이터 카테고리 세팅';
+const APP_VERSION='GCA v4.16 · 2026.05.09 · 행사캘린더 정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -232,7 +269,7 @@ let _authBootDone=false;
 let _manualLoginInProgress=false;
 const AUTH_RETURN_KEY='gca_oauth_manual_return';
 const AUTH_RETURN_TTL=10*60*1000;
-const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_15';
+const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_16';
 let _proposalDraftTimer=null;
 let _lastSystemReport='';
 function markManualOAuthIntent(){try{sessionStorage.setItem(AUTH_RETURN_KEY,String(Date.now()));}catch(e){}}
@@ -281,7 +318,7 @@ function catalogProviderCounts(){return Object.values(EVENT_PROVIDER_INDEX).sort
 function downloadEventCatalog(){
   const payload={version:APP_VERSION,category_meta:EVENT_CATEGORY_META,budget_policy:EVENT_BUDGET_POLICY,programs:EVENT_PROGRAM_CATALOG,generated_at:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='goesan_event_catalog_v4_15.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('행사 카탈로그 JSON 다운로드');
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='goesan_event_catalog_v4_16.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('행사 카탈로그 JSON 다운로드');
 }
 
 const MEMBER_CAMPS=[
@@ -680,19 +717,19 @@ function showApp(){
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
   initMC();
   const hash=(location.hash||'').replace('#','');
-  const allowed=['notices','meetings','budget','map','library'];
+  const allowed=['notices','meetings','budget','calendar','support','content','map'];
   nav(allowed.includes(hash)?hash:'notices',false);
   loadBadges();
 }
 function nav(page,push=true){
-  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,map:showAssocMap,library:loadLibrary};
+  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,calendar:loadCalendarPage,support:loadSupportPage,content:loadContent,map:showAssocMap};
   if(!loaders[page])page='notices';
   _currentPage=page;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',map:'회원 캠프 지도',library:'자료실'};
+  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',calendar:'행사캘린더',support:'지원사업',content:'콘텐츠',map:'회원 캠프 지도'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
   loaders[page]();
   if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
@@ -1495,6 +1532,7 @@ const AUTH_OK_KEY_V414='gca_manual_session_ok_v4_14';
 let _calendarMonth=todayLocalDate().slice(0,7);
 let _calendarCamp='all';
 let _calendarCat='all';
+let _calendarProvider='all';
 let _contentFiles=[];
 let _lastEventsError='';
 function markAuthorizedSession(){try{localStorage.setItem(AUTH_OK_KEY_V414,String(Date.now()));}catch(e){}}
@@ -1580,7 +1618,7 @@ function nav(page,push=true){
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',calendar:'캘린더 세팅',support:'지원사업',content:'콘텐츠',map:'회원 캠프 지도'};
+  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',calendar:'행사캘린더',support:'지원사업',content:'콘텐츠',map:'회원 캠프 지도'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
   loaders[page]();
   if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
@@ -1653,14 +1691,98 @@ function eventCard(e){
   return '<div class="ev-card">'+eventDateBox(e)+'<div class="ev-main"><div class="ev-title">'+esc(evTitle(e))+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>🏕 '+esc(evCampName(e))+'</span>'+(info?'<span>업체 '+esc(info.provider)+'</span>':'')+(evQty(e)>1?'<span>· '+evQty(e)+'매</span>':'')+price+'</div></div>'+status+'</div>';
 }
 
+
+function eventNumberValue(v){
+  if(v==null||v==='')return 0;
+  if(typeof v==='number')return Number.isFinite(v)?v:0;
+  const s=String(v).replace(/[^\d.-]/g,'');
+  const n=Number(s);
+  return Number.isFinite(n)?n:0;
+}
+function eventExplicitAmount(e){
+  const keys=['amount','used_amount','total_amount','price','locked_price','final_price','budget_amount'];
+  for(const k of keys){
+    const n=eventNumberValue(e?.[k]);
+    if(n>0)return {amount:n,source:k};
+  }
+  return {amount:0,source:''};
+}
+function calendarProvider(e){
+  return e?._provider||evProgramInfo(e)?.provider||e?.provider||e?.vendor||e?.company_name||'업체 미확인';
+}
+function normalizeBudgetCampName(name){
+  return String(name||'').replace(/\s+/g,'').replace(/캠핑장|야영장|관광농원|애견/g,'').trim();
+}
+function isForfeitedBudgetCamp(name){
+  const n=normalizeBudgetCampName(name);
+  return (EVENT_BUDGET_POLICY.forfeited_camp_names||[]).some(x=>normalizeBudgetCampName(x)===n);
+}
+function calendarCampLimit(camp){
+  return isForfeitedBudgetCamp(camp)?0:Number(EVENT_BUDGET_POLICY.final_budget_per_camp||0);
+}
+function calendarBundleCount(e,rows){
+  const d=evDate(e),t=evTitle(e);
+  if(!d||!t)return 1;
+  return (rows||_allEvents||[]).filter(x=>evDate(x)===d&&evTitle(x)===t&&String(x.bundle_type||'program')!=='ticket').length||1;
+}
+function calendarAutoPrice(e,rows){
+  const info=evProgramInfo(e),qty=evQty(e);
+  if(!info||!info.pricing)return {amount:0,source:'단가 미확인'};
+  const p=info.pricing||{};
+  if(p.ticket)return {amount:Number(p.ticket||0)*qty,source:'티켓단가×수량'};
+  const count=calendarBundleCount(e,rows);
+  if(count>=3&&p.bundle3)return {amount:Number(p.bundle3)||0,source:'3곳 묶음 추정'};
+  if(count>=2&&p.bundle2)return {amount:Number(p.bundle2)||0,source:'2곳 묶음 추정'};
+  if(p.single)return {amount:Number(p.single)||0,source:'단독단가 추정'};
+  if(p.bundle3)return {amount:Number(p.bundle3)||0,source:'3곳 단가 추정'};
+  if(p.bundle2)return {amount:Number(p.bundle2)||0,source:'2곳 단가 추정'};
+  return {amount:0,source:'단가 미확인'};
+}
+function calendarEventAmount(e,rows){
+  const explicit=eventExplicitAmount(e);
+  if(explicit.amount>0)return {amount:explicit.amount,source:explicit.source==='locked_price'?'확정단가':'입력금액'};
+  return calendarAutoPrice(e,rows);
+}
+function calendarCampUsage(rows){
+  const map={};
+  (rows||[]).forEach(e=>{
+    const c=evCampName(e);
+    if(!c||isForfeitedBudgetCamp(c))return;
+    if(!map[c])map[c]={camp:c,used:0,count:0,limit:calendarCampLimit(c)};
+    const a=calendarEventAmount(e,rows).amount;
+    map[c].used+=a;map[c].count++;
+  });
+  Object.values(map).forEach(x=>{x.remain=x.limit-x.used;});
+  return Object.values(map).sort((a,b)=>a.remain-b.remain||b.used-a.used||a.camp.localeCompare(b.camp,'ko'));
+}
+function calendarProviderUsage(rows){
+  const map={};
+  (rows||[]).forEach(e=>{
+    const p=calendarProvider(e);
+    if(!map[p])map[p]={provider:p,used:0,count:0,camps:new Set(),programs:new Set()};
+    map[p].used+=calendarEventAmount(e,rows).amount;
+    map[p].count++;
+    map[p].camps.add(evCampName(e));
+    map[p].programs.add(evTitle(e));
+  });
+  return Object.values(map).map(x=>Object.assign(x,{campCount:x.camps.size,programCount:x.programs.size})).sort((a,b)=>b.used-a.used||b.count-a.count||a.provider.localeCompare(b.provider,'ko'));
+}
+function renderCalendarPolicy(){
+  const el=g('calendar-policy');if(!el)return;
+  const p=EVENT_BUDGET_POLICY;
+  el.innerHTML='<div class="policy-card"><div class="pnum">'+won(p.final_budget_per_camp)+'</div><div class="plbl">캠프별 최종 한도</div><div class="pmeta">기본+포기분+해밀터 차액</div></div><div class="policy-card"><div class="pnum">'+won(p.project_total_budget)+'</div><div class="plbl">총 지원 기준</div><div class="pmeta">21곳 기준</div></div><div class="policy-card"><div class="pnum">'+won(p.hamilton_used_amount)+'</div><div class="plbl">해밀터 사용액</div><div class="pmeta">차액 재분배 반영</div></div><div class="policy-card"><div class="pnum">상시</div><div class="plbl">신청 마감</div><div class="pmeta">마감시간 없음</div></div>';
+}
 async function loadCalendarPage(){
   const list=g('calendar-list'),controls=g('calendar-controls'),summary=g('calendar-summary');
   if(list)list.innerHTML='<div class="loading">불러오는 중...</div>';
+  renderCalendarPolicy();
   const r=await fetchCampEventsSafe();
   const camps=[...new Set((_allEvents||[]).map(evCampName).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+  const providers=[...new Set((_allEvents||[]).map(calendarProvider).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
   if(controls){
     const catOptions='<option value="all">전체 분류</option>'+Object.keys(EVENT_CATEGORY_META).map(k=>'<option value="'+k+'" '+(_calendarCat===k?'selected':'')+'>'+k+' '+esc(EVENT_CATEGORY_META[k].name)+'</option>').join('');
-    controls.innerHTML='<button class="btn bo btn-sm" onclick="moveCalendarMonth(-1)">‹ 이전달</button><input type="month" id="cal-month" value="'+esc(_calendarMonth)+'" onchange="_calendarMonth=this.value||todayLocalDate().slice(0,7);renderCalendarPage()"><button class="btn bo btn-sm" onclick="moveCalendarMonth(1)">다음달 ›</button><select id="cal-camp" onchange="_calendarCamp=this.value;renderCalendarPage()"><option value="all">전체 캠핑장</option>'+camps.map(c=>'<option value="'+esc(c)+'" '+(_calendarCamp===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select><select id="cal-cat" onchange="_calendarCat=this.value;renderCalendarPage()">'+catOptions+'</select><a class="btn bp btn-sm" href="events.html">event.html</a>';
+    const providerOptions='<option value="all">전체 업체</option>'+providers.map(p=>'<option value="'+esc(p)+'" '+(_calendarProvider===p?'selected':'')+'>'+esc(p)+'</option>').join('');
+    controls.innerHTML='<button class="btn bo btn-sm" onclick="moveCalendarMonth(-1)">‹ 이전달</button><input type="month" id="cal-month" value="'+esc(_calendarMonth)+'" onchange="_calendarMonth=this.value||todayLocalDate().slice(0,7);renderCalendarPage()"><button class="btn bo btn-sm" onclick="moveCalendarMonth(1)">다음달 ›</button><select id="cal-camp" onchange="_calendarCamp=this.value;renderCalendarPage()"><option value="all">전체 캠핑장</option>'+camps.map(c=>'<option value="'+esc(c)+'" '+(_calendarCamp===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select><select id="cal-cat" onchange="_calendarCat=this.value;renderCalendarPage()">'+catOptions+'</select><select id="cal-provider" onchange="_calendarProvider=this.value;renderCalendarPage()">'+providerOptions+'</select><button class="btn bo btn-sm" onclick="_calendarCamp=\'all\';_calendarCat=\'all\';_calendarProvider=\'all\';loadCalendarPage()">전체 보기</button><a class="btn bp btn-sm" href="events.html">event.html</a>';
   }
   if(r.error){if(summary)summary.innerHTML='';if(list)list.innerHTML='<div class="ev-empty">행사 데이터를 읽지 못했습니다.<br>'+esc(_lastEventsError)+'</div>';return;}
   renderCalendarPage();
@@ -1673,63 +1795,39 @@ function moveCalendarMonth(delta){
 }
 function renderCalendarPage(){
   const list=g('calendar-list'),summary=g('calendar-summary');if(!list)return;
-  let rows=(_allEvents||[]).filter(e=>{const d=evDate(e);return d&&d.slice(0,7)===_calendarMonth;});
+  const allRows=[...(_allEvents||[])];
+  let rows=allRows.filter(e=>{const d=evDate(e);return d&&d.slice(0,7)===_calendarMonth;});
   if(_calendarCamp!=='all')rows=rows.filter(e=>evCampName(e)===_calendarCamp);
   if(_calendarCat!=='all')rows=rows.filter(e=>evCategoryKey(e)===_calendarCat);
-  const campCount=new Set(rows.map(evCampName)).size;
-  const fixed=rows.filter(e=>!!e.finalized).length;
-  if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+rows.length+'</div><div class="mini-l">월간 행사</div><div class="mini-m">'+esc(_calendarMonth)+'</div></div><div class="mini-card"><div class="mini-n">'+campCount+'</div><div class="mini-l">참여 캠핑장</div><div class="mini-m">캠핑장별 표시</div></div><div class="mini-card"><div class="mini-n">'+fixed+'</div><div class="mini-l">확정 일정</div><div class="mini-m">검토 '+(rows.length-fixed)+'건</div></div>';
-  if(!rows.length){list.innerHTML='<div class="ev-empty">해당 월/캠핑장에 표시할 행사일정이 없습니다.</div>';return;}
-  const groups={};rows.forEach(e=>{const c=evCampName(e);(groups[c]=groups[c]||[]).push(e);});
-  list.innerHTML=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'ko')).map(c=>'<div class="cal-camp"><div class="cal-camp-h"><div class="cal-camp-title">'+esc(c)+'</div><div class="cal-camp-count">'+groups[c].length+'건</div></div>'+groups[c].sort((a,b)=>evDate(a).localeCompare(evDate(b))).map(e=>{const d=evDate(e);const day=d&&d.length>=10?parseInt(d.slice(8,10),10):'수시';return '<div class="cal-item"><div class="cal-date">'+(d?parseInt(d.slice(5,7),10)+'월':'수시')+'<b>'+day+'</b></div><div><div class="cal-title">'+esc(evTitle(e))+'</div><div class="cal-meta"><span>'+esc(evCategoryKey(e)+' '+evCatName(e))+'</span><span>'+esc(e._provider||'업체 미확인')+'</span><span>'+evQty(e)+'매</span><span>'+(e.finalized?'확정':'검토')+'</span></div></div>'+(e.finalized?'<span class="ev-status ev-locked">확정</span>':'<span class="ev-status ev-pending">검토</span>')+'</div>';}).join('')+'</div>').join('');
+  if(_calendarProvider!=='all')rows=rows.filter(e=>calendarProvider(e)===_calendarProvider);
+  const selectedUse=rows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
+  const allUse=allRows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
+  const campUsage=calendarCampUsage(allRows);
+  const totalLimit=campUsage.reduce((a,c)=>a+c.limit,0);
+  const totalRemain=totalLimit-allUse;
+  const providers=calendarProviderUsage(rows);
+  if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+won(selectedUse)+'</div><div class="mini-l">선택월 사용금액</div><div class="mini-m">'+esc(_calendarMonth)+' · '+rows.length+'건</div></div><div class="mini-card"><div class="mini-n">'+won(allUse)+'</div><div class="mini-l">전체 등록 사용액</div><div class="mini-m">등록 데이터 기준</div></div><div class="mini-card"><div class="mini-n '+(totalRemain<0?'over':'')+'">'+won(totalRemain)+'</div><div class="mini-l">등록 캠프 잔여합계</div><div class="mini-m">한도 '+won(totalLimit)+'</div></div>';
+  if(!rows.length){list.innerHTML='<div class="cal-budget-note">해당 조건의 행사 일정이 없습니다. 월/캠핑장/업체 필터를 조정하세요.</div>';return;}
+  const providerHtml='<div class="cal-provider-board"><div class="cal-board-card"><div class="cal-board-title">업체별 사용금액 TOP</div>'+providers.slice(0,8).map(p=>'<div class="cal-small-row"><strong>'+esc(p.provider)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+p.count+'건 · 캠프 '+p.campCount+'곳</span></strong><span>'+won(p.used)+'</span></div>').join('')+'</div><div class="cal-board-card"><div class="cal-board-title">잔여금액 위험 캠프</div>'+campUsage.slice(0,8).map(c=>'<div class="cal-small-row"><strong>'+esc(c.camp)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+c.count+'건 · 사용 '+won(c.used)+'</span></strong><span class="'+(c.remain<0?'over':'')+'">'+won(c.remain)+'</span></div>').join('')+'</div></div>';
+  const note='<div class="cal-budget-note">금액 기준: DB에 <b>locked_price/amount</b>가 있으면 해당 값을 우선합니다. 없으면 event.html 카탈로그 단가와 동일 날짜·동일 프로그램 묶음 수로 추정합니다. 실제 정산 전에는 영수증/계약서 금액으로 최종 확인하세요.</div>';
+  const sorted=rows.sort((a,b)=>(evDate(a)||'9999').localeCompare(evDate(b)||'9999')||calendarProvider(a).localeCompare(calendarProvider(b),'ko')||evCampName(a).localeCompare(evCampName(b),'ko'));
+  const ledger='<div class="cal-ledger"><div class="cal-ledger-h"><div><div class="cal-ledger-title">행사 일정·업체·예산 한눈표</div><div class="cal-ledger-sub">날짜 / 캠핑장 / 행사 업체 / 사용금액 / 잔여금액</div></div><div class="cal-ledger-sub">'+sorted.length+'건</div></div><div class="cal-money-row head"><div>날짜</div><div>행사/캠핑장</div><div>행사 업체</div><div style="text-align:right">사용금액</div><div style="text-align:right">캠프 잔여</div></div>'+sorted.map(e=>{const d=evDate(e);const amount=calendarEventAmount(e,allRows);const camp=evCampName(e);const used=campUsage.find(c=>c.camp===camp)?.used||0;const remain=calendarCampLimit(camp)-used;const key=evCategoryKey(e);const meta=categoryMeta(key);const dateBox=(!d||d.length<10)?'<div class="cal-day">수시<b>매</b></div>':'<div class="cal-day">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';return '<div class="cal-money-row">'+dateBox+'<div><div class="cal-event-name">'+esc(evTitle(e))+'</div><div class="cal-event-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>🏕 '+esc(camp)+'</span><span>'+evQty(e)+'매</span><span>'+(e.finalized?'확정':'검토')+'</span></div></div><div><div class="cal-provider-name">'+esc(calendarProvider(e))+'</div><div class="cal-provider-meta">'+esc(eventPricingLabel(evProgramInfo(e)))+'</div></div><div><div class="cal-money">'+won(amount.amount)+'</div><div class="cal-source">'+esc(amount.source)+'</div></div><div><div class="cal-money '+(remain<0?'over':remain<300000?'warn':'ok')+'">'+won(remain)+'</div><div class="cal-source">한도 '+won(calendarCampLimit(camp))+'</div></div></div>';}).join('')+'</div>';
+  list.innerHTML=note+providerHtml+ledger;
 }
 
 
-function renderSupportProgramFilter(){
-  const sel=g('support-program-filter');if(!sel)return;
-  const current=sel.value||'all';
-  const opts=['<option value="all">전체 프로그램</option>'];
-  Object.keys(EVENT_CATEGORY_META).forEach(cat=>{
-    const list=EVENT_PROGRAM_CATALOG.filter(p=>p.category===cat);
-    opts.push('<optgroup label="'+cat+' '+esc(EVENT_CATEGORY_META[cat].name)+'">'+list.map(p=>'<option value="'+esc(p.name)+'" '+(current===p.name?'selected':'')+'>'+esc(p.name)+' · '+esc(p.provider)+'</option>').join('')+'</optgroup>');
-  });
-  sel.innerHTML=opts.join('');if([...sel.options].some(o=>o.value===current))sel.value=current;
-}
-function renderSupportPolicy(){
-  const el=g('support-policy');if(!el)return;
-  const p=EVENT_BUDGET_POLICY;
-  el.innerHTML='<div class="policy-card"><div class="pnum">'+won(p.project_total_budget)+'</div><div class="plbl">총 지원 기준</div><div class="pmeta">21곳 기준</div></div><div class="policy-card"><div class="pnum">'+won(p.final_budget_per_camp)+'</div><div class="plbl">캠프별 최종 한도</div><div class="pmeta">기본+포기분+해밀터 차액</div></div><div class="policy-card"><div class="pnum">'+p.system_application_count+'곳</div><div class="plbl">시스템 신청</div><div class="pmeta">event.html 관리 대상</div></div><div class="policy-card"><div class="pnum">상시</div><div class="plbl">신청 마감</div><div class="pmeta">마감시간 없음</div></div>';
-}
-function renderCategoryDashboard(rows){
-  const el=g('support-category-dashboard');if(!el)return;
-  const counts=catalogCategoryCounts();
-  const used={A:0,B:0,C:0,D:0};(rows||[]).forEach(e=>{const k=evCategoryKey(e);if(used[k]!=null)used[k]++;});
-  el.innerHTML='<div class="catalog-board-title"><b>event.html 카테고리 세팅</b><span>프로그램 '+EVENT_PROGRAM_CATALOG.length+'개 · 업체 '+catalogProviderCounts().length+'개</span></div><div class="catalog-cats">'+Object.keys(EVENT_CATEGORY_META).map(k=>{const m=EVENT_CATEGORY_META[k];return '<div class="catalog-cat" style="background:'+esc(m.bg)+'"><div class="catalog-cat-top"><div style="display:flex;align-items:center;gap:7px"><span class="catalog-cat-code" style="background:'+esc(m.color)+'">'+k+'</span><span class="catalog-cat-name">'+esc(m.name)+'</span></div><span style="font-size:10px;font-weight:900;color:'+esc(m.color)+'">'+esc(m.role)+'</span></div><div class="catalog-cat-n">'+used[k]+' / '+counts[k]+'</div><div class="catalog-cat-desc">신청 '+used[k]+'건 · 등록 카탈로그 '+counts[k]+'개<br>'+esc(m.desc)+'</div></div>';}).join('')+'</div><div class="catalog-tagline">예산 산식: 총 1억 ÷ 21곳, 포기 2곳 재분배, 해밀터 사용액 715,000원 차액 재분배 → 최종 한도 '+won(EVENT_BUDGET_POLICY.final_budget_per_camp)+' / 곳</div>';
-}
-
+function renderSupportProgramFilter(){return;}
+function renderSupportPolicy(){return;}
+function renderCategoryDashboard(rows){return;}
 async function loadSupportPage(){
-  const list=g('support-list');if(list)list.innerHTML='<div class="loading">불러오는 중...</div>';
-  const r=await fetchCampEventsSafe();
-  if(r.error){if(list)list.innerHTML='<div class="ev-empty">지원사업 데이터를 읽지 못했습니다.<br>'+esc(_lastEventsError)+'</div>';return;}
-  renderSupportProgramFilter();renderSupportPolicy();renderCategoryDashboard(_allEvents);renderSupportPage();
+  const list=g('support-list');
+  const holder=document.querySelector('#page-support .support-empty');
+  if(holder){
+    holder.innerHTML='<div class="support-empty-k">지원사업 메뉴 비움</div><div class="support-empty-t">현재 데이터 계산은 행사캘린더로 통합했습니다.</div><div class="support-empty-d">요청에 따라 지원사업 메뉴는 데이터를 불러오지 않습니다. 예산/업체별 사용금액/잔여금액/행사 날짜/행사 업체 확인은 하단 메뉴의 <b>행사캘린더</b>에서만 진행합니다.</div>';
+  }
+  if(list)list.innerHTML='';
 }
-function renderSupportPage(){
-  const filter=g('support-filter')?.value||'all';
-  let rows=[...(_allEvents||[])];
-  if(filter==='locked')rows=rows.filter(e=>!!e.finalized);
-  else if(filter==='pending')rows=rows.filter(e=>!e.finalized);
-  else if(['A','B','C','D'].includes(filter))rows=rows.filter(e=>evCategoryKey(e)===filter);
-  const pfilter=g('support-program-filter')?.value||'all';
-  if(pfilter!=='all')rows=rows.filter(e=>evTitle(e)===pfilter);
-  renderCategoryDashboard(rows);
-  const total=rows.length, fixed=rows.filter(e=>!!e.finalized).length, qty=rows.reduce((a,e)=>a+evQty(e),0);
-  const summary=g('support-summary');if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+total+'</div><div class="mini-l">취합 건수</div><div class="mini-m">선택 조건 기준</div></div><div class="mini-card"><div class="mini-n">'+fixed+'</div><div class="mini-l">확정</div><div class="mini-m">검토 '+(total-fixed)+'건</div></div><div class="mini-card"><div class="mini-n">'+qty+'</div><div class="mini-l">수량 합계</div><div class="mini-m">업체 '+new Set(rows.map(e=>e._provider).filter(Boolean)).size+'개</div></div>';
-  const camps={};rows.forEach(e=>{const c=evCampName(e);if(!camps[c])camps[c]={total:0,fixed:0,qty:0};camps[c].total++;if(e.finalized)camps[c].fixed++;camps[c].qty+=evQty(e);});
-  const campBox=g('support-camps');if(campBox){const keys=Object.keys(camps).sort((a,b)=>camps[b].total-camps[a].total||a.localeCompare(b,'ko'));campBox.innerHTML='<div class="support-camp-table"><div class="support-row head"><div>캠핑장</div><div>취합</div><div>확정</div><div>수량</div></div>'+keys.map(c=>'<div class="support-row"><strong>'+esc(c)+'</strong><span>'+camps[c].total+'</span><span>'+camps[c].fixed+'</span><span>'+camps[c].qty+'</span></div>').join('')+'</div>';}
-  const list=g('support-list');if(!list)return;
-  if(!rows.length){list.innerHTML='<div class="ev-empty">해당 조건의 지원사업/행사 데이터가 없습니다.</div>';return;}
-  list.innerHTML=rows.sort((a,b)=>(evDate(a)||'9999').localeCompare(evDate(b)||'9999')).map(eventCard).join('');
-}
+function renderSupportPage(){loadSupportPage();}
 
 async function loadContent(){
   renderContentPlaybook();
