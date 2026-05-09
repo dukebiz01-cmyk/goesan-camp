@@ -849,7 +849,6 @@ input:focus,select:focus{
 <!-- MAIN APP -->
 <div id="screen-app" style="display:none">
   <div id="announcement-banner" style="display:none"></div>
-  <div id="deadline-budget-banner" style="display:none"></div>
   
   <div class="tabs">
     <div class="tab active" data-tab="my">🏕 내 캠프</div>
@@ -868,7 +867,7 @@ input:focus,select:focus{
     <div id="recruitment-banner" style="display:none"></div>
     
     <div class="bud-card" id="bud-display"></div>
-    <button class="btn-add" id="btn-add-event">＋ 새 행사 추가</button>
+    <button class="btn-add" id="btn-add-event">＋ 회원 예산신청 추가</button>
     
     <div class="card" id="join-opportunities-card" style="display:none">
       <h2 style="font-size:14px;display:flex;align-items:center;gap:6px">
@@ -902,8 +901,9 @@ input:focus,select:focus{
   <div id="tab-all" class="tab-content" style="display:none">
     <div class="card">
       <h2>📊 전체 캠프 현황</h2>
-      <div id="budget-policy-notice" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#92400e;line-height:1.6">
-        예산 재분배 계산 중...
+      <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#92400e;line-height:1.6">
+        ⚠️ <b>아빠의나무·강변캠핑장이 예산권을 포기했습니다.</b><br>
+        총 1억 ÷ 21곳 기준. 포기 2곳(아빠의나무·강변캠핑장) 금액과 해밀턴 사용액 715,000원 차액을 21곳에 균등 재분배 → 최종 한도 5,429,726원/곳
       </div>
       <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px">
         <button class="btn-view-toggle active" id="view-list-btn" type="button">📋 일정 보기</button>
@@ -911,7 +911,7 @@ input:focus,select:focus{
       </div>
       
       <div id="all-list-view">
-        <div id="budget-base-label" style="font-size:11px;color:var(--muted);margin-bottom:8px">기준 예산 계산 중...</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">최종 한도: 5,429,726원/캠프 · 기본 4,761,905 + 포기분 453,515 + 해밀턴 차액 214,306</div>
         <div id="all-camps"><div class="loading">불러오는 중</div></div>
       </div>
       
@@ -1059,7 +1059,7 @@ input:focus,select:focus{
 <!-- ADD EVENT MODAL -->
 <div class="modal-bg" id="modal" style="display:none">
   <div class="modal">
-    <h3>＋ 새 행사 추가 <button class="m-close" id="m-close">×</button></h3>
+    <h3>＋ 회원 예산신청 추가 <button class="m-close" id="m-close">×</button></h3>
     <div class="form-row">
       <label>대상 캠프</label>
       <div style="background:#f4f4f0;padding:10px;border-radius:8px;font-weight:700" id="m-camp-display"></div>
@@ -1149,49 +1149,52 @@ const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 // ============================================================
 // 데이터 정의
 // ============================================================
-// 총사업비 1억원을 21곳 기준으로 나눈 기본예산 + 아빠의나무 포기분 재분배 추가금
+// 예산 계산: 총 1억 / 21곳 기준 + 포기 2곳 재분배 + 해밀턴 미사용 차액 재분배
 const PROJECT_TOTAL_BUDGET = 100000000;
 const TOTAL_PROJECT_CAMPS = 21;
-const BUDGET = Math.round(PROJECT_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS); // 기본 배정액: 4,761,905원
-const FORFEITED_CAMP_NAME = "아빠의나무";
-const REDISTRIBUTION_TARGET_COUNT = 21; // 아빠의나무 포기분을 21곳 기준으로 재분배
-const EXTRA_BUDGET_PER_CAMP = Math.round(BUDGET / REDISTRIBUTION_TARGET_COUNT); // 추가금: 226,757원
-const ACTIVE_CAMP_BUDGET = BUDGET + EXTRA_BUDGET_PER_CAMP;
-const APPLICATION_DEADLINE_KST = "2026-05-09T14:00:00+09:00"; // 신청 마감: 2026-05-09 오후 2시(KST)
+const SELF_APPLICATION_COUNT = 4;
+const SYSTEM_APPLICATION_COUNT = 17;
+const FORFEITED_CAMP_COUNT = 2;
+const HAMILTON_CAMP_NAME = "해밀터"; // 화면 표기명 유지. 행정 문서상 해밀턴으로 부르는 캠프
+const HAMILTON_USED_AMOUNT = 715000;
+const APPLICATION_DEADLINE_KST = "2026-05-09T17:00:00+09:00"; // 일반회원 추가신청 17:00까지
+
+// 포기 캠프명: 두 번째 포기 캠프명이 확정되면 아래 배열에 추가하면 화면/예산/신청에서 자동 제외됩니다.
+const FORFEITED_CAMP_NAMES = ["아빠의나무", "강변캠핑장", "강변"];
+
+const BASE_BUDGET = Math.round(PROJECT_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS); // 4,761,905원
+const FORFEITED_TOTAL_BUDGET = BASE_BUDGET * FORFEITED_CAMP_COUNT; // 9,523,810원
+const FORFEIT_EXTRA_PER_CAMP = Math.round(FORFEITED_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS); // 453,515원
+const FIRST_STAGE_BUDGET = BASE_BUDGET + FORFEIT_EXTRA_PER_CAMP; // 5,215,420원
+const HAMILTON_UNUSED_AMOUNT = Math.max(0, FIRST_STAGE_BUDGET - HAMILTON_USED_AMOUNT); // 4,500,420원
+const HAMILTON_EXTRA_PER_CAMP = Math.round(HAMILTON_UNUSED_AMOUNT / TOTAL_PROJECT_CAMPS); // 214,306원
+const BUDGET = BASE_BUDGET + FORFEIT_EXTRA_PER_CAMP + HAMILTON_EXTRA_PER_CAMP; // 최종 5,429,726원
 
 function normalizeCampName(name){
-  return String(name || '')
-    .replace(/\s+/g, '')
-    .replace(/캠핑장|야영장/g, '')
-    .trim();
+  return String(name || '').replace(/\s+/g,'').replace(/캠핑장|야영장/g,'').trim();
 }
-function isForfeitedCamp(name){
-  return normalizeCampName(name) === normalizeCampName(FORFEITED_CAMP_NAME);
+function isForfeitedCampName(name){
+  const n = normalizeCampName(name);
+  return FORFEITED_CAMP_NAMES.some(x => normalizeCampName(x) === n);
 }
-function campExtraBudget(name){
-  return isForfeitedCamp(name) ? 0 : EXTRA_BUDGET_PER_CAMP;
+function campBudget(campName){
+  return isForfeitedCampName(campName) ? 0 : BUDGET;
 }
-function campBudget(name){
-  return isForfeitedCamp(name) ? 0 : ACTIVE_CAMP_BUDGET;
-}
-function budgetEligibleCamps(){
-  return state.camps.filter(c => !isForfeitedCamp(c.name));
+function eligibleCamps(){
+  return state.camps.filter(c => !isForfeitedCampName(c.name));
 }
 function totalBudgetLimit(){
-  return state.camps.reduce((sum,c) => sum + campBudget(c.name), 0);
+  return state.camps.reduce((sum,c)=>sum + campBudget(c.name), 0);
 }
 function isApplicationClosed(){
-  const deadline = new Date(APPLICATION_DEADLINE_KST).getTime();
-  return Number.isFinite(deadline) && Date.now() >= deadline;
+  return Date.now() >= new Date(APPLICATION_DEADLINE_KST).getTime();
 }
 function applicationDeadlineText(){
-  return "2026년 5월 9일 14:00";
+  return '2026년 5월 9일 17:00';
 }
-function budgetBreakdownText(name){
-  if(isForfeitedCamp(name)) return "예산권 포기 · 신청 불가";
-  return `기본 ${won(BUDGET)}(총 1억 ÷ 21곳) + 추가금 ${won(campExtraBudget(name))}`;
+function budgetBreakdownText(){
+  return `기본 ${won(BASE_BUDGET)} + 포기분 추가금 ${won(FORFEIT_EXTRA_PER_CAMP)} + 해밀턴 차액 추가금 ${won(HAMILTON_EXTRA_PER_CAMP)} = 최종 ${won(BUDGET)}`;
 }
-
 const ALL_CAMPS_DEFAULT = [
   {name:"가자우리집",group:"1조 표준A"},
   {name:"솔베이",group:"1조 표준A"},
@@ -1430,14 +1433,10 @@ function getIssues(){
     }
   }
   for(const c of state.camps.map(x=>x.name)){
-    const t = campSpent(c);
     const limit = campBudget(c);
-    if(isForfeitedCamp(c) && t > 0){
-      issues.push({type:"danger",date:"",title:`${c} 예산권 포기 캠프에 일정 존재`,detail:`아빠의나무는 적용 예산 0원입니다. 기존 일정은 삭제하거나 제외해야 합니다.`});
-      continue;
-    }
+    const t = campSpent(c);
     if(t>limit){
-      issues.push({type:"danger",date:"",title:`${c} 예산 초과`,detail:`사용 ${t.toLocaleString()}원 / 적용 예산 ${limit.toLocaleString()}원 (${(t-limit).toLocaleString()}원 초과)`});
+      issues.push({type:"danger",date:"",title:`${c} 예산 초과`,detail:`사용 ${won(t)} / 최종 한도 ${won(limit)} (${won(t-limit)} 초과)`});
     }
   }
   issues.sort((a,b)=>(a.date||"zzz").localeCompare(b.date||"zzz"));
@@ -1447,61 +1446,93 @@ function getIssues(){
 // ============================================================
 // 인증
 // ============================================================
+async function loadUserContext(user){
+  state.user = user;
+  state.member = null;
+  state.isAdmin = false;
+  state.myCamp = null;
+
+  // members/camps 조회 실패가 로그인 화면 진입을 막지 않도록 각각 독립 처리
+  try{
+    const {data:m, error} = await sb.from('members').select('*').eq('user_id',user.id).maybeSingle();
+    if(error) console.warn('members lookup', error);
+    state.member = m || null;
+    state.isAdmin = !!(m && m.role === 'admin');
+  }catch(e){
+    console.warn('members lookup failed:', e);
+  }
+
+  try{
+    const {data:myCampRow, error} = await sb.from('camps').select('*').eq('member_id',user.id).maybeSingle();
+    if(error) console.warn('my camp lookup', error);
+    state.myCamp = myCampRow ? myCampRow.name : null;
+  }catch(e){
+    console.warn('my camp lookup failed:', e);
+  }
+}
+
 async function checkAuth(){
-  const {data:{session}} = await sb.auth.getSession();
-  if(!session){showLogin();return false}
-  state.user = session.user;
-
-  // members 테이블에서 역할 조회
-  const {data:m, error} = await sb.from('members').select('*').eq('user_id',session.user.id).maybeSingle();
-  if(error){console.warn('members lookup',error)}
-  state.member = m;
-  state.isAdmin = m && m.role === 'admin';
-
-  // 본인이 owner인 캠프 찾기
-  const {data:myCampRow} = await sb.from('camps').select('*').eq('member_id',session.user.id).maybeSingle();
-  state.myCamp = myCampRow ? myCampRow.name : null;
-
-  showApp();
-  return true;
+  try{
+    const {data:{session}, error} = await sb.auth.getSession();
+    if(error) console.warn('session lookup', error);
+    if(!session || !session.user){showLogin();return false}
+    await loadUserContext(session.user);
+    showApp();
+    return true;
+  }catch(e){
+    console.error('checkAuth failed:', e);
+    showLogin();
+    return false;
+  }
 }
 
 async function login(email,pw){
   const msgEl = $("#login-msg");
-  msgEl.textContent = "⏳ 로그인 중...";
-  msgEl.style.color = "var(--muted)";
+  if(msgEl){
+    msgEl.textContent = "⏳ 로그인 중...";
+    msgEl.style.color = "var(--muted)";
+  }
   
   try{
     const {data, error} = await sb.auth.signInWithPassword({email, password: pw});
     if(error){
       console.error('로그인 에러:', error);
-      msgEl.style.color = "var(--danger)";
-      // 에러 메시지 한글화
-      let msg = error.message;
-      if(msg.includes('Invalid')) msg = "❌ 이메일 또는 비밀번호가 틀렸습니다";
-      else if(msg.includes('network')) msg = "❌ 네트워크 오류 — 인터넷 확인";
-      else msg = "❌ " + msg;
-      msgEl.textContent = msg;
+      if(msgEl){
+        msgEl.style.color = "var(--danger)";
+        let msg = error.message || "로그인 실패";
+        if(msg.includes('Invalid')) msg = "❌ 이메일 또는 비밀번호가 틀렸습니다";
+        else if(msg.toLowerCase().includes('network')) msg = "❌ 네트워크 오류 — 인터넷 확인";
+        else msg = "❌ " + msg;
+        msgEl.textContent = msg;
+      }
       return false;
     }
-    if(!data || !data.session){
-      msgEl.style.color = "var(--danger)";
-      msgEl.textContent = "❌ 세션 생성 실패";
+    if(!data || !data.session || !data.session.user){
+      if(msgEl){
+        msgEl.style.color = "var(--danger)";
+        msgEl.textContent = "❌ 세션 생성 실패";
+      }
       return false;
     }
     
-    msgEl.textContent = "✅ 로그인 성공, 데이터 로드 중...";
-    msgEl.style.color = "var(--ok)";
-    
-    await checkAuth();
-    
+    if(msgEl){
+      msgEl.textContent = "✅ 로그인 성공, 화면 여는 중...";
+      msgEl.style.color = "var(--ok)";
+    }
+
+    // 핵심: 로그인 성공 즉시 앱 화면을 먼저 연다.
+    // 이후 members/camps/events 조회가 일부 실패해도 화면이 닫히지 않게 한다.
+    await loadUserContext(data.session.user);
+    showApp();
+
     try{
       await loadAll();
     } catch(err){
       console.error('데이터 로드 에러:', err);
-      msgEl.style.color = "var(--warn)";
-      msgEl.textContent = "⚠️ 일부 데이터 로드 실패 — 새로고침 시도";
-      // 데이터 로드 실패해도 로그인은 성공한 것으로 처리
+      if(msgEl){
+        msgEl.style.color = "var(--warn)";
+        msgEl.textContent = "⚠️ 로그인은 성공. 데이터 일부 로드 실패 — 새로고침 시도";
+      }
     }
     
     try{
@@ -1513,8 +1544,10 @@ async function login(email,pw){
     return true;
   } catch(err){
     console.error('로그인 예외:', err);
-    msgEl.style.color = "var(--danger)";
-    msgEl.textContent = "❌ 예상치 못한 오류: " + (err.message || '알 수 없음');
+    if(msgEl){
+      msgEl.style.color = "var(--danger)";
+      msgEl.textContent = "❌ 예상치 못한 오류: " + (err.message || '알 수 없음');
+    }
     return false;
   }
 }
@@ -1529,10 +1562,13 @@ function showLogin(){
   $("#screen-app").style.display = "none";
 }
 function showApp(){
-  $("#screen-login").style.display = "none";
-  $("#screen-app").style.display = "block";
+  const loginScreen = $("#screen-login");
+  const appScreen = $("#screen-app");
+  if(loginScreen) loginScreen.style.display = "none";
+  if(appScreen) appScreen.style.display = "block";
   const role = state.isAdmin ? '<span class="role-badge admin">관리자</span>' : (state.myCamp ? '<span class="role-badge">캠프 owner</span>' : '<span class="role-badge">회원</span>');
-  $("#user-info").innerHTML = `${state.user.email}${role}`;
+  const userInfo = $("#user-info");
+  if(userInfo) userInfo.innerHTML = `${state.user?.email || '로그인 사용자'}${role}`;
   // 관리자 탭 표시
   document.querySelectorAll('.admin-only').forEach(el=>{
     el.style.display = state.isAdmin ? '' : 'none';
@@ -1565,8 +1601,8 @@ async function loadCamps(){
 async function loadEvents(){
   const {data, error} = await sb.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
   if(error){console.error(error); state.events = [];return}
-  // 아빠의나무는 예산권 포기 처리: 기존 DB에 남아있는 일정도 화면/예산/묶음 계산에서 제외
-  state.events = (data || []).filter(e => !isForfeitedCamp(e.camp_name));
+  // 포기 캠프의 기존 신청 내역은 예산/묶음/화면 계산에서 제외
+  state.events = (data || []).filter(e => !isForfeitedCampName(e.camp_name));
 }
 async function loadAll(){
   // 각 단계 실패해도 다른 데이터 로드는 계속
@@ -1648,10 +1684,7 @@ function renderCampPicker(){
     grouped[g].push(c);
   }
   sel.innerHTML = Object.entries(grouped).map(([g,cs])=>
-    `<optgroup label="${g}">${cs.map(c=>{
-      const forfeited = isForfeitedCamp(c.name);
-      return `<option value="${c.name}" ${c.name===state.selectedCamp?"selected":""} ${forfeited?"disabled":""}>${c.name}${forfeited?" (예산권 포기)":""}</option>`;
-    }).join("")}</optgroup>`
+    `<optgroup label="${g}">${cs.map(c=>`<option value="${c.name}" ${c.name===state.selectedCamp?"selected":""}>${c.name}</option>`).join("")}</optgroup>`
   ).join("");
 
   // owner인 경우 캠프 변경 제한 (admin 제외)
@@ -1668,46 +1701,51 @@ function renderCampPicker(){
 function renderBudget(){
   const c = state.selectedCamp;
   if(!c){$("#bud-display").innerHTML='<div class="empty">캠프를 선택하세요</div>';return}
-  const spent = campSpent(c);
-  const limit = campBudget(c);
-  const extra = campExtraBudget(c);
-  const remain = limit - spent;
-  const pct = limit > 0 ? Math.min(100,Math.round(spent/limit*100)) : (spent > 0 ? 100 : 0);
-  const cls = isForfeitedCamp(c) || remain<0 ? "over" : pct>=90 ? "warn" : "ok";
 
-  if(isForfeitedCamp(c)){
+  const addBtn = $("#btn-add-event");
+  const forfeited = isForfeitedCampName(c);
+  const closed = isApplicationClosed();
+
+  if(addBtn){
+    addBtn.disabled = forfeited || (closed && !state.isAdmin);
+    addBtn.textContent = forfeited ? '예산권 포기 — 신청 불가' : (closed && !state.isAdmin) ? '신청 마감 — 관리자만 가능' : '＋ 회원 예산신청 추가';
+  }
+
+  if(forfeited){
     $("#bud-display").innerHTML = `
       <div class="bud-row">
-        <div class="bud-label">${c} (${getCampGroup(c)})</div>
-        <div class="bud-amount over">예산권 포기</div>
+        <div class="bud-label">${c} · 예산권 포기</div>
+        <div class="bud-amount over">0원</div>
       </div>
-      <div style="background:var(--danger-bg);border:1px solid #FCA5A5;border-radius:10px;padding:12px;font-size:13px;color:#991B1B;line-height:1.6">
-        이 캠핑장은 신청 대상에서 제외되었습니다.<br>
-        기본 배정액 ${won(BUDGET)}은 0원 처리되고, 포기분은 21곳 기준으로 나눠 다른 캠핑장에 추가금으로 반영됩니다.
+      <div class="bud-bar"><div class="bud-fill over" style="width:0%"></div></div>
+      <div class="bud-stats"><span>신청 불가</span><span>포기 업체</span></div>
+      <div style="margin-top:10px;font-size:12px;line-height:1.6;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:10px">
+        포기 2곳(아빠의나무·강변캠핑장) 금액과 해밀턴 미사용 차액은 21곳 기준으로 재분배되어 이용 캠핑장 한도에 추가금으로 반영됩니다.
       </div>
-      <div class="bud-stats" style="margin-top:10px"><span>사용 ${won(spent)}</span><span>적용 예산 ${won(limit)}</span></div>
     `;
     return;
   }
 
+  const spent = campSpent(c);
+  const limit = campBudget(c);
+  const remain = limit - spent;
+  const pct = limit > 0 ? Math.min(100,Math.round(spent/limit*100)) : 0;
+  const cls = remain<0?"over":pct>=90?"warn":"ok";
   $("#bud-display").innerHTML = `
     <div class="bud-row">
       <div class="bud-label">${c} (${getCampGroup(c)})</div>
       <div class="bud-amount ${cls}">${won(remain)}</div>
     </div>
     <div class="bud-bar"><div class="bud-fill ${cls}" style="width:${pct}%"></div></div>
-    <div class="bud-stats"><span>사용 ${won(spent)}</span><span>적용 예산 ${won(limit)}</span></div>
-    <div style="margin-top:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:12px;color:#1E40AF;line-height:1.6">
-      💰 <b>추가금 적용</b>: ${budgetBreakdownText(c)}<br>
-      아빠의나무 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = <b>${won(extra)}</b> 추가 배정
+    <div class="bud-stats"><span>사용 ${won(spent)}</span><span>최종 한도 ${won(limit)}</span></div>
+    <div style="margin-top:10px;font-size:12px;line-height:1.6;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
+      ${budgetBreakdownText()}<br>
+      <span style="color:#64748b">포기 2곳 ${won(FORFEITED_TOTAL_BUDGET)} ÷ 21곳 = ${won(FORFEIT_EXTRA_PER_CAMP)} / 해밀턴 차액 ${won(HAMILTON_UNUSED_AMOUNT)} ÷ 21곳 = ${won(HAMILTON_EXTRA_PER_CAMP)}</span><br>
+      <span style="color:#64748b">일반회원 신청 마감: ${applicationDeadlineText()}</span>
     </div>
   `;
 }
-
 function canEdit(camp){
-  if(!camp) return false;
-  if(isForfeitedCamp(camp)) return false;
-  if(isApplicationClosed() && !state.isAdmin) return false;
   return state.isAdmin || state.myCamp === camp;
 }
 
@@ -1927,92 +1965,28 @@ function renderAllCamps(){
   $("#all-camps").innerHTML = state.camps.map(c=>{
     const t = campSpent(c.name);
     const limit = campBudget(c.name);
-    const extra = campExtraBudget(c.name);
     const remain = limit - t;
-    const pct = limit > 0 ? Math.min(100,Math.round(t/limit*100)) : (t > 0 ? 100 : 0);
-    const cls = isForfeitedCamp(c.name) || remain<0 ? "over" : pct>=90 ? "warn" : "ok";
+    const pct = limit > 0 ? Math.min(100,Math.round(t/limit*100)) : 0;
+    const cls = isForfeitedCampName(c.name) ? 'over' : remain<0?"over":pct>=90?"warn":"ok";
     const grp = c.group_name || c.group;
-    const forfeited = isForfeitedCamp(c.name);
+    const sub = isForfeitedCampName(c.name) ? '예산권 포기 · 신청/예산 제외' : `${grp} · 최종한도 ${won(limit)}`;
     return `
-      <div class="sum-row" style="${forfeited?'background:#FEF2F2;border-radius:10px;padding-left:10px;padding-right:10px':''}">
+      <div class="sum-row">
         <div>
-          <div class="sum-name"><span class="gd ${groupColor(grp)}"></span>${c.name}${forfeited?' <span style="font-size:10px;background:#FECACA;color:#991B1B;padding:2px 6px;border-radius:6px">예산권 포기</span>':''}</div>
-          <div class="sum-mini">${grp}${!forfeited ? ` · 추가금 ${won(extra)}` : ' · 신청 제외'}</div>
+          <div class="sum-name"><span class="gd ${groupColor(grp)}"></span>${c.name}${isForfeitedCampName(c.name)?' <span style="font-size:10px;color:#b91c1c">포기</span>':''}</div>
+          <div class="sum-mini">${sub}</div>
         </div>
         <div class="sum-amt">
           <div>${won(t)}</div>
-          <div class="sum-mini" style="color:${remain<0?"var(--danger)":"var(--ok)"}">${forfeited?'적용예산':remain<0?'초과':'잔액'} ${forfeited?won(limit):won(Math.abs(remain))}</div>
+          <div class="sum-mini" style="color:${remain<0?"var(--danger)":"var(--ok)"}">${isForfeitedCampName(c.name)?'제외':remain<0?"초과":"잔액"} ${won(Math.abs(remain))}</div>
         </div>
         <div class="sum-bar"><div class="${cls}" style="width:${pct}%"></div></div>
       </div>
     `;
   }).join("");
 }
-
-
-function renderDeadlineBudgetBanner(){
-  const eligibleCount = budgetEligibleCamps().length;
-  const closed = isApplicationClosed();
-
-  const el = $("#deadline-budget-banner");
-  if(el){
-    el.style.display = 'block';
-    el.innerHTML = `
-      <div style="background:${closed?'#FEF2F2':'#FFFBEB'};border:1px solid ${closed?'#FCA5A5':'#FCD34D'};border-left:4px solid ${closed?'#B91C1C':'#F59E0B'};border-radius:12px;padding:13px 14px;margin-bottom:12px;font-size:12px;color:${closed?'#991B1B':'#92400E'};line-height:1.6">
-        ${closed?'⛔':'⏰'} <b>신청마감: ${applicationDeadlineText()}</b>${closed?' · 일반 회원 신청 마감됨':' · 마감 전 신청 가능'}<br>
-        💰 기본 ${won(BUDGET)} + <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b> = 캠프당 ${won(ACTIVE_CAMP_BUDGET)}<br>
-        ${FORFEITED_CAMP_NAME}는 예산권 포기: 예산 0원 / 신규 신청 불가 · 현재 적용 대상 ${eligibleCount}곳
-      </div>
-    `;
-  }
-
-  const notice = $("#budget-policy-notice");
-  if(notice){
-    notice.innerHTML = `
-      ⚠️ <b>${FORFEITED_CAMP_NAME} 야영장 예산권 포기 반영 완료</b><br>
-      총사업비 ${won(PROJECT_TOTAL_BUDGET)} ÷ ${TOTAL_PROJECT_CAMPS}곳 = 기본 ${won(BUDGET)}<br>
-      ${FORFEITED_CAMP_NAME} 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b><br>
-      이 페이지 예산권 보유 캠프 ${eligibleCount}곳에 캠프당 <b>${won(ACTIVE_CAMP_BUDGET)}</b> 적용 · ${FORFEITED_CAMP_NAME}는 예산 0원 / 신청 불가
-    `;
-  }
-
-  const base = $("#budget-base-label");
-  if(base){
-    base.innerHTML = `기본예산 ${won(BUDGET)} + 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = <b>${won(ACTIVE_CAMP_BUDGET)}/캠프</b> · ${FORFEITED_CAMP_NAME} 제외`;
-  }
-}
-
-function syncAddButtonState(){
-  const btn = $("#btn-add-event");
-  if(!btn) return;
-  if(!state.selectedCamp){
-    btn.disabled = true;
-    btn.textContent = '캠프를 먼저 선택하세요';
-    return;
-  }
-  if(isForfeitedCamp(state.selectedCamp)){
-    btn.disabled = true;
-    btn.textContent = '아빠의나무 예산권 포기 — 신청 불가';
-    return;
-  }
-  if(isApplicationClosed() && !state.isAdmin){
-    btn.disabled = true;
-    btn.textContent = '신청 마감됨 (14:00)';
-    return;
-  }
-  if(!canEdit(state.selectedCamp)){
-    btn.disabled = true;
-    btn.textContent = '본인 캠프만 신청 가능';
-    return;
-  }
-  btn.disabled = false;
-  btn.textContent = '＋ 새 행사 추가';
-}
-
-
 function renderAll(){
   renderAnnouncementBanner();
-  renderDeadlineBudgetBanner();
   renderCampPicker();
   renderBudget();
   renderMyEvents();
@@ -2020,7 +1994,6 @@ function renderAll(){
   renderCalendar();
   renderIssues();
   renderAllCamps();
-  syncAddButtonState();
   if(state.isAdmin) renderAdmin();
 }
 
@@ -2713,7 +2686,7 @@ function renderAdminLoginInfo(){
       ${grouped[g].map(c=>`
         <div class="login-row">
           <div>
-            <div class="login-camp">${c.name}${isForfeitedCamp(c.name)?' <span style="font-size:9px;color:#dc2626">예산권 포기</span>':''}</div>
+            <div class="login-camp">${c.name}</div>
             ${c.member_email 
               ? `<div><span class="login-email">${c.member_email}</span><span class="login-pw">/ 1234</span></div>`
               : `<div class="login-empty">⚠️ owner 미매핑</div>`
@@ -2766,7 +2739,7 @@ function copyLoginInfoKakao(){
   lines.push('');
   lines.push('📋 사용법');
   lines.push('1. 본인 캠프 자동 선택됨');
-  lines.push(`2. 예산은 기본 ${won(BUDGET)} + 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = ${won(ACTIVE_CAMP_BUDGET)}에서 시작`);
+  lines.push('2. 최종 한도 5,429,726원에서 시작');
   lines.push('3. "+ 새 행사 추가" 클릭');
   lines.push('4. 카테고리 → 프로그램 → 날짜 선택');
   lines.push('5. 같은 날 같은 행사 신청한 다른 캠프와 자동 묶음 (할인 적용)');
@@ -2893,14 +2866,13 @@ async function loadAdminData(){
 
 function renderAdminStats(){
   const totalEvents = state.events.length;
-  const eligible = budgetEligibleCamps();
   const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name), 0);
   const totalBudget = totalBudgetLimit();
-  const usagePct = totalBudget > 0 ? Math.round(totalSpent/totalBudget*100) : 0;
+  const usagePct = Math.round(totalSpent/totalBudget*100);
   const issues = getIssues();
   const danger = issues.filter(i=>i.type==="danger").length;
   const warn = issues.filter(i=>i.type==="warn").length;
-  const activeCamps = eligible.filter(c=>campSpent(c.name)>0).length;
+  const activeCamps = state.camps.filter(c=>!isForfeitedCampName(c.name) && campSpent(c.name)>0).length;
 
   $("#admin-stats").innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -2909,7 +2881,7 @@ function renderAdminStats(){
         <div style="font-size:10px;color:#3b82f6">총 행사</div>
       </div>
       <div style="background:#dcfce7;padding:10px;border-radius:8px;text-align:center">
-        <div style="font-size:20px;font-weight:800;color:#166534">${activeCamps}/${eligible.length}</div>
+        <div style="font-size:20px;font-weight:800;color:#166534">${activeCamps}/${SYSTEM_APPLICATION_COUNT}</div>
         <div style="font-size:10px;color:#16a34a">참여 캠프</div>
       </div>
       <div style="background:#fef3c7;padding:10px;border-radius:8px;text-align:center">
@@ -2921,12 +2893,8 @@ function renderAdminStats(){
         <div style="font-size:10px;color:${danger>0?'#b91c1c':warn>0?'#c2410c':'#16a34a'}">충돌 (불가${danger}/주의${warn})</div>
       </div>
     </div>
-    <div style="margin-top:8px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px;font-size:11px;color:#1e40af;line-height:1.6">
-      💰 추가금: 아빠의나무 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = ${won(EXTRA_BUDGET_PER_CAMP)} / 캠프
-    </div>
   `;
 }
-
 
 function renderAdminCategories(){
   const counts = {A:0,B:0,C:0,D:0};
@@ -2959,8 +2927,8 @@ function renderAdminCampActivity(){
     const events = state.events.filter(e=>e.camp_name===c.name).length;
     const spent = campSpent(c.name);
     const limit = campBudget(c.name);
-    const pct = limit > 0 ? Math.round(spent/limit*100) || 0 : 0;
-    return {name:c.name, group:c.group_name || c.group || '', events, spent, pct, limit};
+    const pct = limit > 0 ? Math.round(spent/limit*100) : 0;
+    return {name:c.name, group:c.group_name || c.group || '', events, spent, pct};
   }).sort((a,b)=>b.events-a.events || b.spent-a.spent || a.name.localeCompare(b.name));
 
   const top5 = stats.slice(0,5);
@@ -2973,7 +2941,7 @@ function renderAdminCampActivity(){
         <span style="font-weight:700;color:${i===0?'#d97706':'#64748b'}">#${i+1}</span>
         <div>
           <div style="font-weight:600">${s.name}</div>
-          <div style="font-size:10px;color:var(--muted)">${s.group || '미지정'} · ${s.events}건${isForfeitedCamp(s.name)?' · 예산권 포기':''}</div>
+          <div style="font-size:10px;color:var(--muted)">${s.group || '미지정'} · ${s.events}건</div>
         </div>
         <div style="text-align:right">
           <div style="font-size:11px;font-weight:700">${s.pct}%</div>
@@ -3077,12 +3045,12 @@ function renderProgramOptions(selectedName=''){
 
 function openEventModal(prefill={}){
   if(!state.selectedCamp){toast('캠프를 먼저 선택하세요');return;}
-  if(isForfeitedCamp(state.selectedCamp)){toast('❌ 아빠의나무는 예산권 포기로 신청할 수 없습니다');return;}
-  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (14:00)');return;}
+  if(isForfeitedCampName(state.selectedCamp)){toast('❌ 예산권 포기 캠프는 신청할 수 없습니다');return;}
+  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   formState = {cat: prefill.cat || ''};
-  $("#m-camp-display").textContent = `${state.selectedCamp} (${getCampGroup(state.selectedCamp) || '조 미지정'}) · 적용예산 ${won(campBudget(state.selectedCamp))}`;
+  $("#m-camp-display").textContent = `${state.selectedCamp} (${getCampGroup(state.selectedCamp) || '조 미지정'})`;
   $("#m-date").value = prefill.date || '';
   $("#m-qty").value = prefill.qty || 1;
   $("#m-preview").innerHTML = '';
@@ -3182,15 +3150,14 @@ function updateEventPreview(){
   }
 
   const limit = campBudget(state.selectedCamp);
-  const extra = campExtraBudget(state.selectedCamp);
   const remainAfter = limit - campSpent(state.selectedCamp) - price;
   const cls = remainAfter < 0 ? 'err' : remainAfter < 300000 ? 'warn' : 'ok';
   pv.innerHTML = `
     <div class="preview ${cls}">
       <div class="pv-title">${remainAfter < 0 ? '⚠️ 예산 초과' : '✅ 추가 전 확인'}</div>
       ${details}
-      <div class="pv-row">적용 예산: <b>${won(limit)}</b> ${extra?`(기본 ${won(BUDGET)} + 추가금 ${won(extra)})`:''}</div>
       <div class="pv-price">예상 금액 ${won(price)}</div>
+      <div class="pv-row">총 한도: <b>${won(limit)}</b> <span style="color:#059669">(포기분+해밀턴 차액 추가금 포함)</span></div>
       <div class="pv-row">추가 후 잔액: <b>${won(remainAfter)}</b></div>
       ${remainAfter < 0 ? '<div style="font-size:12px;color:var(--danger);font-weight:700;margin-top:6px">예산 초과 상태입니다. 관리자만 강제 입력을 권장합니다.</div>' : ''}
     </div>
@@ -3262,6 +3229,8 @@ async function saveEvent(){
   const p = getSelectedProgram();
   if(!p){toast('프로그램을 선택하세요');return;}
   if(!state.selectedCamp){toast('캠프를 선택하세요');return;}
+  if(isForfeitedCampName(state.selectedCamp)){toast('❌ 예산권 포기 캠프는 신청할 수 없습니다');return;}
+  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   const isTicket = !!p.p.ticket;
@@ -3279,12 +3248,6 @@ async function saveEvent(){
   if(duplicate){toast('❌ 중복 일정입니다');return;}
 
   const existingCount = !isTicket ? state.events.filter(e=>e.event_date===date && e.program_name===p.n && e.bundle_type!=='ticket').length : 0;
-  const estimatedPrice = isTicket ? ticketPrice(p.n, qty) : autoPrice(p.n, existingCount + 1).price;
-  const remainAfter = campBudget(state.selectedCamp) - campSpent(state.selectedCamp) - estimatedPrice;
-  if(remainAfter < 0 && !state.isAdmin){
-    toast(`❌ 적용 예산 초과: ${won(Math.abs(remainAfter))} 초과`);
-    return;
-  }
 
   const payload = {
     camp_name: state.selectedCamp,
@@ -3415,7 +3378,7 @@ function downloadText(filename, text, type='text/plain;charset=utf-8'){
 }
 
 function generateEventsCsv(){
-  const rows = [['캠프명','조','날짜','분류','프로그램','수량','묶음유형','금액','적용예산','추가금','등록일']];
+  const rows = [['캠프명','조','날짜','분류','프로그램','수량','묶음유형','금액','등록일']];
   const sorted = [...state.events].sort((a,b)=>(a.camp_name||'').localeCompare(b.camp_name||'') || String(a.event_date||'').localeCompare(String(b.event_date||'')));
   for(const e of sorted){
     rows.push([
@@ -3427,8 +3390,6 @@ function generateEventsCsv(){
       e.qty || 1,
       e.bundle_type || 'program',
       getEventPrice(e),
-      campBudget(e.camp_name),
-      campExtraBudget(e.camp_name),
       e.created_at || ''
     ]);
   }
@@ -3444,24 +3405,23 @@ function generateSummaryText(){
   const totalEvents = state.events.length;
   const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name),0);
   const issues = getIssues();
-  const active = budgetEligibleCamps().filter(c=>campSpent(c.name)>0).length;
+  const active = state.camps.filter(c=>campSpent(c.name)>0).length;
   const lines = [];
   lines.push('🏕 괴산캠핑장협회 활성화 프로그램 요약');
   lines.push('━━━━━━━━━━━━━━━━━━━━');
   lines.push(`작성일: ${new Date().toLocaleString('ko-KR')}`);
-  const eligible = budgetEligibleCamps();
-  lines.push(`참여 캠프: ${active}/${eligible.length}곳`);
+  lines.push(`참여 캠프: ${active}/${state.camps.length}곳`);
   lines.push(`등록 행사: ${totalEvents}건`);
   lines.push(`총 편성액: ${won(totalSpent)}`);
-  lines.push(`전체 적용 예산: ${won(totalBudgetLimit())}`);
-  lines.push(`추가금: ${FORFEITED_CAMP_NAME} 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = ${won(EXTRA_BUDGET_PER_CAMP)} / 캠프`);
+  lines.push(`전체 예산 한도: ${won(totalBudgetLimit())}`);
+  lines.push(`1곳 최종 한도: ${won(BUDGET)} = 기본 ${won(BASE_BUDGET)} + 포기분 ${won(FORFEIT_EXTRA_PER_CAMP)} + 해밀턴 차액 ${won(HAMILTON_EXTRA_PER_CAMP)}`);
   lines.push(`검증 이슈: ${issues.length}건`);
   lines.push('');
   lines.push('[캠프별 현황]');
   for(const c of state.camps){
     const spent = campSpent(c.name);
     const cnt = state.events.filter(e=>e.camp_name===c.name).length;
-    lines.push(`${c.name}\t${getCampGroup(c.name)}\t${cnt}건\t사용 ${won(spent)}\t적용예산 ${won(campBudget(c.name))}\t추가금 ${won(campExtraBudget(c.name))}\t잔액 ${won(campBudget(c.name)-spent)}${isForfeitedCamp(c.name)?"\t예산권 포기":""}`);
+    lines.push(`${c.name}\t${getCampGroup(c.name)}\t${cnt}건\t사용 ${won(spent)}\t잔액 ${won(campBudget(c.name)-spent)}`);
   }
   if(issues.length){
     lines.push('');
@@ -3477,20 +3437,19 @@ function copySummary(){
 
 function generateReportBody(){
   const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name),0);
-  const eligible = budgetEligibleCamps();
-  const active = eligible.filter(c=>campSpent(c.name)>0).length;
+  const active = state.camps.filter(c=>campSpent(c.name)>0).length;
   const issues = getIssues();
   const byCat = {A:0,B:0,C:0,D:0};
   for(const e of state.events) byCat[e.category] = (byCat[e.category]||0)+1;
 
   return `2026년 괴산캠핑장협회 활성화 프로그램 운영계획\n\n` +
 `1. 사업 개요\n` +
-`- 대상: 괴산캠핑장협회 회원 캠프 ${state.camps.length}곳\n` +
-`- 예산 산식: 기본 ${won(BUDGET)} + 아빠의나무 포기분 재분배 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = 캠프당 ${won(ACTIVE_CAMP_BUDGET)}\n` +
-`- 아빠의나무: 예산권 포기, 예산 0원, 신규 신청 불가\n` +
-`- 총 적용 예산: ${won(totalBudgetLimit())}\n\n` +
+`- 대상: 괴산캠핑장협회 회원 캠프 ${state.camps.length}곳 (시스템 신청 ${SYSTEM_APPLICATION_COUNT}곳 / 자체 신청 ${SELF_APPLICATION_COUNT}곳 / 포기 ${FORFEITED_CAMP_COUNT}곳 기준)\n` +
+`- 최종 신청 한도: 캠프당 ${won(BUDGET)}\n` +
+`- 산식: 기본 ${won(BASE_BUDGET)} + 포기분 추가금 ${won(FORFEIT_EXTRA_PER_CAMP)} + 해밀턴 차액 추가금 ${won(HAMILTON_EXTRA_PER_CAMP)}\n` +
+`- 총 기준 예산: ${won(totalBudgetLimit())}\n\n` +
 `2. 등록 현황\n` +
-`- 참여 캠프: ${active}/${eligible.length}곳\n` +
+`- 참여 캠프: ${active}/${state.camps.length}곳\n` +
 `- 등록 행사: ${state.events.length}건\n` +
 `- 총 편성액: ${won(totalSpent)}\n` +
 `- 잔여 예산: ${won(totalBudgetLimit() - totalSpent)}\n\n` +
@@ -3503,7 +3462,7 @@ function generateReportBody(){
 state.camps.map(c=>{
   const spent = campSpent(c.name);
   const cnt = state.events.filter(e=>e.camp_name===c.name).length;
-  return `- ${c.name} (${getCampGroup(c.name)}): ${cnt}건 / 사용 ${won(spent)} / 적용예산 ${won(campBudget(c.name))} / 추가금 ${won(campExtraBudget(c.name))} / 잔액 ${won(campBudget(c.name)-spent)}${isForfeitedCamp(c.name)?' / 예산권 포기':''}`;
+  return `- ${c.name} (${getCampGroup(c.name)}): ${cnt}건 / ${won(spent)} / 잔액 ${won(campBudget(c.name)-spent)}`;
 }).join('\n') +
 `\n\n5. 검증 결과\n` +
 (issues.length ? issues.map((i,idx)=>`- ${idx+1}. ${i.title}: ${i.detail}`).join('\n') : '- 특이사항 없음') +
@@ -3688,6 +3647,22 @@ function toast(msg){
   document.body.appendChild(t);
   setTimeout(()=>t.remove(), 2500);
 }
+
+
+window.addEventListener('error', function(e){
+  console.error('GLOBAL_ERROR:', e.error || e.message);
+  const app = $("#screen-app");
+  const login = $("#screen-login");
+  // 로그인 이후 렌더 오류가 나도 빈 화면이 되지 않게 앱 화면 유지
+  if(state.user && app){
+    if(login) login.style.display = 'none';
+    app.style.display = 'block';
+    toast('⚠️ 화면 오류 일부 발생 — 새로고침 또는 관리자에게 문의');
+  }
+});
+window.addEventListener('unhandledrejection', function(e){
+  console.error('UNHANDLED_REJECTION:', e.reason);
+});
 
 async function initApp(){
   bindUIEvents();
