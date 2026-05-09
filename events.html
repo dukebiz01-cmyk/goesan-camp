@@ -1157,7 +1157,7 @@ const SYSTEM_APPLICATION_COUNT = 17;
 const FORFEITED_CAMP_COUNT = 2;
 const HAMILTON_CAMP_NAME = "해밀터"; // 화면 표기명 유지. 행정 문서상 해밀턴으로 부르는 캠프
 const HAMILTON_USED_AMOUNT = 715000;
-const APPLICATION_DEADLINE_KST = "2026-05-09T17:00:00+09:00"; // 일반회원 추가신청 17:00까지
+const APPLICATION_DEADLINE_KST = null; // 마감시간 없음: 일반회원 상시 신청 가능
 
 // 포기 캠프명: 두 번째 포기 캠프명이 확정되면 아래 배열에 추가하면 화면/예산/신청에서 자동 제외됩니다.
 const FORFEITED_CAMP_NAMES = ["아빠의나무", "강변캠핑장", "강변"];
@@ -1187,10 +1187,11 @@ function totalBudgetLimit(){
   return state.camps.reduce((sum,c)=>sum + campBudget(c.name), 0);
 }
 function isApplicationClosed(){
-  return Date.now() >= new Date(APPLICATION_DEADLINE_KST).getTime();
+  // 마감시간 없음: 일반회원도 시간 제한 없이 계속 신청 가능
+  return false;
 }
 function applicationDeadlineText(){
-  return '2026년 5월 9일 17:00';
+  return '마감시간 없음 · 상시 신청 가능';
 }
 function budgetBreakdownText(){
   return `기본 ${won(BASE_BUDGET)} + 포기분 추가금 ${won(FORFEIT_EXTRA_PER_CAMP)} + 해밀턴 차액 추가금 ${won(HAMILTON_EXTRA_PER_CAMP)} = 최종 ${won(BUDGET)}`;
@@ -1704,11 +1705,9 @@ function renderBudget(){
 
   const addBtn = $("#btn-add-event");
   const forfeited = isForfeitedCampName(c);
-  const closed = isApplicationClosed();
-
   if(addBtn){
-    addBtn.disabled = forfeited || (closed && !state.isAdmin);
-    addBtn.textContent = forfeited ? '예산권 포기 — 신청 불가' : (closed && !state.isAdmin) ? '신청 마감 — 관리자만 가능' : '＋ 회원 예산신청 추가';
+    addBtn.disabled = forfeited;
+    addBtn.textContent = forfeited ? '예산권 포기 — 신청 불가' : '＋ 회원 예산신청 추가';
   }
 
   if(forfeited){
@@ -1741,7 +1740,7 @@ function renderBudget(){
     <div style="margin-top:10px;font-size:12px;line-height:1.6;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px">
       ${budgetBreakdownText()}<br>
       <span style="color:#64748b">포기 2곳 ${won(FORFEITED_TOTAL_BUDGET)} ÷ 21곳 = ${won(FORFEIT_EXTRA_PER_CAMP)} / 해밀턴 차액 ${won(HAMILTON_UNUSED_AMOUNT)} ÷ 21곳 = ${won(HAMILTON_EXTRA_PER_CAMP)}</span><br>
-      <span style="color:#64748b">일반회원 신청 마감: ${applicationDeadlineText()}</span>
+      <span style="color:#64748b">일반회원 신청: ${applicationDeadlineText()}</span>
     </div>
   `;
 }
@@ -2134,7 +2133,7 @@ function getMyJoinOpportunities(myCamp){
     const savings = currentSingle - newAp.price;
     if(savings <= 0) continue;
     
-    // 마감 임박도 계산
+    // 행사일 임박도 계산
     const eventDate = new Date(e.event_date);
     const today = new Date();
     const daysLeft = Math.floor((eventDate - today) / (1000*60*60*24));
@@ -2153,7 +2152,7 @@ function getMyJoinOpportunities(myCamp){
   }
   
   return opps.sort((a,b) => {
-    // 마감 임박 우선, 그 다음 절감액
+    // 행사일 임박 우선, 그 다음 절감액
     if(a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
     return b.savings - a.savings;
   });
@@ -2170,7 +2169,7 @@ function renderRecruitmentBanner(opportunities){
   
   // 총 절감 가능액
   const totalSavings = opportunities.reduce((s,o) => s + o.savings, 0);
-  // 마감 임박 (14일 이내) 건수
+  // 행사일 임박 (14일 이내) 건수
   const urgent = opportunities.filter(o => o.daysLeft >= 0 && o.daysLeft <= 14).length;
   
   banner.style.display = 'block';
@@ -2179,7 +2178,7 @@ function renderRecruitmentBanner(opportunities){
       ${urgent > 0 ? '🚨' : '🎁'} 합류 가능 행사 ${opportunities.length}건!
     </div>
     <div class="rb-content">
-      ${urgent > 0 ? `<b>마감 임박 ${urgent}건</b> · ` : ''}지금 합류시 본인+상대 캠프 모두 단가 인하
+      ${urgent > 0 ? `<b>행사일 임박 ${urgent}건</b> · ` : ''}지금 합류시 본인+상대 캠프 모두 단가 인하
     </div>
     <div class="rb-savings">
       💰 본인 최대 ${won(totalSavings)} 절감 가능
@@ -2279,7 +2278,7 @@ function getOpenBundles(){
   }
   
   return result.sort((a,b) => {
-    // 마감 임박 우선
+    // 행사일 임박 우선
     if(a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
     return b.savings - a.savings;
   });
@@ -2346,12 +2345,12 @@ function copyRecruitmentKakao(){
   lines.push('지금 신청하시면 묶음 단가로 할인 적용됩니다!');
   lines.push('');
   
-  // 마감 임박 따로
+  // 행사일 임박 따로
   const urgent = open.filter(o => o.daysLeft >= 0 && o.daysLeft <= 14);
   const normal = open.filter(o => o.daysLeft > 14 || o.daysLeft < 0);
   
   if(urgent.length > 0){
-    lines.push('🔥 마감 임박 (14일 이내)');
+    lines.push('🔥 행사일 임박 (14일 이내)');
     lines.push('━━━━━━━━━━━━━━━━━━━');
     for(const o of urgent){
       const dStr = `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}`;
@@ -3046,7 +3045,6 @@ function renderProgramOptions(selectedName=''){
 function openEventModal(prefill={}){
   if(!state.selectedCamp){toast('캠프를 먼저 선택하세요');return;}
   if(isForfeitedCampName(state.selectedCamp)){toast('❌ 예산권 포기 캠프는 신청할 수 없습니다');return;}
-  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   formState = {cat: prefill.cat || ''};
@@ -3230,7 +3228,6 @@ async function saveEvent(){
   if(!p){toast('프로그램을 선택하세요');return;}
   if(!state.selectedCamp){toast('캠프를 선택하세요');return;}
   if(isForfeitedCampName(state.selectedCamp)){toast('❌ 예산권 포기 캠프는 신청할 수 없습니다');return;}
-  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (17:00)');return;}
   if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   const isTicket = !!p.p.ticket;
