@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.5-20260509-budget-amount-fix">
+<meta name="app-version" content="gca-v4.6-20260509-check-constraint-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.5 · 2026.05.09 · 예산안 금액 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.6 · 2026.05.09 · 23514 제약조건 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.5 · 2026.05.09 · 예산안 금액 안정화';
+const APP_VERSION='GCA v4.6 · 2026.05.09 · 23514 제약조건 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -853,12 +853,29 @@ function isDuplicateVoteError(err){
   const msg=String(err?.message||'')+' '+String(err?.details||'');
   return err?.code==='23505'||/duplicate key|unique constraint|already exists/i.test(msg);
 }
+function isCheckViolation(err){
+  const msg=String(err?.message||'')+' '+String(err?.details||'')+' '+String(err?.hint||'');
+  return err?.code==='23514'||/violates check constraint|check constraint/i.test(msg);
+}
+function stripRiskyBudgetColumnsForCheck(payload){
+  if(!payload)return null;
+  const order=['category','budget_source','approval_rule','status'];
+  for(const col of order){
+    if(Object.prototype.hasOwnProperty.call(payload,col)){
+      const next={...payload};
+      delete next[col];
+      return next;
+    }
+  }
+  return null;
+}
 function budgetErrText(err){
   if(!err)return '알 수 없는 오류';
   const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
   if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. budget_registration_repair_v4_4.sql을 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
+  if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 예산안 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
   if(isRelationshipError(err))return 'DB 외래키 관계 조회 오류입니다. 화면은 우회했지만, FK 관계를 정리하는 것이 좋습니다. 원문: '+detail;
   return detail||String(err);
 }
@@ -962,6 +979,10 @@ async function safeInsertBudgetProposal(basePayload,hasFiles){
       lastErr=error;
       console.warn('budget insert attempt failed:',error);
       if(isSchemaColumnError(error)){payload=stripUnknownBudgetColumns(payload,error);continue;}
+      if(isCheckViolation(error)){
+        const next=stripRiskyBudgetColumnsForCheck(payload);
+        if(next){payload=next;continue;}
+      }
       break;
     }
   }
