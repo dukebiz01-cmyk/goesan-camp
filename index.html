@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.12-20260509-42702-ambiguity-repair">
+<meta name="app-version" content="gca-v4.13-20260509-ops-hardening">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -73,13 +73,17 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .map-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.map-stat{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;text-align:center;box-shadow:var(--s1)}.map-stat-n{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--g);line-height:1}.map-stat-l{font-size:10px;color:var(--mid);font-weight:700;margin-top:4px}#assoc-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid var(--bdr);box-shadow:var(--s1);font-family:var(--fd)}.leaflet-popup-content{font-family:var(--fd);font-size:13px;line-height:1.6;margin:10px 12px}.leaflet-popup-content b{font-size:14px;color:var(--g);font-family:var(--fh);display:block;margin-bottom:4px}.leaflet-popup-content-wrapper{border-radius:14px}.region-legend{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:12px 14px;margin-top:10px;box-shadow:var(--s1)}.region-legend-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.region-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}.region-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .events-section{margin-top:22px;padding-top:18px;border-top:1px solid var(--cd)}.events-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px}.events-t{font-family:var(--fh);font-size:18px;font-weight:800}.events-link{font-size:12px;color:var(--g);font-weight:800;padding:6px 11px;background:var(--gp);border-radius:999px}.events-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.events-filter button{padding:6px 11px;border-radius:999px;border:1.5px solid transparent;background:#f2f5f1;color:var(--mid);font-size:11px;font-weight:800}.events-filter button.active{background:var(--g);color:#fff}.ev-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:13px 14px;margin-bottom:8px;box-shadow:var(--s1);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.ev-date{background:var(--gp);color:var(--g);border-radius:10px;padding:7px 9px;font-family:var(--fh);font-weight:800;font-size:11px;text-align:center;line-height:1.2;min-width:46px}.ev-date .ev-d{font-size:16px;display:block}.ev-date.ticket{background:var(--ab);color:var(--amber)}.ev-title{font-size:14px;font-weight:700;line-height:1.35;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.ev-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ev-cat{padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800}.ev-cat-A{background:#fef3c7;color:#92400e}.ev-cat-B{background:#fee2e2;color:#b91c1c}.ev-cat-C{background:#dbeafe;color:#1e40af}.ev-cat-D{background:#dcfce7;color:#15803d}.ev-status{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:800;flex-shrink:0;text-align:center;min-width:42px}.ev-locked{background:#dcfce7;color:#15803d}.ev-pending{background:#fef3c7;color:#92400e}.ev-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:14px;padding:20px;text-align:center;color:var(--mid);font-size:12px}
 
+
+.budget-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}.bs-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1);min-height:76px}.bs-n{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1;color:var(--g)}.bs-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px;letter-spacing:-.01em}.bs-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.35}.bs-card.warn .bs-n{color:var(--amber)}.bs-card.danger .bs-n{color:var(--red)}.ph-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.net-banner{position:fixed;left:10px;right:10px;top:10px;z-index:700;background:#111;color:#fff;border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.18);display:none}.net-banner.show{display:block}.sys-box{background:#f5f8f4;border:1px solid var(--cd);border-radius:14px;padding:12px;margin-bottom:10px}.sys-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--cd);padding:8px 0;font-size:12px}.sys-row:last-child{border-bottom:none}.sys-k{color:var(--mid);font-weight:800}.sys-v{font-weight:800;text-align:right;word-break:break-all}.sys-ok{color:var(--green)}.sys-warn{color:var(--amber)}.sys-bad{color:var(--red)}.draft-bar{background:#fff8e6;border:1px solid #f2d28a;border-radius:12px;padding:9px 10px;font-size:11px;color:#a16207;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.draft-bar .btn{padding:5px 9px;font-size:11px;border-radius:9px}.draft-actions{display:flex;gap:6px;flex-shrink:0}
+
 .version-mark{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:120;background:rgba(253,254,251,.88);border:1px solid rgba(24,33,26,.09);color:#6b756c;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:-.01em;box-shadow:0 4px 14px rgba(24,33,26,.05);backdrop-filter:blur(10px);pointer-events:none}
 @media(max-width:700px){.version-mark{left:50%;right:auto;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));font-size:9px;white-space:nowrap}}
-@media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
+@media(max-width:700px){.budget-summary{grid-template-columns:repeat(2,1fr)}.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
 </style>
 </head>
 <body>
 <div class="lovo" id="lovo"><div class="spin"></div></div>
+<div class="net-banner" id="net-banner">오프라인 상태입니다. 저장/투표 작업은 네트워크 복구 후 다시 시도하세요.</div>
 
 <div id="login-screen">
   <div class="lcard">
@@ -127,12 +131,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   <div class="page" id="page-budget">
     <div class="ph">
       <div><div class="ph-title">예산안 투표</div><div class="ph-sub">정관 제18조·33조 — 예산·결산은 이사회 의결 후 총회 승인을 받아야 합니다</div></div>
-      <button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button>
+      <div class="ph-actions"><button class="btn bo btn-sm" onclick="loadBudget()">↻ 새로고침</button><button class="btn bo btn-sm" id="btn-system-check" style="display:none" onclick="openSystemCheck()">시스템 점검</button><button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button></div>
     </div>
     <div class="budget-toolbar">
       <div class="seg" id="bf-seg"><button class="active" data-bf="all">전체</button><button data-bf="voting">진행중</button><button data-bf="approved">가결</button><button data-bf="rejected">부결</button><button data-bf="quorum_failed">정족수미달</button><button data-bf="draft">초안</button></div>
       <label class="bsearch"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="budget-search" type="search" placeholder="예산안 제목 검색"></label>
     </div>
+    <div id="budget-summary" class="budget-summary"></div>
     <div id="budget-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
@@ -171,7 +176,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.12 · 2026.05.09 · 42702 모호성 정리</div>
+<div class="version-mark" id="version-mark">GCA v4.13 · 2026.05.09 · 운영 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +187,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.12 · 2026.05.09 · 42702 모호성 정리';
+const APP_VERSION='GCA v4.13 · 2026.05.09 · 운영 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -197,6 +202,9 @@ let _authBootDone=false;
 let _manualLoginInProgress=false;
 const AUTH_RETURN_KEY='gca_oauth_manual_return';
 const AUTH_RETURN_TTL=10*60*1000;
+const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_13';
+let _proposalDraftTimer=null;
+let _lastSystemReport='';
 function markManualOAuthIntent(){try{sessionStorage.setItem(AUTH_RETURN_KEY,String(Date.now()));}catch(e){}}
 function clearManualOAuthIntent(){try{sessionStorage.removeItem(AUTH_RETURN_KEY);}catch(e){}}
 function hasFreshOAuthIntent(){try{const ts=Number(sessionStorage.getItem(AUTH_RETURN_KEY)||0);return ts>0&&(Date.now()-ts)<AUTH_RETURN_TTL;}catch(e){return false}}
@@ -347,6 +355,67 @@ function bindBudgetAmountInput(){
     updateBudgetAmountHelp();
   });
   updateBudgetAmountHelp();
+}
+
+function proposalDraftPayload(){
+  return {title:v('pr-title'),category:v('pr-cat'),source:v('pr-src'),amount:g('pr-amt')?.value||'',rule:v('pr-rule'),desc:v('pr-desc'),saved_at:new Date().toISOString(),version:APP_VERSION};
+}
+function isProposalDraftMeaningful(d){return !!(d&&(d.title||d.amount||d.desc));}
+function saveProposalDraftSoon(){
+  clearTimeout(_proposalDraftTimer);
+  _proposalDraftTimer=setTimeout(()=>{
+    try{const d=proposalDraftPayload();if(isProposalDraftMeaningful(d))localStorage.setItem(PROPOSAL_DRAFT_KEY,JSON.stringify(d));}
+    catch(e){console.warn('proposal draft save skipped:',e);}
+  },220);
+}
+function clearProposalDraft(){try{localStorage.removeItem(PROPOSAL_DRAFT_KEY);}catch(e){}}
+function readProposalDraft(){try{return JSON.parse(localStorage.getItem(PROPOSAL_DRAFT_KEY)||'null');}catch(e){return null}}
+function fillProposalDraft(d){
+  if(!d)return;
+  if(g('pr-title'))g('pr-title').value=d.title||'';
+  if(g('pr-cat')&&d.category)g('pr-cat').value=d.category;
+  if(g('pr-src')&&d.source)g('pr-src').value=d.source;
+  if(g('pr-amt'))g('pr-amt').value=d.amount||'';
+  if(g('pr-rule')&&d.rule)g('pr-rule').value=d.rule;
+  if(g('pr-desc'))g('pr-desc').value=d.desc||'';
+  updateBudgetAmountHelp();
+}
+function restoreProposalDraft(){const d=readProposalDraft();fillProposalDraft(d);toast('임시저장 내용을 복구했습니다');renderProposalDraftBar();}
+function discardProposalDraft(){clearProposalDraft();renderProposalDraftBar();toast('임시저장을 삭제했습니다');}
+function renderProposalDraftBar(){
+  const bar=g('proposal-draft-bar');if(!bar)return;
+  const d=readProposalDraft();
+  if(!isProposalDraftMeaningful(d)){bar.innerHTML='';return;}
+  const when=d.saved_at?fdt(d.saved_at):'';
+  bar.innerHTML='<div class="draft-bar"><span>임시저장 예산안이 있습니다'+(when?' · '+esc(when):'')+'</span><div class="draft-actions"><button type="button" class="btn bo" onclick="restoreProposalDraft()">복구</button><button type="button" class="btn br" onclick="discardProposalDraft()">삭제</button></div></div>';
+}
+function bindProposalDraft(){
+  ['pr-title','pr-cat','pr-src','pr-amt','pr-rule','pr-desc'].forEach(id=>{const el=g(id);if(el&&!el._draftBind){el._draftBind=1;el.addEventListener('input',saveProposalDraftSoon);el.addEventListener('change',saveProposalDraftSoon);}});
+  renderProposalDraftBar();
+}
+function updateNetBanner(){const b=g('net-banner');if(!b)return;b.classList.toggle('show',navigator.onLine===false);}
+function systemRow(k,v,state='ok'){const cls=state==='bad'?'sys-bad':state==='warn'?'sys-warn':'sys-ok';return '<div class="sys-row"><div class="sys-k">'+esc(k)+'</div><div class="sys-v '+cls+'">'+esc(v)+'</div></div>';}
+async function openSystemCheck(){
+  if(App.role!=='admin'){toast('관리자만 시스템 점검을 볼 수 있습니다');return;}
+  g('mo-body').innerHTML='<div class="mot">시스템 점검</div><div class="loading">점검 중...</div>';
+  g('mover').classList.add('open');
+  const rows=[];const report=[];
+  function add(k,v,state='ok'){rows.push(systemRow(k,v,state));report.push(k+': '+v);}
+  add('앱 버전',APP_VERSION,'ok');
+  add('네트워크',navigator.onLine?'온라인':'오프라인',navigator.onLine?'ok':'bad');
+  add('로그인 회원',((App.member?.camp_name||App.member?.name||'미확인')+' / '+(App.role||'role 없음')),App.member?'ok':'bad');
+  add('현재 페이지',_currentPage||'알 수 없음','ok');
+  try{const {count,error}=await db.from('members').select('id',{count:'exact',head:true}).eq('is_active',true).eq('is_voter',true);add('투표권 회원 수',error?error.message:String(count??0),error?'bad':'ok');}catch(e){add('투표권 회원 수',e.message||String(e),'bad');}
+  try{const {count,error}=await db.from('budget_proposals').select('id',{count:'exact',head:true});add('예산안 테이블',error?error.message:'접근 가능 · '+(count??0)+'건',error?'bad':'ok');}catch(e){add('예산안 테이블',e.message||String(e),'bad');}
+  try{const {count,error}=await db.from('votes').select('id',{count:'exact',head:true});add('투표 테이블',error?error.message:'접근 가능 · '+(count??0)+'건',error?'bad':'ok');}catch(e){add('투표 테이블',e.message||String(e),'bad');}
+  try{const {data,error}=await db.auth.getUser();add('Supabase Auth',error?error.message:(data?.user?.email||'세션 확인됨'),error?'bad':'ok');}catch(e){add('Supabase Auth',e.message||String(e),'bad');}
+  add('점검 시각',fdt(new Date().toISOString()),'ok');
+  _lastSystemReport=report.join('\n');
+  g('mo-body').innerHTML='<div class="mot">시스템 점검</div><div class="sys-box">'+rows.join('')+'</div><div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;line-height:1.55;margin-bottom:12px">오류가 반복되면 아래 복사 버튼으로 점검 내용을 저장해 두세요. DB 구조 문제는 SQL, 화면 문제는 HTML 버전부터 확인합니다.</div><div class="moa"><button class="btn bo" onclick="copySystemReport()">점검내용 복사</button><button class="btn bp" onclick="closeMo()">닫기</button></div>';
+}
+async function copySystemReport(){
+  try{await navigator.clipboard.writeText(_lastSystemReport||APP_VERSION);toast('점검 내용을 복사했습니다');}
+  catch(e){alert(_lastSystemReport||APP_VERSION);}
 }
 function errMsg(error){return error?.message||String(error||'알 수 없는 오류')}
 function isMissingColumn(error,col){const m=(error?.message||'').toLowerCase();return error?.code==='42703'||m.includes('column')&&m.includes(String(col).toLowerCase())}
@@ -533,7 +602,7 @@ function showApp(){
   const isAdmin=App.role==='admin';
   const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
   g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
-  ['btn-notice','btn-meeting','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
+  ['btn-notice','btn-meeting','btn-proposal','btn-system-check'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
   initMC();
   const hash=(location.hash||'').replace('#','');
@@ -558,6 +627,9 @@ window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page
 
 document.addEventListener('DOMContentLoaded',async()=>{
   console.log('GCA APP VERSION', APP_VERSION);
+  updateNetBanner();
+  window.addEventListener('online',updateNetBanner);
+  window.addEventListener('offline',updateNetBanner);
   try{localStorage.removeItem('gca_mc');}catch(e){}
   if(g('kk-oc'))g('kk-oc').href=KK_OC;if(g('kk-ch'))g('kk-ch').href=KK_CH;
 
@@ -639,11 +711,15 @@ async function openNotice(id){
 async function submitNotice(){
   const title=v('n-title'),content=v('n-content'),pinned=g('n-pin').checked;
   if(!title||!content){toast('제목과 내용을 입력하세요');return;}
+  const lock='notice-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
-  if(!error&&data){const fi=g('n-file');if(fi.files.length)await uploadAtt(fi.files,'notice',data.id);}
-  load(false);if(error){toast('오류: '+error.message);return;}
-  toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
+  try{
+    const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
+    if(error){load(false);_actionLocks.delete(lock);toast('오류: '+error.message);return;}
+    if(data){const fi=g('n-file');if(fi?.files?.length)await uploadAtt(fi.files,'notice',data.id);}
+    load(false);_actionLocks.delete(lock);
+    toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
+  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
 }
 async function delNotice(id){
   if(!confirm('삭제하시겠습니까?'))return;
@@ -670,20 +746,33 @@ async function openMeeting(id){
 async function submitMeeting(){
   const title=v('mt-title'),date=v('mt-date'),chat=v('mt-chat'),agenda=v('mt-agenda');
   if(!title||!date){toast('제목과 날짜를 입력하세요');return;}
+  const dt=new Date(date);if(!validDate(dt)){toast('회의 날짜 형식이 올바르지 않습니다');return;}
+  const lock='meeting-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  const {error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:new Date(date).toISOString(),kakao_chat_url:chat||null,status:'upcoming'});
-  load(false);if(error){toast('오류: '+error.message);return;}
-  toast('회의 등록 완료 ✓');closeMo();loadMeetings();
+  try{
+    const {error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:dt.toISOString(),kakao_chat_url:chat||null,status:'upcoming'});
+    load(false);_actionLocks.delete(lock);
+    if(error){toast('오류: '+error.message);return;}
+    toast('회의 등록 완료 ✓');closeMo();loadMeetings();
+  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
 }
 function openMinutes(id){closePan();openModal('minutes');g('min-id').value=id;}
 async function submitMinutes(){
   const id=g('min-id').value,m=v('min-content');if(!m){toast('내용을 입력하세요');return;}
-  load(true);const {error}=await db.from('meetings').update({minutes:m,status:'done'}).eq('id',id);load(false);
-  if(error){toast('오류: '+error.message);return;}toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
+  const lock='minutes-submit:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
+  load(true);
+  try{
+    const {error}=await db.from('meetings').update({minutes:m,status:'done'}).eq('id',id);
+    load(false);_actionLocks.delete(lock);
+    if(error){toast('오류: '+error.message);return;}
+    toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
+  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
 }
 
 async function loadBudget(){
-  const list=g('budget-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const list=g('budget-list'),sum=g('budget-summary');
+  if(sum)sum.innerHTML='';
+  list.innerHTML='<div class="loading">불러오는 중...</div>';
   const br=await selectBudgetProposals();
   if(br.error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(budgetErrText(br.error))+'</div>';return;}
   const rows=br.data||[];
@@ -691,7 +780,18 @@ async function loadBudget(){
   const ids=rows.map(p=>p.id).filter(Boolean);
   const [counts,mv]=await Promise.all([loadVoteCounts(ids),loadMyVotes(ids)]);
   const viewRows=rows.map(p=>applyVoteCounts(p,counts));
+  renderBudgetSummary(viewRows);
   list.innerHTML=viewRows.map(p=>renderP(p,mv)).join('');bindBudgetBar();applyBF();
+}
+function renderBudgetSummary(rows){
+  const el=g('budget-summary');if(!el)return;
+  const s={draft:{c:0,a:0},voting:{c:0,a:0},approved:{c:0,a:0},rejected:{c:0,a:0},quorum_failed:{c:0,a:0}};
+  (rows||[]).forEach(p=>{const st=p.status||'draft';if(!s[st])s[st]={c:0,a:0};s[st].c++;s[st].a+=Number(p.amount)||0;});
+  const activeC=s.draft.c+s.voting.c,activeA=s.draft.a+s.voting.a;
+  el.innerHTML='<div class="bs-card warn"><div class="bs-n">'+activeC+'</div><div class="bs-l">검토/진행 안건</div><div class="bs-m">'+won(activeA)+'</div></div>'+ 
+    '<div class="bs-card"><div class="bs-n">'+s.voting.c+'</div><div class="bs-l">투표중</div><div class="bs-m">'+won(s.voting.a)+'</div></div>'+ 
+    '<div class="bs-card"><div class="bs-n">'+s.approved.c+'</div><div class="bs-l">가결</div><div class="bs-m">'+won(s.approved.a)+'</div></div>'+ 
+    '<div class="bs-card danger"><div class="bs-n">'+(s.rejected.c+s.quorum_failed.c)+'</div><div class="bs-l">부결/정족수미달</div><div class="bs-m">'+won(s.rejected.a+s.quorum_failed.a)+'</div></div>';
 }
 async function selectBudgetProposals(){
   let r=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
@@ -770,7 +870,7 @@ function renderP(p,mv={}){
   const deadlineStyle='color:var(--amber)';
   const totalVoters=Number(p.total_voters)||parseInt(g('mc-num')?.textContent,10)||'?';
   const blocked=voteBlockedReason(p,myv,hasDeadline,deadline);
-  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
+  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc(((p.title||'')+' '+(p.category||'')+' '+(p.budget_source||'')+' '+(stM[p.status]||'')+' '+won(p.amount)).toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
     '<div class="pc-top"><div><div class="pc-title">'+esc(p.title||'제목 없음')+'</div><div class="pc-meta">'+esc(p.category||'항목 미지정')+' · '+esc(p.budget_source||'출처 미지정')+'</div></div>'+ 
     '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
     (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
@@ -1161,19 +1261,26 @@ async function submitProposal(){
   if(!title){toast('예산안 제목을 입력하세요');return;}
   if(!amountParsed.ok){toast(amountParsed.message);const inp=g('pr-amt');if(inp)inp.focus();updateBudgetAmountHelp();return;}
   if(!desc){toast('지출 사유 및 세부 계획을 입력하세요');return;}
+  const lock='proposal-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   const amount=amountParsed.amount;
   const fi=g('pr-file');
   const hasFiles=!!(fi?.files?.length);
   const payload={created_by:App.member.id,title,category:cat||null,budget_source:src||null,amount,description:desc,approval_rule:rule||'simple_majority',status:'draft'};
   load(true);
-  const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
-  if(error){load(false);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
-  if(hasFiles){
-    if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
-    else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
+  try{
+    const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
+    if(error){load(false);_actionLocks.delete(lock);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
+    if(hasFiles){
+      if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
+      else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
+    }
+    clearProposalDraft();
+    load(false);_actionLocks.delete(lock);
+    toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
+  }catch(e){
+    load(false);_actionLocks.delete(lock);
+    const msg=budgetErrText(e);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);
   }
-  load(false);
-  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
 }
 
 async function loadLibrary(){
@@ -1197,13 +1304,16 @@ async function submitMember(){
   const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
   if(!payload.name){toast('회원 이름을 입력하세요');return;}
   if(!payload.email){toast('이메일을 입력하세요. 로그인 연결에 필요합니다');return;}
+  const lock='member-submit:'+payload.email;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
-  if(existing.data){load(false);toast('이미 등록된 이메일입니다');return;}
-  const {error}=await db.from('members').insert(payload);
-  load(false);
-  if(error){toast('회원 등록 오류: '+error.message);return;}
-  toast('회원 등록 완료 ✓');closeMo();initMC();
+  try{
+    const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
+    if(existing.data){load(false);_actionLocks.delete(lock);toast('이미 등록된 이메일입니다');return;}
+    const {error}=await db.from('members').insert(payload);
+    load(false);_actionLocks.delete(lock);
+    if(error){toast('회원 등록 오류: '+error.message);return;}
+    toast('회원 등록 완료 ✓');closeMo();initMC();
+  }catch(e){load(false);_actionLocks.delete(lock);toast('회원 등록 오류: '+errMsg(e));}
 }
 
 function openModal(type){
@@ -1211,10 +1321,10 @@ function openModal(type){
     notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
     meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
-    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
+    proposal:'<div class="mot">✅ 예산안 등록</div><div id="proposal-draft-bar"></div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
   };
   g('mo-body').innerHTML=tpls[type]||'';g('mover').classList.add('open');
-  if(type==='proposal')setTimeout(bindBudgetAmountInput,0);
+  if(type==='proposal')setTimeout(()=>{bindBudgetAmountInput();bindProposalDraft();},0);
 }
 
 async function loadCampsFromDB(){
