@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.18-20260509-member-purchase-ledger">
+<meta name="app-version" content="gca-v4.14-20260510-menu-event-info">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -67,92 +67,31 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .budget-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1);display:flex;flex-direction:column;gap:10px}.seg{display:flex;gap:5px;flex-wrap:wrap}.seg button{padding:7px 12px;border-radius:999px;border:1.5px solid transparent;background:#f2f5f1;color:var(--mid);font-size:12px;font-weight:800}.seg button.active{background:var(--g);color:#fff}.bsearch{display:flex;align-items:center;gap:7px;background:#f4f7f3;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 12px}.bsearch svg{width:15px;height:15px;stroke:var(--mid)}.bsearch input{border:none;outline:none;background:transparent;font-size:13px;width:100%;color:var(--ch)}
 .pc{background:var(--w);border-radius:20px;border:1px solid rgba(24,33,26,.07);padding:16px;margin-bottom:12px;box-shadow:var(--s1);position:relative;overflow:hidden}.pc:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}.pc.voting:before{background:#d4a020}.pc.approved:before{background:var(--green)}.pc.rejected:before{background:var(--red)}.pc.quorum_failed:before,.pc.closed:before{background:var(--amber)}.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.pc-title{font-size:16px;font-weight:800;line-height:1.35}.pc-amount{font-size:20px;font-weight:800;color:var(--red);flex-shrink:0;font-family:var(--fh)}.pc-meta{font-size:12px;color:var(--mid);margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap}.rule-note{background:#fff8e6;border-radius:10px;padding:8px 11px;font-size:11px;color:#a16207;font-weight:700;margin-bottom:10px}.qbar{background:#e7ece6;border-radius:999px;height:10px;overflow:hidden;margin:6px 0}.qfill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--gl),var(--g));transition:width .6s}.qfill.low{background:linear-gradient(90deg,#f87171,#ef4444)}.vrow{display:flex;justify-content:space-between;font-size:12px;color:var(--mid);margin-bottom:10px;gap:8px;flex-wrap:wrap}.vbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.vby,.vbn{padding:12px;border-radius:13px;font-size:14px;font-weight:800}.vby{border:none;background:var(--g);color:#fff}.vbn{border:1.5px solid #f2b5b5;background:#fff;color:var(--red)}.vdone{background:#eefaf1;border:1px solid #bde4c8;border-radius:12px;padding:10px;text-align:center;font-size:12px;font-weight:800;color:var(--g)}.adm-acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--cd)}
 .file-row{display:flex;align-items:center;padding:12px 14px;border:1px solid var(--cd);border-radius:14px;gap:8px;margin-bottom:8px;background:var(--w)}.fext{padding:3px 7px;border-radius:6px;font-size:10px;font-weight:800}.fe-pdf{background:#fee2e2;color:#b91c1c}.fe-hwp{background:#dbeafe;color:#1d4ed8}.fe-xlsx,.fe-xls{background:#dcfce7;color:#15803d}.fe-pptx{background:#fff3e0;color:#e65100}.fe-zip{background:#f3e5f5;color:#6a1b9a}.fe-def{background:var(--cd);color:var(--mid)}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(253,254,251,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(24,33,26,.08);display:flex;z-index:100;padding:0 6px env(safe-area-inset-bottom);box-shadow:0 -8px 24px rgba(24,33,26,.06);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}.bnav::-webkit-scrollbar{display:none}.bn{flex:0 0 68px;min-width:68px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#8b968d;transition:color var(--tr);position:relative}.bn-inner{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 5px;border-radius:14px;min-width:56px}.bn.active{color:var(--g)}.bn.active .bn-inner{background:var(--gp)}.bni{width:22px;height:22px;display:flex;align-items:center;justify-content:center}.bni svg{width:21px;height:21px;stroke:currentColor}.bn-lb{font-size:9px;font-weight:800;white-space:nowrap;letter-spacing:-.04em}.bnb{position:absolute;top:5px;right:calc(50% - 17px);background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:20px;min-width:14px;text-align:center}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(253,254,251,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(24,33,26,.08);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px rgba(24,33,26,.06)}.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#8b968d;transition:color var(--tr);position:relative}.bn-inner{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px;border-radius:14px}.bn.active{color:var(--g)}.bn.active .bn-inner{background:var(--gp)}.bni{width:22px;height:22px;display:flex;align-items:center;justify-content:center}.bni svg{width:21px;height:21px;stroke:currentColor}.bn-lb{font-size:10px;font-weight:700}.bnb{position:absolute;top:5px;right:calc(50% - 17px);background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:20px;min-width:14px;text-align:center}
 .pover{position:fixed;inset:0;background:rgba(16,20,16,.45);z-index:199;display:none}.pover.open{display:block}.pan{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-radius:24px 24px 0 0;z-index:200;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -24px 60px rgba(0,0,0,.2)}.pan.open{transform:translateY(0)}.panh{width:40px;height:5px;background:var(--bdr);border-radius:999px;margin:13px auto 0}.panhd{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}.panhd-title{font-family:var(--fh);font-size:19px;font-weight:800}.panclose{width:30px;height:30px;border-radius:9px;border:none;background:#f3f6f2}.panb{padding:18px}.p-meta{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--mid)}.p-meta span{font-size:11px;color:var(--mid);background:#f3f6f2;padding:4px 9px;border-radius:999px}.p-content{font-size:14px;color:var(--ch);line-height:1.92}.p-sec{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}.p-sec-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
 .mover{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:300;display:none;align-items:flex-end;justify-content:center}.mover.open{display:flex}.mo{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:20px 18px 32px}.moh{width:36px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 14px}.mot{font-family:var(--fh);font-size:18px;font-weight:800;margin-bottom:14px}.moa{display:flex;gap:8px;margin-top:14px}.moa .btn{flex:1;justify-content:center}.empty{text-align:center;padding:40px 18px;color:var(--mid);font-size:13px}.emptyic{font-size:32px;margin-bottom:8px}.errm{color:var(--red);font-size:13px;padding:14px;text-align:center}.loading{padding:24px;text-align:center;color:var(--mid);font-size:13px}
 .map-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.map-stat{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;text-align:center;box-shadow:var(--s1)}.map-stat-n{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--g);line-height:1}.map-stat-l{font-size:10px;color:var(--mid);font-weight:700;margin-top:4px}#assoc-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid var(--bdr);box-shadow:var(--s1);font-family:var(--fd)}.leaflet-popup-content{font-family:var(--fd);font-size:13px;line-height:1.6;margin:10px 12px}.leaflet-popup-content b{font-size:14px;color:var(--g);font-family:var(--fh);display:block;margin-bottom:4px}.leaflet-popup-content-wrapper{border-radius:14px}.region-legend{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:12px 14px;margin-top:10px;box-shadow:var(--s1)}.region-legend-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.region-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}.region-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .events-section{margin-top:22px;padding-top:18px;border-top:1px solid var(--cd)}.events-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px}.events-t{font-family:var(--fh);font-size:18px;font-weight:800}.events-link{font-size:12px;color:var(--g);font-weight:800;padding:6px 11px;background:var(--gp);border-radius:999px}.events-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.events-filter button{padding:6px 11px;border-radius:999px;border:1.5px solid transparent;background:#f2f5f1;color:var(--mid);font-size:11px;font-weight:800}.events-filter button.active{background:var(--g);color:#fff}.ev-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:13px 14px;margin-bottom:8px;box-shadow:var(--s1);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.ev-date{background:var(--gp);color:var(--g);border-radius:10px;padding:7px 9px;font-family:var(--fh);font-weight:800;font-size:11px;text-align:center;line-height:1.2;min-width:46px}.ev-date .ev-d{font-size:16px;display:block}.ev-date.ticket{background:var(--ab);color:var(--amber)}.ev-title{font-size:14px;font-weight:700;line-height:1.35;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.ev-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ev-cat{padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800}.ev-cat-A{background:#fef3c7;color:#92400e}.ev-cat-B{background:#fee2e2;color:#b91c1c}.ev-cat-C{background:#dbeafe;color:#1e40af}.ev-cat-D{background:#dcfce7;color:#15803d}.ev-status{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:800;flex-shrink:0;text-align:center;min-width:42px}.ev-locked{background:#dcfce7;color:#15803d}.ev-pending{background:#fef3c7;color:#92400e}.ev-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:14px;padding:20px;text-align:center;color:var(--mid);font-size:12px}
 
-
-.budget-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 14px}.bs-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1);min-height:76px}.bs-n{font-family:var(--fh);font-size:22px;font-weight:800;line-height:1;color:var(--g)}.bs-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px;letter-spacing:-.01em}.bs-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.35}.bs-card.warn .bs-n{color:var(--amber)}.bs-card.danger .bs-n{color:var(--red)}.ph-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;justify-content:flex-end}.net-banner{position:fixed;left:10px;right:10px;top:10px;z-index:700;background:#111;color:#fff;border-radius:14px;padding:10px 14px;font-size:12px;font-weight:800;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.18);display:none}.net-banner.show{display:block}.sys-box{background:#f5f8f4;border:1px solid var(--cd);border-radius:14px;padding:12px;margin-bottom:10px}.sys-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--cd);padding:8px 0;font-size:12px}.sys-row:last-child{border-bottom:none}.sys-k{color:var(--mid);font-weight:800}.sys-v{font-weight:800;text-align:right;word-break:break-all}.sys-ok{color:var(--green)}.sys-warn{color:var(--amber)}.sys-bad{color:var(--red)}.draft-bar{background:#fff8e6;border:1px solid #f2d28a;border-radius:12px;padding:9px 10px;font-size:11px;color:#a16207;font-weight:800;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}.draft-bar .btn{padding:5px 9px;font-size:11px;border-radius:9px}.draft-actions{display:flex;gap:6px;flex-shrink:0}
-
-.cal-toolbar,.content-toolbar,.support-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cal-toolbar select,.cal-toolbar input,.content-toolbar input,.support-toolbar select{border:1.5px solid var(--bdr);border-radius:12px;background:#f4f7f3;padding:9px 11px;font-size:13px;font-weight:700;color:var(--ch);outline:none}.cal-toolbar .btn,.support-toolbar .btn,.content-toolbar .btn{white-space:nowrap}.cal-summary,.support-summary,.content-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.mini-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:12px 13px;box-shadow:var(--s1)}.mini-n{font-family:var(--fh);font-size:21px;font-weight:800;line-height:1;color:var(--g)}.mini-n.over{color:var(--red)}.mini-l{font-size:10px;color:var(--mid);font-weight:800;margin-top:5px}.mini-m{font-size:11px;color:var(--mid);font-weight:700;margin-top:2px;line-height:1.4}.cal-camp{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.cal-camp-h{padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd);display:flex;align-items:center;justify-content:space-between;gap:8px}.cal-camp-title{font-weight:900;font-size:15px}.cal-camp-count{font-size:11px;color:var(--g);font-weight:900;background:var(--gp);padding:3px 8px;border-radius:999px}.cal-item{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cd)}.cal-item:last-child{border-bottom:none}.cal-date{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}.cal-date b{display:block;font-size:17px}.cal-title{font-size:14px;font-weight:800;line-height:1.35}.cal-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}.support-list .ev-card{grid-template-columns:auto 1fr auto}.support-camp-table{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;margin-bottom:12px;box-shadow:var(--s1);overflow:hidden}.support-row{display:grid;grid-template-columns:1.2fr .7fr .7fr .7fr;gap:8px;padding:10px 13px;border-bottom:1px solid var(--cd);font-size:12px;align-items:center}.support-row:last-child{border-bottom:none}.support-row.head{background:#f5f8f4;color:var(--mid);font-weight:900;font-size:11px}.support-row strong{font-weight:900}.content-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:16px;padding:14px;box-shadow:var(--s1);min-height:118px}.content-card h3{font-size:15px;font-weight:900;line-height:1.35;margin-bottom:6px}.content-card p{font-size:12px;color:var(--mid);line-height:1.65}.content-pill{display:inline-flex;padding:3px 8px;border-radius:999px;background:var(--gp);color:var(--g);font-size:10px;font-weight:900;margin-bottom:8px}.danger-line{border-color:#f0c2c2!important;color:var(--red)!important;background:#fffafa!important}
-
-.catalog-board{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1)}
-.catalog-board-title{font-size:12px;font-weight:900;color:var(--mid);letter-spacing:.02em;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;gap:8px}.catalog-board-title b{color:var(--ch)}
-.catalog-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.catalog-cat{border:1px solid var(--cd);border-radius:14px;padding:11px 10px;background:#fff;min-height:98px}.catalog-cat-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px}.catalog-cat-code{width:25px;height:25px;border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900}.catalog-cat-name{font-size:13px;font-weight:900}.catalog-cat-n{font-family:var(--fh);font-size:19px;font-weight:900;line-height:1;color:var(--g);margin:5px 0}.catalog-cat-desc{font-size:10px;color:var(--mid);line-height:1.45}.catalog-tagline{font-size:11px;color:var(--mid);line-height:1.6;margin-top:9px;background:#f6f8f4;border-radius:10px;padding:8px 10px}.program-catalog{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;margin-bottom:14px;box-shadow:var(--s1);overflow:hidden}.program-catalog-h{padding:12px 14px;background:#f5f8f4;border-bottom:1px solid var(--cd);font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}.program-provider{padding:11px 14px;border-bottom:1px solid var(--cd);display:grid;grid-template-columns:92px 1fr;gap:10px;align-items:flex-start}.program-provider:last-child{border-bottom:none}.provider-name{font-size:12px;font-weight:900;color:var(--ch)}.provider-meta{font-size:10px;color:var(--mid);margin-top:2px}.provider-programs{display:flex;gap:5px;flex-wrap:wrap}.program-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--cd);background:#fff;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:800;color:var(--mid)}.program-chip strong{color:var(--ch)}.ev-price-note{font-size:10px;color:var(--mid);font-weight:700;background:#f4f7f3;border-radius:7px;padding:2px 6px}.budget-policy{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}.policy-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;box-shadow:var(--s1)}.policy-card .pnum{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--g);line-height:1}.policy-card .plbl{font-size:10px;color:var(--mid);font-weight:900;margin-top:5px}.policy-card .pmeta{font-size:10px;color:var(--mid);line-height:1.4;margin-top:3px}@media(max-width:700px){.catalog-cats,.budget-policy{grid-template-columns:1fr 1fr}.program-provider{grid-template-columns:1fr}.provider-programs{margin-top:3px}}
-
-@media(max-width:700px){.cal-summary,.support-summary,.content-grid{grid-template-columns:1fr}.cal-item{grid-template-columns:48px 1fr}.cal-item .ev-status{grid-column:2}.support-row{grid-template-columns:1fr .5fr .5fr .5fr}.bnav{padding-left:4px;padding-right:4px}.bn{flex-basis:62px;min-width:62px}}
-
-
-.support-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:18px;padding:22px 18px;box-shadow:var(--s1);margin-bottom:14px}
-.support-empty-k{display:inline-flex;background:var(--gp);color:var(--g);border-radius:999px;padding:5px 10px;font-size:11px;font-weight:900;margin-bottom:10px}
-.support-empty-t{font-size:18px;font-weight:900;letter-spacing:-.03em;margin-bottom:6px}
-.support-empty-d{font-size:13px;color:var(--mid);line-height:1.75}
-.cal-toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1)}
-.cal-ledger{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;box-shadow:var(--s1);overflow:hidden;margin-bottom:14px}
-.cal-ledger-h{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd)}
-.cal-ledger-title{font-size:14px;font-weight:900;letter-spacing:-.02em}
-.cal-ledger-sub{font-size:11px;color:var(--mid);font-weight:800}
-.cal-money-row{display:grid;grid-template-columns:76px 1.05fr .85fr .7fr .7fr;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--cd);font-size:12px}
-.cal-money-row:last-child{border-bottom:none}
-.cal-money-row.head{background:#fbfcf9;color:var(--mid);font-size:11px;font-weight:900}
-.cal-day{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}
-.cal-day b{display:block;font-size:17px}
-.cal-event-name{font-size:14px;font-weight:900;line-height:1.35}
-.cal-event-meta{font-size:11px;color:var(--mid);display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
-.cal-provider-name{font-size:13px;font-weight:900}
-.cal-provider-meta{font-size:11px;color:var(--mid);margin-top:2px}
-.cal-money{font-family:var(--fh);font-size:14px;font-weight:900;text-align:right;white-space:nowrap}
-.cal-money.ok{color:var(--green)}.cal-money.warn{color:var(--amber)}.cal-money.over{color:var(--red)}
-.cal-source{font-size:10px;color:var(--mid);text-align:right;margin-top:2px}
-.cal-provider-board,.cal-camp-board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.cal-board-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:14px;box-shadow:var(--s1)}
-.cal-board-title{font-size:12px;color:var(--mid);font-weight:900;margin-bottom:9px;letter-spacing:.02em}
-.cal-small-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--cd);font-size:12px}
-.cal-small-row:last-child{border-bottom:none}
-.cal-small-row strong{font-size:12px;font-weight:900}
-.cal-small-row span{font-family:var(--fh);font-weight:900}
-.cal-budget-note{background:#f7faf6;border:1px solid var(--cd);border-radius:14px;padding:11px 12px;font-size:12px;color:var(--mid);line-height:1.7;margin-bottom:14px}
-@media(max-width:700px){
-  .cal-provider-board,.cal-camp-board{grid-template-columns:1fr}
-  .cal-money-row{grid-template-columns:52px 1fr;gap:9px}
-  .cal-money-row.head{display:none}
-  .cal-money-row .cal-provider-name,.cal-money-row .cal-provider-meta,.cal-money-row .cal-money,.cal-money-row .cal-source{grid-column:2;text-align:left}
-}
-
-
-/* v4.18 회원별 구매내역 정산표 */
-.member-ledger-board{margin-bottom:14px}
-.member-ledger-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.member-ledger-title{font-size:15px;font-weight:900;letter-spacing:-.03em}
-.member-ledger-sub{font-size:11px;color:var(--mid);font-weight:800;line-height:1.55}
-.member-ledger-actions{display:flex;gap:6px;flex-wrap:wrap}
-.member-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;box-shadow:var(--s1);overflow:hidden;margin-bottom:12px}
-.member-card-h{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd)}
-.member-name{font-size:15px;font-weight:900;letter-spacing:-.03em}
-.member-meta{font-size:11px;color:var(--mid);font-weight:800;margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
-.member-total{text-align:right;font-family:var(--fh);font-size:18px;font-weight:900;color:var(--g);line-height:1.15;white-space:nowrap}
-.member-total small{display:block;font-family:var(--fd);font-size:10px;color:var(--mid);font-weight:800;margin-top:3px}
-.member-total.over{color:var(--red)}.member-total.warn{color:var(--amber)}
-.member-purchase-row{display:grid;grid-template-columns:70px 1.1fr .85fr .7fr;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--cd);font-size:12px}
-.member-purchase-row:last-child{border-bottom:none}
-.member-purchase-row.head{background:#fbfcf9;color:var(--mid);font-size:11px;font-weight:900}
-.member-date{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}
-.member-date b{display:block;font-size:17px}
-.member-content{min-width:0}.member-content-title{font-size:14px;font-weight:900;line-height:1.35}.member-content-meta{font-size:11px;color:var(--mid);display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
-.member-vendor{font-weight:900;font-size:13px}.member-vendor small{display:block;font-size:10px;color:var(--mid);font-weight:800;margin-top:2px;line-height:1.35}
-.member-amount{text-align:right;font-family:var(--fh);font-size:14px;font-weight:900;white-space:nowrap}.member-amount small{display:block;font-family:var(--fd);font-size:10px;color:var(--mid);font-weight:800;margin-top:2px;white-space:normal}.member-empty{padding:16px;text-align:center;color:var(--mid);font-size:12px;font-weight:800}
-@media(max-width:700px){.member-card-h{grid-template-columns:1fr}.member-total{text-align:left}.member-purchase-row{grid-template-columns:52px 1fr;gap:9px}.member-purchase-row.head{display:none}.member-purchase-row .member-vendor,.member-purchase-row .member-amount{grid-column:2;text-align:left}}
-
 .version-mark{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:120;background:rgba(253,254,251,.88);border:1px solid rgba(24,33,26,.09);color:#6b756c;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:-.01em;box-shadow:0 4px 14px rgba(24,33,26,.05);backdrop-filter:blur(10px);pointer-events:none}
 @media(max-width:700px){.version-mark{left:50%;right:auto;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));font-size:9px;white-space:nowrap}}
-@media(max-width:700px){.budget-summary{grid-template-columns:repeat(2,1fr)}.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
+
+.info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.info-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:14px;box-shadow:var(--s1)}
+.info-card h3{font-size:14px;font-weight:900;letter-spacing:-.02em;margin-bottom:8px;color:var(--ch)}
+.info-card p{font-size:12px;color:var(--mid);line-height:1.65;margin:0}
+.info-kv{display:grid;grid-template-columns:82px 1fr;gap:6px 8px;font-size:12px;line-height:1.55;margin-top:8px}.info-kv b{color:var(--ch)}.info-kv span{color:var(--mid)}
+.info-list{display:grid;gap:7px}.info-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:#f5f8f4;border:1px solid var(--cd);border-radius:12px;padding:10px 12px}.info-item strong{font-size:13px}.info-item span{font-size:11px;color:var(--mid);line-height:1.5;text-align:right}
+.map-note{background:#f6fbf7;border:1px solid #cfe3d4;color:#285a3c;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.65;margin:10px 0 12px}
+.member-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.member-legend span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--cd);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--mid)}.member-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}.i-member{background:var(--g)}.i-non{background:#9ca3af}.i-selected{background:#f59e0b}
+.event-hero{background:linear-gradient(135deg,#effaf2,#ffffff);border:1px solid rgba(24,92,66,.11);border-radius:18px;padding:14px 15px;margin-bottom:12px;box-shadow:var(--s1)}.event-hero strong{display:block;font-size:16px;font-weight:900;margin-bottom:4px}.event-hero p{font-size:12px;color:var(--mid);line-height:1.65;margin:0}
+@media(max-width:700px){.info-grid{grid-template-columns:1fr}.info-kv{grid-template-columns:74px 1fr}.info-item{flex-direction:column}.info-item span{text-align:left}}
+
+@media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
 </style>
 </head>
 <body>
 <div class="lovo" id="lovo"><div class="spin"></div></div>
-<div class="net-banner" id="net-banner">오프라인 상태입니다. 저장/투표 작업은 네트워크 복구 후 다시 시도하세요.</div>
 
 <div id="login-screen">
   <div class="lcard">
@@ -187,79 +126,57 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <div class="page active" id="page-notices">
-    <div class="ph"><div class="ph-title">공지사항</div><button class="btn bp btn-sm" id="btn-notice" style="display:none" onclick="openModal('notice')">+ 작성</button></div>
-    <div id="notice-list"><div class="loading">불러오는 중...</div></div>
-  </div>
-
-  <div class="page" id="page-meetings">
-    <div class="ph"><div class="ph-title">회의</div><button class="btn bp btn-sm" id="btn-meeting" style="display:none" onclick="openModal('meeting')">+ 등록</button></div>
+    <div class="ph"><div><div class="ph-title">공지</div><div class="ph-sub">협회 공식 알림 · 회의 안내 · 첨부자료를 한 곳에서 확인합니다</div></div><button class="btn bp btn-sm" id="btn-notice" style="display:none" onclick="openModal('notice')">+ 작성</button></div>
     <div style="display:flex;gap:7px;margin-bottom:12px"><a id="kk-oc" href="#" target="_blank" class="btn bk btn-sm">💬 오픈채팅</a><a id="kk-ch" href="#" target="_blank" class="btn bk btn-sm">📣 협회채널</a></div>
-    <div id="meeting-list"><div class="loading">불러오는 중...</div></div>
+    <div id="notice-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
   <div class="page" id="page-budget">
     <div class="ph">
-      <div><div class="ph-title">예산안 투표</div><div class="ph-sub">정관 제18조·33조 — 예산·결산은 이사회 의결 후 총회 승인을 받아야 합니다</div></div>
-      <div class="ph-actions"><button class="btn bo btn-sm" onclick="loadBudget()">↻ 새로고침</button><button class="btn bo btn-sm" id="btn-system-check" style="display:none" onclick="openSystemCheck()">시스템 점검</button><button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button></div>
+      <div><div class="ph-title">투표</div><div class="ph-sub">예산안·협회 의사결정 · 정관 제18조·33조 기준</div></div>
+      <button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button>
     </div>
     <div class="budget-toolbar">
       <div class="seg" id="bf-seg"><button class="active" data-bf="all">전체</button><button data-bf="voting">진행중</button><button data-bf="approved">가결</button><button data-bf="rejected">부결</button><button data-bf="quorum_failed">정족수미달</button><button data-bf="draft">초안</button></div>
       <label class="bsearch"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="budget-search" type="search" placeholder="예산안 제목 검색"></label>
     </div>
-    <div id="budget-summary" class="budget-summary"></div>
     <div id="budget-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
-  <div class="page" id="page-map">
-    <div class="ph"><div><div class="ph-title">회원 캠프 지도</div><div class="ph-sub">협회 등록 캠프의 위치 · 마커 클릭 시 상세 정보</div></div></div>
-    <div class="map-stats">
-      <div class="map-stat"><div class="map-stat-n" id="stat-total">19</div><div class="map-stat-l">총 회원 캠프</div></div>
-      <div class="map-stat"><div class="map-stat-n" id="stat-regions">6</div><div class="map-stat-l">면 단위 분포</div></div>
-      <div class="map-stat"><div class="map-stat-n" id="stat-main">10</div><div class="map-stat-l">청천면 밀집</div></div>
-    </div>
-    <div id="assoc-map"></div>
-    <div class="region-legend" id="region-legend"><div class="region-legend-t">📍 면별 색상</div></div>
-    <div class="events-section">
-      <div class="events-h"><div class="events-t">📅 행사 신청 현황</div><a href="events.html" class="events-link">신청·관리 →</a></div>
+  <div class="page" id="page-events">
+    <div class="ph"><div><div class="ph-title">이벤트</div><div class="ph-sub">회원 캠핑장 행사일 · 콘텐츠 · 수행업체를 행사 달력으로 정리합니다</div></div><a href="events.html" target="_blank" class="btn bo btn-sm">신청·관리 →</a></div>
+    <div class="event-hero"><strong>행사 달력</strong><p>행사일자, 캠핑장, 콘텐츠, 카테고리, 수행업체를 확인하는 메뉴입니다. 예산 정산과 보고서 기능은 넣지 않고 일정 확인에 집중합니다.</p></div>
+    <div class="events-section" style="margin-top:0;padding-top:0;border-top:none">
+      <div class="events-h"><div class="events-t">📅 행사 일정</div><a href="events.html" class="events-link" target="_blank">전체 신청 페이지</a></div>
       <div class="events-filter"><button class="active" data-evf="upcoming">다가오는</button><button data-evf="all">전체</button><button data-evf="locked">확정</button><button data-evf="A">공연</button><button data-evf="B">먹거리</button><button data-evf="C">체험</button><button data-evf="D">활동</button></div>
       <div id="events-stats" style="font-size:11px;color:var(--mid);margin-bottom:8px"></div>
       <div id="events-list"><div class="loading">불러오는 중...</div></div>
     </div>
   </div>
 
-  <div class="page" id="page-calendar">
-    <div class="ph"><div><div class="ph-title">행사캘린더</div><div class="ph-sub">회원/캠핑장별 선택 콘텐츠 · 구매금액 · 날짜 · 행사 업체 · 잔여예산을 정산표로 확인합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadCalendarPage()">↻ 새로고침</button><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
-    <div class="budget-policy" id="calendar-policy"></div>
-    <div class="cal-toolbar" id="calendar-controls"><div class="loading">행사캘린더 준비 중...</div></div>
-    <div class="cal-summary" id="calendar-summary"></div>
-    <div id="calendar-list"><div class="loading">불러오는 중...</div></div>
-  </div>
-
-  <div class="page" id="page-support">
-    <div class="ph"><div><div class="ph-title">지원사업</div><div class="ph-sub">요청에 따라 이 메뉴는 현재 비워둡니다. 지원사업 취합은 추후 별도 정책 확정 후 연결합니다.</div></div><div class="ph-actions"><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
-    <div class="support-empty">
-      <div class="support-empty-k">지원사업 메뉴 비움</div>
-      <div class="support-empty-t">현재 행사·예산 데이터는 <b>행사캘린더</b>에서만 계산합니다.</div>
-      <div class="support-empty-d">중복 취합으로 데이터가 꼬이지 않도록 지원사업 메뉴는 빈 상태로 유지합니다. 추후 보조금 신청서, 증빙서류, 정산 리포트 구조가 확정되면 별도 연결하는 방식이 안전합니다.</div>
+  <div class="page" id="page-info">
+    <div class="ph"><div><div class="ph-title">정보</div><div class="ph-sub">캠핑장 지도 · 국가지원금 · 행사업체 정보 · 협회 자료</div></div></div>
+    <div class="info-grid">
+      <div class="info-card"><h3>국가지원금 안내</h3><p>야영장 활성화 프로그램 관련 국비·군비·자부담 기준과 신청자료를 정리합니다.</p><div class="info-kv"><b>기본 구조</b><span>국비 40% · 군비 30% · 자부담 30%</span><b>운영 기준</b><span>공고·지침 확정 시 세부 기준 반영</span></div></div>
+      <div class="info-card"><h3>행사업체 정보</h3><p>공연, 먹거리, 체험, 활동 프로그램을 수행하는 업체·강사 정보를 모아둡니다.</p><div class="info-list"><div class="info-item"><strong>공연</strong><span>썬엔터테인먼트 / 링엔터테인먼트</span></div><div class="info-item"><strong>체험</strong><span>토탈아트 / 따봄 솜사탕 / 산촌활성화지원센터</span></div><div class="info-item"><strong>먹거리</strong><span>아산꽃차문화원 등</span></div></div></div>
+      <div class="info-card"><h3>협회 자료</h3><p>사업계획서, 견적서, 회의자료, 정산 참고자료는 기존 자료실 첨부를 그대로 활용합니다.</p><div id="info-library-list" style="margin-top:10px"><div class="loading">자료 불러오는 중...</div></div></div>
+      <div class="info-card"><h3>지도 구분</h3><p>회원 캠핑장은 초록색, 비회원·일반 등록 야영장은 회색으로 구분합니다. 비회원 데이터는 camps 테이블의 is_member=false 또는 membership_status=non_member 값을 사용합니다.</p><div class="member-legend"><span><i class="i-member"></i>협회 회원</span><span><i class="i-non"></i>비회원/일반</span><span><i class="i-selected"></i>선택/강조</span></div></div>
     </div>
-  </div>
-
-  <div class="page" id="page-content">
-    <div class="ph"><div><div class="ph-title">콘텐츠</div><div class="ph-sub">event.html에서 추출한 행사업체 DB, 마케팅 소재, 협력 제안 자료를 카테고리별로 관리합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadContent()">↻ 새로고침</button><button class="btn bo btn-sm" onclick="downloadEventCatalog()">카탈로그 JSON</button><button class="btn bp btn-sm admin-only" id="btn-content" style="display:none" onclick="openModal('content')">+ 콘텐츠</button></div></div>
-    <div class="content-grid" id="content-playbook"></div>
-    <div id="content-program-catalog" class="program-catalog"></div>
-    <div class="content-toolbar"><input id="content-search" type="search" placeholder="파일명·업로드자·유형 검색" oninput="renderContentFiles()"><span style="font-size:12px;color:var(--mid);font-weight:800">자료실은 콘텐츠 메뉴로 변경되었습니다. 행사 카탈로그는 자동 세팅됩니다.</span></div>
-    <div class="card" id="content-list"><div class="loading">불러오는 중...</div></div>
+    <div class="map-note">지도는 협회 회원 캠핑장과 비회원 캠핑장을 함께 표시할 수 있게 구성했습니다. 현재 DB에 비회원 데이터가 없으면 회원 캠핑장만 표시됩니다.</div>
+    <div class="map-stats">
+      <div class="map-stat"><div class="map-stat-n" id="stat-total">-</div><div class="map-stat-l">총 야영장</div></div>
+      <div class="map-stat"><div class="map-stat-n" id="stat-regions">-</div><div class="map-stat-l">회원 캠핑장</div></div>
+      <div class="map-stat"><div class="map-stat-n" id="stat-main">-</div><div class="map-stat-l">비회원 캠핑장</div></div>
+    </div>
+    <div id="assoc-map"></div>
+    <div class="region-legend" id="region-legend"><div class="region-legend-t">📍 지역/회원 구분</div></div>
   </div>
 
   <nav class="bnav">
     <div class="bn active" data-page="notices" onclick="nav('notices')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><span class="bn-lb">공지</span></div><div class="bnb" id="bdg-n" style="display:none"></div></div>
-    <div class="bn" data-page="meetings" onclick="nav('meetings')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="bn-lb">회의</span></div></div>
     <div class="bn" data-page="budget" onclick="nav('budget')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="bn-lb">투표</span></div><div class="bnb" id="bdg-b" style="display:none"></div></div>
-    <div class="bn" data-page="calendar" onclick="nav('calendar')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg></div><span class="bn-lb">행사</span></div></div>
-    <div class="bn" data-page="support" onclick="nav('support')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 17l-6.5 4 2-7.5L2 9h7z"/></svg></div><span class="bn-lb">지원</span></div></div>
-    <div class="bn" data-page="content" onclick="nav('content')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4v15.5A2.5 2.5 0 0 0 6.5 22H20V6a2 2 0 0 0-2-2H4z"/><path d="M8 8h6M8 12h8"/></svg></div><span class="bn-lb">콘텐츠</span></div></div>
-    <div class="bn" data-page="map" onclick="nav('map')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="bn-lb">지도</span></div></div>
+    <div class="bn" data-page="events" onclick="nav('events')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="bn-lb">이벤트</span></div></div>
+    <div class="bn" data-page="info" onclick="nav('info')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="bn-lb">정보</span></div></div>
   </nav>
 </div>
 
@@ -267,7 +184,15 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.18 · 2026.05.09 · 회원별 구매내역 정리</div>
+
+<!--
+GCA v4.14 MENU / EVENT / INFO
+기준: v4.13 캠핑협회 클린 재시작
+방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조
+범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
+주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
+-->
+<div class="version-mark" id="version-mark">GCA v4.14 · 2026.05.10 · 메뉴/이벤트/정보 정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -278,14 +203,13 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.18 · 2026.05.09 · 회원별 구매내역 정리';
+const APP_VERSION='GCA v4.14 · 2026.05.10 · 메뉴/이벤트/정보 정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
 let assocMapInstance=null;
 let _mapCamps=[];
 let _allEvents=[];
-let _calendarCamps=[];
 let _evFilter='upcoming';
 const _actionLocks=new Set();
 let _currentPage='notices';
@@ -294,57 +218,10 @@ let _authBootDone=false;
 let _manualLoginInProgress=false;
 const AUTH_RETURN_KEY='gca_oauth_manual_return';
 const AUTH_RETURN_TTL=10*60*1000;
-const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_18';
-let _proposalDraftTimer=null;
-let _lastSystemReport='';
 function markManualOAuthIntent(){try{sessionStorage.setItem(AUTH_RETURN_KEY,String(Date.now()));}catch(e){}}
 function clearManualOAuthIntent(){try{sessionStorage.removeItem(AUTH_RETURN_KEY);}catch(e){}}
 function hasFreshOAuthIntent(){try{const ts=Number(sessionStorage.getItem(AUTH_RETURN_KEY)||0);return ts>0&&(Date.now()-ts)<AUTH_RETURN_TTL;}catch(e){return false}}
 function isOAuthReturnUrl(){const qs=location.search||'',hs=location.hash||'';return /(?:[?&](code|error|error_code|error_description)=)/.test(qs)||/(?:access_token|refresh_token|provider_token|expires_in)=/.test(hs)}
-
-
-// ============================================================
-// v4.15: event.html 추출 데이터 — 카테고리/업체/단가/예산정책
-// ============================================================
-const EVENT_CATEGORY_META = {"A": {"name": "공연", "role": "집객/볼거리", "color": "#C8425A", "bg": "#FAE8EC", "desc": "버블·마술·풍선·통기타 등 현장 체류시간을 늘리는 공연형 프로그램"}, "B": {"name": "먹거리", "role": "체류/후기", "color": "#5A8C3F", "bg": "#EAF3E2", "desc": "지역 농산물·꽃·발효·요리 체험 기반의 먹거리/체험형 콘텐츠"}, "C": {"name": "체험", "role": "가족/사진", "color": "#3D6DAD", "bg": "#E3EDF8", "desc": "페이스페인팅·헤나·캐리커쳐·타로 등 가족 단위 참여형 콘텐츠"}, "D": {"name": "활동", "role": "액티비티/티켓", "color": "#A36B1F", "bg": "#F6ECD9", "desc": "짚라인·로켓스윙·승마·보트·자체행사비 등 이동/활동형 콘텐츠"}};
-const EVENT_BUDGET_POLICY = {"project_total_budget": 100000000, "total_project_camps": 21, "self_application_count": 4, "system_application_count": 17, "forfeited_camp_count": 2, "forfeited_camp_names": ["아빠의나무", "강변캠핑장", "강변"], "hamilton_camp_name": "해밀터", "hamilton_used_amount": 715000, "base_budget": 4761905, "forfeit_extra_per_camp": 453515, "hamilton_extra_per_camp": 214306, "final_budget_per_camp": 5429726, "application_deadline": "마감시간 없음 · 상시 신청 가능"};
-const EVENT_PROGRAM_CATALOG = [{"category": "A", "name": "풍선쇼", "provider": "백선일", "provider_key": "A_백선일", "pricing": {"bundle3": 400000, "single": 500000}, "type": "program"}, {"category": "A", "name": "버블쇼", "provider": "백선일", "provider_key": "A_백선일", "pricing": {"bundle3": 400000, "single": 500000}, "type": "program"}, {"category": "A", "name": "마술쇼", "provider": "백선일", "provider_key": "A_백선일", "pricing": {"bundle3": 400000, "single": 500000}, "type": "program"}, {"category": "A", "name": "솜사탕쇼", "provider": "백선일", "provider_key": "A_백선일", "pricing": {"bundle3": 400000, "single": 500000}, "type": "program"}, {"category": "A", "name": "레이저쇼", "provider": "백선일", "provider_key": "A_백선일", "pricing": {"bundle3": 500000, "single": 800000}, "type": "program"}, {"category": "A", "name": "풍선매직쇼", "provider": "신태호", "provider_key": "A_신태호", "pricing": {"bundle2": 500000, "single": 550000}, "type": "program"}, {"category": "A", "name": "통기타음악회", "provider": "통기타", "provider_key": "A_통기타", "pricing": {"bundle2": 330000, "single": 500000}, "type": "program"}, {"category": "A", "name": "마술쇼 조동희(40분)", "provider": "조동희", "provider_key": "A_조동희", "pricing": {"single": 550000}, "type": "program"}, {"category": "A", "name": "반려견 행동 토크쇼", "provider": "반려견", "provider_key": "A_반려견", "pricing": {"single": 400000}, "type": "program"}, {"category": "B", "name": "사과오이소박이", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "꽃떡퐁듀", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "감자핫도그만들기", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "과일꼬치화채", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "시원한 허브꽃 모히또", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "허브솔트", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "보들꽃 증편", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "건강 강정 만들기", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "추석 꽃송편", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "단호박 꽃단자", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "깍두기 만들기", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "꽃장식 딸기 모찌", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "딸기청 만들기", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "꽃 코디얼 빙수", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "호두정과", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "딸기 고추장", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "카네이션 바람떡", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "수레국화 양갱", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "캐릭터김밥", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "연잎밥 만들기", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "오이 모듬피클", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "얼굴 카나페", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "모기퇴치 꽃스머지스틱", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "인절미", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "K도넛 개성주악", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "발효초콜릿", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "곳감단자", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "봄향기 화전", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "봄꽃 코디얼", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "고기도둑 달래쌈장", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "쑥버무리", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "꽃식초", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "고기 마리네이드", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "과일젤리", "provider": "정미화", "provider_key": "B_정미화", "pricing": {"bundle3": 165000, "single": 220000}, "type": "program"}, {"category": "B", "name": "4인 재료비 1매", "provider": "재료비", "provider_key": "B_재료비", "pricing": {"ticket": 10000}, "type": "ticket"}, {"category": "C", "name": "페이스페인팅", "provider": "이은희", "provider_key": "C_이은희", "pricing": {"bundle3": 143000, "bundle2": 165000, "single": 220000}, "type": "program"}, {"category": "C", "name": "헤나", "provider": "이은희", "provider_key": "C_이은희", "pricing": {"bundle3": 143000, "bundle2": 165000, "single": 220000}, "type": "program"}, {"category": "C", "name": "가족캐리커쳐", "provider": "이은희", "provider_key": "C_이은희", "pricing": {"bundle3": 165000, "bundle2": 187000, "single": 220000}, "type": "program"}, {"category": "C", "name": "타로카드", "provider": "이은희", "provider_key": "C_이은희", "pricing": {"bundle3": 143000, "bundle2": 165000, "single": 220000}, "type": "program"}, {"category": "C", "name": "할로윈 페이스페인팅", "provider": "이은희", "provider_key": "C_이은희", "pricing": {"bundle3": 143000, "bundle2": 165000, "single": 220000}, "type": "program"}, {"category": "C", "name": "캐릭터 솜사탕", "provider": "캐릭터솜사탕", "provider_key": "C_캐릭터솜사탕", "pricing": {"bundle2": 350000, "single": 400000}, "type": "program"}, {"category": "D", "name": "짚라인", "provider": "이경희", "provider_key": "D_이경희", "pricing": {"bundle2": 250000, "single": 300000}, "type": "program"}, {"category": "D", "name": "슬랙라인", "provider": "이경희", "provider_key": "D_이경희", "pricing": {"bundle2": 250000, "single": 300000}, "type": "program"}, {"category": "D", "name": "로켓스윙", "provider": "이경희", "provider_key": "D_이경희", "pricing": {"bundle2": 250000, "single": 300000}, "type": "program"}, {"category": "D", "name": "승마체험", "provider": "승마", "provider_key": "D_승마", "pricing": {"single": 200000}, "type": "program"}, {"category": "D", "name": "사과따기 체험", "provider": "사과따기", "provider_key": "D_사과따기", "pricing": {"single": 500000}, "type": "program"}, {"category": "D", "name": "산막이 보트 1매", "provider": "보트", "provider_key": "D_보트", "pricing": {"ticket": 4000}, "type": "ticket"}, {"category": "D", "name": "모터보트 2인 1매", "provider": "모터보트", "provider_key": "D_모터보트", "pricing": {"ticket": 25000}, "type": "ticket"}, {"category": "D", "name": "소형유람선 1매", "provider": "유람선", "provider_key": "D_유람선", "pricing": {"ticket": 18000}, "type": "ticket"}, {"category": "D", "name": "자체행사비", "provider": "자체", "provider_key": "D_자체", "pricing": {"single": 1000000}, "type": "program"}];
-const EVENT_PROGRAM_INDEX = EVENT_PROGRAM_CATALOG.reduce((acc,p)=>{acc[programKey(p.name)]=p;return acc;},{});
-const EVENT_PROVIDER_INDEX = EVENT_PROGRAM_CATALOG.reduce((acc,p)=>{const k=p.category+'_'+p.provider;if(!acc[k])acc[k]={category:p.category,provider:p.provider,programs:[]};acc[k].programs.push(p);return acc;},{});
-function programKey(s){return String(s||'').replace(/\s+/g,'').replace(/[()（）·ㆍ,，]/g,'').toLowerCase();}
-function programInfoByName(name){
-  const key=programKey(name);if(EVENT_PROGRAM_INDEX[key])return EVENT_PROGRAM_INDEX[key];
-  return EVENT_PROGRAM_CATALOG.find(p=>key.includes(programKey(p.name))||programKey(p.name).includes(key))||null;
-}
-function categoryMeta(cat){return EVENT_CATEGORY_META[cat]||{name:'기타',role:'미분류',color:'#6b7280',bg:'#f3f4f6',desc:'카테고리 미분류'};}
-function inferEventCategory(e){
-  const raw=String(e?.category||'').trim().toUpperCase();if(EVENT_CATEGORY_META[raw])return raw;
-  const info=programInfoByName(e?.program_name||e?.title||e?.name);return info?info.category:'Z';
-}
-function eventPricingLabel(info){
-  if(!info||!info.pricing)return '단가 정보 없음';
-  const p=info.pricing,arr=[];
-  if(p.ticket)arr.push('티켓 '+won(p.ticket));
-  if(p.bundle3)arr.push('3곳 '+won(p.bundle3));
-  if(p.bundle2)arr.push('2곳 '+won(p.bundle2));
-  if(p.single)arr.push('단독 '+won(p.single));
-  return arr.join(' · ');
-}
-function eventBundleRule(info){
-  if(!info||!info.pricing)return '단가 미확인';
-  const p=info.pricing;
-  if(p.ticket)return '매수권/티켓형';
-  if(p.bundle3)return '3곳 묶음 우선';
-  if(p.bundle2)return '2곳 묶음 가능';
-  return '단독 진행형';
-}
-function catalogCategoryCounts(){return Object.keys(EVENT_CATEGORY_META).reduce((acc,c)=>{acc[c]=EVENT_PROGRAM_CATALOG.filter(p=>p.category===c).length;return acc;},{});}
-function catalogProviderCounts(){return Object.values(EVENT_PROVIDER_INDEX).sort((a,b)=>b.programs.length-a.programs.length||a.provider.localeCompare(b.provider,'ko'));}
-function downloadEventCatalog(){
-  const payload={version:APP_VERSION,category_meta:EVENT_CATEGORY_META,budget_policy:EVENT_BUDGET_POLICY,programs:EVENT_PROGRAM_CATALOG,generated_at:new Date().toISOString()};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='goesan_event_catalog_v4_18.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('행사 카탈로그 JSON 다운로드');
-}
 
 const MEMBER_CAMPS=[
   {n:"가자우리집",lat:36.7493059,lng:127.8985382,o:"안미선",e:"gaja@camp.kr",a:"칠성면 쌍곡로 504",c:"칠성"},
@@ -492,67 +369,6 @@ function bindBudgetAmountInput(){
   });
   updateBudgetAmountHelp();
 }
-
-function proposalDraftPayload(){
-  return {title:v('pr-title'),category:v('pr-cat'),source:v('pr-src'),amount:g('pr-amt')?.value||'',rule:v('pr-rule'),desc:v('pr-desc'),saved_at:new Date().toISOString(),version:APP_VERSION};
-}
-function isProposalDraftMeaningful(d){return !!(d&&(d.title||d.amount||d.desc));}
-function saveProposalDraftSoon(){
-  clearTimeout(_proposalDraftTimer);
-  _proposalDraftTimer=setTimeout(()=>{
-    try{const d=proposalDraftPayload();if(isProposalDraftMeaningful(d))localStorage.setItem(PROPOSAL_DRAFT_KEY,JSON.stringify(d));}
-    catch(e){console.warn('proposal draft save skipped:',e);}
-  },220);
-}
-function clearProposalDraft(){try{localStorage.removeItem(PROPOSAL_DRAFT_KEY);}catch(e){}}
-function readProposalDraft(){try{return JSON.parse(localStorage.getItem(PROPOSAL_DRAFT_KEY)||'null');}catch(e){return null}}
-function fillProposalDraft(d){
-  if(!d)return;
-  if(g('pr-title'))g('pr-title').value=d.title||'';
-  if(g('pr-cat')&&d.category)g('pr-cat').value=d.category;
-  if(g('pr-src')&&d.source)g('pr-src').value=d.source;
-  if(g('pr-amt'))g('pr-amt').value=d.amount||'';
-  if(g('pr-rule')&&d.rule)g('pr-rule').value=d.rule;
-  if(g('pr-desc'))g('pr-desc').value=d.desc||'';
-  updateBudgetAmountHelp();
-}
-function restoreProposalDraft(){const d=readProposalDraft();fillProposalDraft(d);toast('임시저장 내용을 복구했습니다');renderProposalDraftBar();}
-function discardProposalDraft(){clearProposalDraft();renderProposalDraftBar();toast('임시저장을 삭제했습니다');}
-function renderProposalDraftBar(){
-  const bar=g('proposal-draft-bar');if(!bar)return;
-  const d=readProposalDraft();
-  if(!isProposalDraftMeaningful(d)){bar.innerHTML='';return;}
-  const when=d.saved_at?fdt(d.saved_at):'';
-  bar.innerHTML='<div class="draft-bar"><span>임시저장 예산안이 있습니다'+(when?' · '+esc(when):'')+'</span><div class="draft-actions"><button type="button" class="btn bo" onclick="restoreProposalDraft()">복구</button><button type="button" class="btn br" onclick="discardProposalDraft()">삭제</button></div></div>';
-}
-function bindProposalDraft(){
-  ['pr-title','pr-cat','pr-src','pr-amt','pr-rule','pr-desc'].forEach(id=>{const el=g(id);if(el&&!el._draftBind){el._draftBind=1;el.addEventListener('input',saveProposalDraftSoon);el.addEventListener('change',saveProposalDraftSoon);}});
-  renderProposalDraftBar();
-}
-function updateNetBanner(){const b=g('net-banner');if(!b)return;b.classList.toggle('show',navigator.onLine===false);}
-function systemRow(k,v,state='ok'){const cls=state==='bad'?'sys-bad':state==='warn'?'sys-warn':'sys-ok';return '<div class="sys-row"><div class="sys-k">'+esc(k)+'</div><div class="sys-v '+cls+'">'+esc(v)+'</div></div>';}
-async function openSystemCheck(){
-  if(App.role!=='admin'){toast('관리자만 시스템 점검을 볼 수 있습니다');return;}
-  g('mo-body').innerHTML='<div class="mot">시스템 점검</div><div class="loading">점검 중...</div>';
-  g('mover').classList.add('open');
-  const rows=[];const report=[];
-  function add(k,v,state='ok'){rows.push(systemRow(k,v,state));report.push(k+': '+v);}
-  add('앱 버전',APP_VERSION,'ok');
-  add('네트워크',navigator.onLine?'온라인':'오프라인',navigator.onLine?'ok':'bad');
-  add('로그인 회원',((App.member?.camp_name||App.member?.name||'미확인')+' / '+(App.role||'role 없음')),App.member?'ok':'bad');
-  add('현재 페이지',_currentPage||'알 수 없음','ok');
-  try{const {count,error}=await db.from('members').select('id',{count:'exact',head:true}).eq('is_active',true).eq('is_voter',true);add('투표권 회원 수',error?error.message:String(count??0),error?'bad':'ok');}catch(e){add('투표권 회원 수',e.message||String(e),'bad');}
-  try{const {count,error}=await db.from('budget_proposals').select('id',{count:'exact',head:true});add('예산안 테이블',error?error.message:'접근 가능 · '+(count??0)+'건',error?'bad':'ok');}catch(e){add('예산안 테이블',e.message||String(e),'bad');}
-  try{const {count,error}=await db.from('votes').select('id',{count:'exact',head:true});add('투표 테이블',error?error.message:'접근 가능 · '+(count??0)+'건',error?'bad':'ok');}catch(e){add('투표 테이블',e.message||String(e),'bad');}
-  try{const {data,error}=await db.auth.getUser();add('Supabase Auth',error?error.message:(data?.user?.email||'세션 확인됨'),error?'bad':'ok');}catch(e){add('Supabase Auth',e.message||String(e),'bad');}
-  add('점검 시각',fdt(new Date().toISOString()),'ok');
-  _lastSystemReport=report.join('\n');
-  g('mo-body').innerHTML='<div class="mot">시스템 점검</div><div class="sys-box">'+rows.join('')+'</div><div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;line-height:1.55;margin-bottom:12px">오류가 반복되면 아래 복사 버튼으로 점검 내용을 저장해 두세요. DB 구조 문제는 SQL, 화면 문제는 HTML 버전부터 확인합니다.</div><div class="moa"><button class="btn bo" onclick="copySystemReport()">점검내용 복사</button><button class="btn bp" onclick="closeMo()">닫기</button></div>';
-}
-async function copySystemReport(){
-  try{await navigator.clipboard.writeText(_lastSystemReport||APP_VERSION);toast('점검 내용을 복사했습니다');}
-  catch(e){alert(_lastSystemReport||APP_VERSION);}
-}
 function errMsg(error){return error?.message||String(error||'알 수 없는 오류')}
 function isMissingColumn(error,col){const m=(error?.message||'').toLowerCase();return error?.code==='42703'||m.includes('column')&&m.includes(String(col).toLowerCase())}
 function load(on){const el=g('lovo');if(el)el.classList.toggle('show',!!on)}
@@ -561,7 +377,7 @@ function closeMo(){const el=g('mover');if(el)el.classList.remove('open')}
 function showPan(title,body){g('pan-title').textContent=title||'';g('pan-body').innerHTML=body||'';g('pover').classList.add('open');g('pan').classList.add('open')}
 function closePan(){const po=g('pover'),pa=g('pan');if(po)po.classList.remove('open');if(pa)pa.classList.remove('open')}
 function deriveRegion(address){const txt=String(address||'');const m=txt.match(/(괴산읍|감물면|장연면|연풍면|칠성면|문광면|청천면|청안면|사리면|소수면|불정면)/);return m?m[1].replace(/(읍|면)$/,''):''}
-function normalizeCamp(row){return {n:row.camp_name||row.name||row.n||'',lat:Number(row.lat??row.latitude),lng:Number(row.lng??row.lon??row.longitude),o:row.owner_name||row.owner||row.o||'',e:row.email||row.e||'',a:row.address||row.addr||row.a||'',c:row.region||row.area||row.c||deriveRegion(row.address||row.addr||row.a)}}
+function normalizeCamp(row){const memVal=row.is_member??row.is_association_member??row.member??row.isMember;const status=String(row.membership_status||row.member_status||row.status||'').toLowerCase();const isNon=memVal===false||memVal===0||status==='non_member'||status==='general'||status==='비회원';return {n:row.camp_name||row.name||row.n||'',lat:Number(row.lat??row.latitude),lng:Number(row.lng??row.lon??row.longitude),o:row.owner_name||row.owner||row.o||'',e:row.email||row.e||'',a:row.address||row.addr||row.a||'',c:row.region||row.area||row.c||deriveRegion(row.address||row.addr||row.a),m:!isNon,phone:row.phone||row.tel||'',site:row.website||row.url||row.homepage||''}}
 
 async function getAttachmentUrl(f){
   if(f.file_path){
@@ -738,23 +554,23 @@ function showApp(){
   const isAdmin=App.role==='admin';
   const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
   g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
-  ['btn-notice','btn-meeting','btn-proposal','btn-system-check'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
+  ['btn-notice','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
   initMC();
   const hash=(location.hash||'').replace('#','');
-  const allowed=['notices','meetings','budget','calendar','support','content','map'];
+  const allowed=['notices','budget','events','info'];
   nav(allowed.includes(hash)?hash:'notices',false);
   loadBadges();
 }
 function nav(page,push=true){
-  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,calendar:loadCalendarPage,support:loadSupportPage,content:loadContent,map:showAssocMap};
+  const loaders={notices:loadNotices,budget:loadBudget,events:loadEventsPage,info:loadInfoPage};
   if(!loaders[page])page='notices';
   _currentPage=page;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',calendar:'행사캘린더',support:'지원사업',content:'콘텐츠',map:'회원 캠프 지도'};
+  const titles={notices:'공지',budget:'투표',events:'이벤트',info:'정보'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
   loaders[page]();
   if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
@@ -763,9 +579,6 @@ window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page
 
 document.addEventListener('DOMContentLoaded',async()=>{
   console.log('GCA APP VERSION', APP_VERSION);
-  updateNetBanner();
-  window.addEventListener('online',updateNetBanner);
-  window.addEventListener('offline',updateNetBanner);
   try{localStorage.removeItem('gca_mc');}catch(e){}
   if(g('kk-oc'))g('kk-oc').href=KK_OC;if(g('kk-ch'))g('kk-ch').href=KK_CH;
 
@@ -847,15 +660,11 @@ async function openNotice(id){
 async function submitNotice(){
   const title=v('n-title'),content=v('n-content'),pinned=g('n-pin').checked;
   if(!title||!content){toast('제목과 내용을 입력하세요');return;}
-  const lock='notice-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  try{
-    const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
-    if(error){load(false);_actionLocks.delete(lock);toast('오류: '+error.message);return;}
-    if(data){const fi=g('n-file');if(fi?.files?.length)await uploadAtt(fi.files,'notice',data.id);}
-    load(false);_actionLocks.delete(lock);
-    toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
-  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
+  const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
+  if(!error&&data){const fi=g('n-file');if(fi.files.length)await uploadAtt(fi.files,'notice',data.id);}
+  load(false);if(error){toast('오류: '+error.message);return;}
+  toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
 }
 async function delNotice(id){
   if(!confirm('삭제하시겠습니까?'))return;
@@ -882,33 +691,20 @@ async function openMeeting(id){
 async function submitMeeting(){
   const title=v('mt-title'),date=v('mt-date'),chat=v('mt-chat'),agenda=v('mt-agenda');
   if(!title||!date){toast('제목과 날짜를 입력하세요');return;}
-  const dt=new Date(date);if(!validDate(dt)){toast('회의 날짜 형식이 올바르지 않습니다');return;}
-  const lock='meeting-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  try{
-    const {error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:dt.toISOString(),kakao_chat_url:chat||null,status:'upcoming'});
-    load(false);_actionLocks.delete(lock);
-    if(error){toast('오류: '+error.message);return;}
-    toast('회의 등록 완료 ✓');closeMo();loadMeetings();
-  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
+  const {error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:new Date(date).toISOString(),kakao_chat_url:chat||null,status:'upcoming'});
+  load(false);if(error){toast('오류: '+error.message);return;}
+  toast('회의 등록 완료 ✓');closeMo();loadMeetings();
 }
 function openMinutes(id){closePan();openModal('minutes');g('min-id').value=id;}
 async function submitMinutes(){
   const id=g('min-id').value,m=v('min-content');if(!m){toast('내용을 입력하세요');return;}
-  const lock='minutes-submit:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
-  load(true);
-  try{
-    const {error}=await db.from('meetings').update({minutes:m,status:'done'}).eq('id',id);
-    load(false);_actionLocks.delete(lock);
-    if(error){toast('오류: '+error.message);return;}
-    toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
-  }catch(e){load(false);_actionLocks.delete(lock);toast('오류: '+errMsg(e));}
+  load(true);const {error}=await db.from('meetings').update({minutes:m,status:'done'}).eq('id',id);load(false);
+  if(error){toast('오류: '+error.message);return;}toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
 }
 
 async function loadBudget(){
-  const list=g('budget-list'),sum=g('budget-summary');
-  if(sum)sum.innerHTML='';
-  list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const list=g('budget-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
   const br=await selectBudgetProposals();
   if(br.error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(budgetErrText(br.error))+'</div>';return;}
   const rows=br.data||[];
@@ -916,18 +712,7 @@ async function loadBudget(){
   const ids=rows.map(p=>p.id).filter(Boolean);
   const [counts,mv]=await Promise.all([loadVoteCounts(ids),loadMyVotes(ids)]);
   const viewRows=rows.map(p=>applyVoteCounts(p,counts));
-  renderBudgetSummary(viewRows);
   list.innerHTML=viewRows.map(p=>renderP(p,mv)).join('');bindBudgetBar();applyBF();
-}
-function renderBudgetSummary(rows){
-  const el=g('budget-summary');if(!el)return;
-  const s={draft:{c:0,a:0},voting:{c:0,a:0},approved:{c:0,a:0},rejected:{c:0,a:0},quorum_failed:{c:0,a:0}};
-  (rows||[]).forEach(p=>{const st=p.status||'draft';if(!s[st])s[st]={c:0,a:0};s[st].c++;s[st].a+=Number(p.amount)||0;});
-  const activeC=s.draft.c+s.voting.c,activeA=s.draft.a+s.voting.a;
-  el.innerHTML='<div class="bs-card warn"><div class="bs-n">'+activeC+'</div><div class="bs-l">검토/진행 안건</div><div class="bs-m">'+won(activeA)+'</div></div>'+ 
-    '<div class="bs-card"><div class="bs-n">'+s.voting.c+'</div><div class="bs-l">투표중</div><div class="bs-m">'+won(s.voting.a)+'</div></div>'+ 
-    '<div class="bs-card"><div class="bs-n">'+s.approved.c+'</div><div class="bs-l">가결</div><div class="bs-m">'+won(s.approved.a)+'</div></div>'+ 
-    '<div class="bs-card danger"><div class="bs-n">'+(s.rejected.c+s.quorum_failed.c)+'</div><div class="bs-l">부결/정족수미달</div><div class="bs-m">'+won(s.rejected.a+s.quorum_failed.a)+'</div></div>';
 }
 async function selectBudgetProposals(){
   let r=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
@@ -1006,7 +791,7 @@ function renderP(p,mv={}){
   const deadlineStyle='color:var(--amber)';
   const totalVoters=Number(p.total_voters)||parseInt(g('mc-num')?.textContent,10)||'?';
   const blocked=voteBlockedReason(p,myv,hasDeadline,deadline);
-  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc(((p.title||'')+' '+(p.category||'')+' '+(p.budget_source||'')+' '+(stM[p.status]||'')+' '+won(p.amount)).toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
+  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
     '<div class="pc-top"><div><div class="pc-title">'+esc(p.title||'제목 없음')+'</div><div class="pc-meta">'+esc(p.category||'항목 미지정')+' · '+esc(p.budget_source||'출처 미지정')+'</div></div>'+ 
     '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
     (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
@@ -1397,26 +1182,19 @@ async function submitProposal(){
   if(!title){toast('예산안 제목을 입력하세요');return;}
   if(!amountParsed.ok){toast(amountParsed.message);const inp=g('pr-amt');if(inp)inp.focus();updateBudgetAmountHelp();return;}
   if(!desc){toast('지출 사유 및 세부 계획을 입력하세요');return;}
-  const lock='proposal-submit';if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   const amount=amountParsed.amount;
   const fi=g('pr-file');
   const hasFiles=!!(fi?.files?.length);
   const payload={created_by:App.member.id,title,category:cat||null,budget_source:src||null,amount,description:desc,approval_rule:rule||'simple_majority',status:'draft'};
   load(true);
-  try{
-    const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
-    if(error){load(false);_actionLocks.delete(lock);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
-    if(hasFiles){
-      if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
-      else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
-    }
-    clearProposalDraft();
-    load(false);_actionLocks.delete(lock);
-    toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
-  }catch(e){
-    load(false);_actionLocks.delete(lock);
-    const msg=budgetErrText(e);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);
+  const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
+  if(error){load(false);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
+  if(hasFiles){
+    if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
+    else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
   }
+  load(false);
+  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
 }
 
 async function loadLibrary(){
@@ -1426,6 +1204,26 @@ async function loadLibrary(){
   if(!data.length){list.innerHTML='<div class="empty"><div class="emptyic">📁</div>첨부된 파일이 없습니다</div>';return;}
   const rows=await Promise.all(data.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px;font-weight:500">'+esc(f.file_name)+'</div><div class="rm">'+esc(f.members?.name||'')+' · '+esc(f.target_type||'')+' · '+fd(f.created_at)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm" download>↓</a></div>'; }));
   list.innerHTML=rows.join('');
+}
+
+async function loadInfoLibraryPreview(){
+  const box=g('info-library-list');if(!box)return;
+  box.innerHTML='<div class="loading">자료 불러오는 중...</div>';
+  try{
+    const {data,error}=await db.from('attachments').select('*, members!attachments_uploaded_by_fkey(name)').order('created_at',{ascending:false}).limit(5);
+    if(error){box.innerHTML='<div class="errm" style="padding:8px;text-align:left">자료 연결 확인 필요: '+esc(error.message)+'</div>';return;}
+    if(!data||!data.length){box.innerHTML='<div style="font-size:12px;color:var(--mid)">등록된 첨부자료가 없습니다.</div>';return;}
+    const rows=await Promise.all(data.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="info-item"><strong>'+esc(f.file_name)+'</strong><span>'+esc(f.target_type||'자료')+' · '+fd(f.created_at)+'<br><a href="'+esc(url)+'" target="_blank" style="color:var(--g);font-weight:800">열기</a></span></div>';}));
+    box.innerHTML='<div class="info-list">'+rows.join('')+'</div>';
+  }catch(e){box.innerHTML='<div class="errm" style="padding:8px;text-align:left">자료 로딩 오류</div>';}
+}
+async function loadEventsPage(){
+  _evFilter=_evFilter||'upcoming';
+  loadEventsList();
+}
+async function loadInfoPage(){
+  loadInfoLibraryPreview();
+  showAssocMap();
 }
 
 function openMemberModal(){
@@ -1440,16 +1238,13 @@ async function submitMember(){
   const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
   if(!payload.name){toast('회원 이름을 입력하세요');return;}
   if(!payload.email){toast('이메일을 입력하세요. 로그인 연결에 필요합니다');return;}
-  const lock='member-submit:'+payload.email;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  try{
-    const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
-    if(existing.data){load(false);_actionLocks.delete(lock);toast('이미 등록된 이메일입니다');return;}
-    const {error}=await db.from('members').insert(payload);
-    load(false);_actionLocks.delete(lock);
-    if(error){toast('회원 등록 오류: '+error.message);return;}
-    toast('회원 등록 완료 ✓');closeMo();initMC();
-  }catch(e){load(false);_actionLocks.delete(lock);toast('회원 등록 오류: '+errMsg(e));}
+  const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
+  if(existing.data){load(false);toast('이미 등록된 이메일입니다');return;}
+  const {error}=await db.from('members').insert(payload);
+  load(false);
+  if(error){toast('회원 등록 오류: '+error.message);return;}
+  toast('회원 등록 완료 ✓');closeMo();initMC();
 }
 
 function openModal(type){
@@ -1457,38 +1252,39 @@ function openModal(type){
     notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
     meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
-    proposal:'<div class="mot">✅ 예산안 등록</div><div id="proposal-draft-bar"></div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
+    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
   };
   g('mo-body').innerHTML=tpls[type]||'';g('mover').classList.add('open');
-  if(type==='proposal')setTimeout(()=>{bindBudgetAmountInput();bindProposalDraft();},0);
+  if(type==='proposal')setTimeout(bindBudgetAmountInput,0);
 }
 
 async function loadCampsFromDB(){
   let res=await db.from('camps').select('*').eq('is_active',true);
   if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
   if(res.error){console.error('camps error:',res.error.message);return MEMBER_CAMPS;}
-  if(!res.data||!res.data.length)return MEMBER_CAMPS;
+  if(!res.data||!res.data.length)return MEMBER_CAMPS.map(c=>({...c,m:true}));
   const camps=res.data.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&c.n);
   camps.sort((a,b)=>(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
-  return camps.length?camps:MEMBER_CAMPS;
+  return camps.length?camps:MEMBER_CAMPS.map(c=>({...c,m:true}));
 }
 function updateMapStats(camps){
   const counts={};camps.forEach(c=>{const r=c.c||'기타';counts[r]=(counts[r]||0)+1});
   const regions=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b,'ko'));
-  const top=regions[0]||'';
+  const members=camps.filter(c=>c.m!==false).length;
+  const nonmembers=camps.length-members;
   if(g('stat-total'))g('stat-total').textContent=camps.length;
-  if(g('stat-regions'))g('stat-regions').textContent=regions.length;
-  if(g('stat-main'))g('stat-main').textContent=top?counts[top]:0;
-  const leg=g('region-legend');if(leg){leg.innerHTML='<div class="region-legend-t">📍 면별 색상</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');}
+  if(g('stat-regions'))g('stat-regions').textContent=members;
+  if(g('stat-main'))g('stat-main').textContent=nonmembers;
+  const leg=g('region-legend');if(leg){leg.innerHTML='<div class="region-legend-t">📍 지역/회원 구분</div><div class="region-row"><div class="region-dot" style="background:var(--g)"></div>협회 회원 ('+members+'곳)</div><div class="region-row"><div class="region-dot" style="background:#9ca3af"></div>비회원/일반 등록 야영장 ('+nonmembers+'곳)</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');}
 }
 function renderCampMarkers(camps){
   if(!assocMapInstance||typeof L==='undefined')return;
   if(!campLayer)campLayer=L.layerGroup().addTo(assocMapInstance);else campLayer.clearLayers();
   camps.forEach(c=>{
-    const color=REGION_COLORS[c.c]||'#185c42';
+    const color=(c.m===false)?'#9ca3af':(REGION_COLORS[c.c]||'#185c42');
     const initial=esc((c.c||'?').charAt(0));
     const icon=L.divIcon({className:'camp-marker',html:`<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:Manrope,sans-serif">${initial}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-26]});
-    L.marker([c.lat,c.lng],{icon}).addTo(campLayer).bindPopup(`<b>${esc(c.n)}</b>👤 ${esc(c.o)}<br>📍 ${esc(c.a)}<br>📧 <span style="font-size:11px;color:#5e6d61">${esc(c.e)}</span>`);
+    L.marker([c.lat,c.lng],{icon}).addTo(campLayer).bindPopup(`<b>${esc(c.n)}</b><span style="display:inline-block;margin:4px 0;padding:2px 7px;border-radius:999px;background:${c.m===false?'#f3f4f6':'#dff1e7'};color:${c.m===false?'#6b7280':'#185c42'};font-size:11px;font-weight:800">${c.m===false?'일반 등록 야영장':'협회 회원'}</span><br>👤 ${esc(c.o)}<br>📍 ${esc(c.a)}${c.phone?'<br>☎ '+esc(c.phone):''}${c.site?'<br>🔗 <a href="'+esc(c.site)+'" target="_blank">홈페이지/예약</a>':''}<br>📧 <span style="font-size:11px;color:#5e6d61">${esc(c.e)}</span>`);
   });
   if(camps.length){const bounds=L.latLngBounds(camps.map(c=>[c.lat,c.lng]));assocMapInstance.fitBounds(bounds,{padding:[40,40]});}
 }
@@ -1532,7 +1328,7 @@ function renderEventsList(){
   const list=g('events-list'),today=todayLocalDate();if(!list)return;let filtered=[..._allEvents];
   if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||String(e.event_date)>=today);
   else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
-  else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>evCategoryKey(e)===_evFilter);
+  else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>e.category===_evFilter);
   if(!filtered.length){list.innerHTML='<div class="ev-empty">📭 해당 조건의 일정이 없습니다</div>';return;}
   const display=filtered.slice(0,30);
   list.innerHTML=display.map(e=>{
@@ -1546,521 +1342,6 @@ function renderEventsList(){
     return '<div class="ev-card">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e.program_name||e.title||'')+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e.category||'')+'">'+esc(e.category||'')+' '+esc(catName||'')+'</span><span>🏕 '+esc(e.camp_name||'')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div></div>'+status+'</div>';
   }).join('')+(filtered.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-30)+'건 더보기는 <a href="events.html" style="color:var(--g);font-weight:700">일정 시스템</a>에서</div>':'');
 }
-
-
-/* =========================
-   GCA v4.14 누적 고도화 패치
-   - v4.12/v4.13 정상작동 흐름 유지
-   - event.html 데이터 추출: A/B/C/D 프로그램·업체·단가·예산정책 카테고리 세팅
-   ========================= */
-const AUTH_OK_KEY_V414='gca_manual_session_ok_v4_14';
-let _calendarMonth=todayLocalDate().slice(0,7);
-let _calendarCamp='all';
-let _calendarCat='all';
-let _calendarProvider='all';
-let _contentFiles=[];
-let _lastEventsError='';
-function markAuthorizedSession(){try{localStorage.setItem(AUTH_OK_KEY_V414,String(Date.now()));}catch(e){}}
-function clearAuthorizedSession(){try{localStorage.removeItem(AUTH_OK_KEY_V414);}catch(e){}}
-function hasAuthorizedSession(){try{return !!localStorage.getItem(AUTH_OK_KEY_V414);}catch(e){return false}}
-function withTimeout(promise,ms,label){return Promise.race([promise,new Promise(resolve=>setTimeout(()=>resolve({timeout:true,label:label||'timeout'}),ms))]);}
-async function safeLocalSignOut(){try{return await withTimeout(db.auth.signOut({scope:'local'}),1800,'signout-timeout');}catch(e){console.warn('safe signOut skipped:',e);return {error:e};}}
-
-async function forceManualLoginScreen(){
-  if(hasAuthorizedSession()){
-    try{
-      const {data:{session}}=await db.auth.getSession();
-      if(session?.user){const ok=await loadMember(session.user);if(ok){showApp();return;}}
-    }catch(e){console.warn('authorized session restore failed:',e);}
-  }
-  await safeLocalSignOut();
-  clearAuthorizedSession();
-  clearManualOAuthIntent();
-  clearLocalSupabaseSession();
-  Object.assign(App,{user:null,member:null,role:null});
-  load(false);
-  showLogin();
-}
-
-async function loginEmail(){
-  const e=v('ei').toLowerCase(),p=g('pi')?.value||'';
-  if(!e||!p){setLerr('이메일과 비밀번호를 입력하세요');return;}
-  _manualLoginInProgress=true;
-  load(true);
-  const finish=()=>setTimeout(()=>{_manualLoginInProgress=false},1200);
-  try{
-    const {data:authData,error:authErr}=await db.auth.signInWithPassword({email:e,password:p});
-    if(authErr){load(false);setLerr('로그인 실패: '+authErr.message);finish();return;}
-    if(authData?.user){
-      const r=await loadMember(authData.user);
-      load(false);
-      if(r){markAuthorizedSession();showApp();}else{clearAuthorizedSession();showLogin();}
-      finish();return;
-    }
-    load(false);setLerr('로그인 세션을 확인하지 못했습니다. 다시 시도하세요.');finish();
-  }catch(e2){load(false);setLerr('오류: '+errMsg(e2));finish();}
-}
-
-async function logout(){
-  if(!confirm('로그아웃 하시겠습니까?'))return;
-  load(true);
-  clearAuthorizedSession();
-  clearManualOAuthIntent();
-  try{await safeLocalSignOut();}catch(e){console.warn('logout signout exception:',e);}
-  finally{
-    clearLocalSupabaseSession();
-    Object.assign(App,{user:null,member:null,role:null});
-    try{closePan();}catch(e){}
-    try{closeMo();}catch(e){}
-    const lerr=g('lerr');if(lerr){lerr.textContent='';lerr.style.display='none';}
-    showLogin();
-    load(false);
-    try{history.replaceState(null,'',location.pathname);}catch(e){}
-    toast('로그아웃 되었습니다');
-  }
-}
-
-function showApp(){
-  markAuthorizedSession();
-  g('login-screen').style.display='none';g('app').style.display='block';
-  const isAdmin=App.role==='admin';
-  const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
-  g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
-  ['btn-notice','btn-meeting','btn-proposal','btn-system-check','btn-content'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
-  const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
-  initMC();
-  const hash=(location.hash||'').replace('#','');
-  const allowed=['notices','meetings','budget','calendar','support','content','map'];
-  nav(allowed.includes(hash)?hash:'notices',false);
-  loadBadges();
-}
-
-function nav(page,push=true){
-  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,calendar:loadCalendarPage,support:loadSupportPage,content:loadContent,map:showAssocMap};
-  if(!loaders[page])page='notices';
-  _currentPage=page;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
-  const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
-  const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',calendar:'행사캘린더',support:'지원사업',content:'콘텐츠',map:'회원 캠프 지도'};
-  g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
-  loaders[page]();
-  if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
-}
-
-function renderP(p,mv={}){
-  const yes=Number(p.vote_yes)||0,no=Number(p.vote_no)||0,tot=yes+no,yesPct=tot>0?Math.round(yes/tot*100):0;
-  const quorum=Number(p.quorum_count)||0,qmet=quorum>0?tot>=quorum:false,myv=mv[p.id];
-  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv;
-  const {stM,stC}=budgetStatusMaps();
-  const deadlineText='마감 없음 · 관리자 수동마감';
-  const totalVoters=Number(p.total_voters)||parseInt(g('mc-num')?.textContent,10)||'?';
-  const blocked=voteBlockedReason(p,myv,false,null);
-  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc(((p.title||'')+' '+(p.category||'')+' '+(p.budget_source||'')+' '+(stM[p.status]||'')+' '+won(p.amount)).toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
-    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title||'제목 없음')+'</div><div class="pc-meta">'+esc(p.category||'항목 미지정')+' · '+esc(p.budget_source||'출처 미지정')+'</div></div>'+ 
-    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
-    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="color:var(--amber)">'+deadlineText+'</span></div>':'')+
-    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':blocked?'<div class="vdone">'+esc(blocked)+'</div>':'')+
-    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'<button class="btn bo btn-sm danger-line" onclick="deleteProposal(\''+jsq(p.id)+'\',\''+jsq(p.title||'제목 없음')+'\')">삭제</button></div>':'')+'</div>';
-}
-
-async function deleteProposal(pid,title){
-  if(App.role!=='admin'){toast('관리자만 삭제할 수 있습니다');return;}
-  if(!pid){toast('삭제할 안건 ID가 없습니다');return;}
-  const ok=confirm('투표안/예산안을 삭제합니다.\n\n안건: '+(title||'제목 없음')+'\n\n관련 투표 기록도 함께 삭제됩니다. 되돌릴 수 없습니다.');
-  if(!ok)return;
-  const lock='delete-proposal:'+pid;if(_actionLocks.has(lock))return;_actionLocks.add(lock);load(true);
-  try{
-    let r=await db.rpc('delete_budget_proposal_v4_14',{p_proposal_id:pid});
-    if(r.error&&isRpcFallbackable(r.error))r=await db.rpc('delete_budget_proposal',{p_proposal_id:pid});
-    if(r.error&&isRpcFallbackable(r.error)){
-      console.warn('delete proposal rpc fallback to direct delete:',r.error.message);
-      try{await db.from('votes').delete().eq('proposal_id',pid);}catch(e){}
-      try{await db.from('attachments').delete().or('proposal_id.eq.'+pid+',target_id.eq.'+pid);}catch(e){}
-      r=await db.from('budget_proposals').delete().eq('id',pid);
-    }
-    load(false);_actionLocks.delete(lock);
-    if(r.error){const msg='투표안 삭제 오류: '+budgetErrText(r.error);toast(msg.slice(0,120));alert(msg);return;}
-    toast('투표안이 삭제되었습니다');closePan();await loadBudget();loadBadges();
-  }catch(e){load(false);_actionLocks.delete(lock);const msg='투표안 삭제 오류: '+errMsg(e);toast(msg.slice(0,120));alert(msg);}
-}
-
-function evCampName(e){return e.camp_name||e.camp||e.camp_title||e.site_name||'미지정 캠핑장'}
-function evTitle(e){return e.program_name||e.title||e.name||'행사명 없음'}
-function evDate(e){return String(e.event_date||e.date||'')}
-function evCategoryKey(e){return inferEventCategory(e)}
-function evCatName(e){return categoryMeta(evCategoryKey(e)).name}
-function evProgramInfo(e){return programInfoByName(evTitle(e))}
-function evQty(e){return Number(e.qty||e.quantity||e.count||1)||1}
-function normalizeCampEventRow(e){
-  const info=evProgramInfo(e);const cat=evCategoryKey(e);
-  return Object.assign({},e,{_category:cat,_category_name:categoryMeta(cat).name,_provider:info?.provider||'',_program_type:info?.type||'',_pricing_label:eventPricingLabel(info),_bundle_rule:eventBundleRule(info)});
-}
-async function fetchCampEventsSafe(){
-  try{
-    const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
-    if(error){_lastEventsError=error.message;return {data:[],error};}
-    _lastEventsError='';
-    _allEvents=(data||[]).filter(e=>!isForfeitedBudgetCamp(evCampName(e))).map(normalizeCampEventRow);
-    return {data:_allEvents,error:null};
-  }catch(e){_lastEventsError=errMsg(e);return {data:[],error:e};}
-}
-function eventDateBox(e){
-  const d=evDate(e);
-  if(!d||d.length<10)return '<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>';
-  return '<div class="ev-date">'+parseInt(d.slice(5,7),10)+'월<span class="ev-d">'+parseInt(d.slice(8,10),10)+'일</span></div>';
-}
-function eventCard(e){
-  const key=evCategoryKey(e),meta=categoryMeta(key),info=evProgramInfo(e);
-  const status=e.finalized?'<span class="ev-status ev-locked">🔒 확정</span>':'<span class="ev-status ev-pending">⏳ 검토</span>';
-  const price=info?'<span class="ev-price-note">'+esc(eventPricingLabel(info))+'</span>':'';
-  return '<div class="ev-card">'+eventDateBox(e)+'<div class="ev-main"><div class="ev-title">'+esc(evTitle(e))+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>🏕 '+esc(evCampName(e))+'</span>'+(info?'<span>업체 '+esc(info.provider)+'</span>':'')+(evQty(e)>1?'<span>· '+evQty(e)+'매</span>':'')+price+'</div></div>'+status+'</div>';
-}
-
-
-function eventNumberValue(v){
-  if(v==null||v==='')return 0;
-  if(typeof v==='number')return Number.isFinite(v)?v:0;
-  const s=String(v).replace(/[^\d.-]/g,'');
-  const n=Number(s);
-  return Number.isFinite(n)?n:0;
-}
-function calendarProvider(e){
-  return e?._provider||evProgramInfo(e)?.provider||e?.provider||e?.vendor||e?.company_name||'업체 미확인';
-}
-function normalizeBudgetCampName(name){
-  return String(name||'').replace(/\s+/g,'').replace(/캠핑장|야영장|관광농원|애견/g,'').trim();
-}
-function isForfeitedBudgetCamp(name){
-  const n=normalizeBudgetCampName(name);
-  return (EVENT_BUDGET_POLICY.forfeited_camp_names||[]).some(x=>normalizeBudgetCampName(x)===n);
-}
-function calendarCampLimit(camp){
-  return isForfeitedBudgetCamp(camp)?0:Number(EVENT_BUDGET_POLICY.final_budget_per_camp||0);
-}
-function calendarIsTicket(e){
-  const info=evProgramInfo(e);
-  return String(e?.bundle_type||'').toLowerCase()==='ticket'||info?.type==='ticket'||!!info?.pricing?.ticket;
-}
-function calendarEventSort(a,b){
-  const as=Number(a?.bundle_seq),bs=Number(b?.bundle_seq);
-  const av=Number.isFinite(as)&&as>0,bv=Number.isFinite(bs)&&bs>0;
-  if(av&&bv&&as!==bs)return as-bs;
-  if(av&&!bv)return -1;
-  if(!av&&bv)return 1;
-  const ac=String(a?.created_at||''),bc=String(b?.created_at||'');
-  if(ac!==bc)return ac.localeCompare(bc);
-  return String(a?.id||'').localeCompare(String(b?.id||''));
-}
-function calendarBundleCapacity(info){
-  const p=info?.pricing||{};
-  if(p.bundle3)return 3;
-  if(p.bundle2)return 2;
-  return 1;
-}
-function calendarPriceByCount(info,count,qty){
-  const p=info?.pricing||{};
-  const q=Number(qty||1)||1;
-  if(p.ticket)return {amount:Number(p.ticket||0)*q,source:'티켓단가×수량'};
-  if(count>=3&&p.bundle3)return {amount:Number(p.bundle3)||0,source:'3곳 묶음단가'};
-  if(count===2&&p.bundle2)return {amount:Number(p.bundle2)||0,source:'2곳 묶음단가'};
-  if(count===2&&p.bundle3)return {amount:Number(p.bundle3)||0,source:'3곳 단가 적용 대기'};
-  if(p.single)return {amount:Number(p.single)||0,source:'단독단가'};
-  if(p.bundle3)return {amount:Number(p.bundle3)||0,source:'3곳 단가 기준'};
-  if(p.bundle2)return {amount:Number(p.bundle2)||0,source:'2곳 단가 기준'};
-  return {amount:0,source:'단가 미확인'};
-}
-function calendarBundleGroupsFor(date,programName,rows){
-  const d=String(date||''),k=programKey(programName);
-  if(!d||!k)return [];
-  const sample=(rows||[]).find(x=>evDate(x)===d&&programKey(evTitle(x))===k);
-  const cap=calendarBundleCapacity(evProgramInfo(sample||{program_name:programName}));
-  const arr=(rows||[]).filter(x=>evDate(x)===d&&programKey(evTitle(x))===k&&!calendarIsTicket(x)).sort(calendarEventSort);
-  const groups=[];
-  for(let i=0;i<arr.length;i+=cap){
-    groups.push({seq:groups.length+1,capacity:cap,rows:arr.slice(i,i+cap)});
-  }
-  return groups;
-}
-function calendarFindBundleForEvent(e,rows){
-  if(!e||calendarIsTicket(e))return null;
-  const groups=calendarBundleGroupsFor(evDate(e),evTitle(e),rows||_allEvents||[]);
-  const id=e?.id!=null?String(e.id):'';
-  for(const g of groups){
-    if(id&&g.rows.some(x=>String(x.id)===id))return g;
-    if(!id&&g.rows.includes(e))return g;
-  }
-  return groups[0]||null;
-}
-function calendarEventAmount(e,rows){
-  const info=evProgramInfo(e);
-  if(calendarIsTicket(e))return calendarPriceByCount(info,1,evQty(e));
-  const locked=eventNumberValue(e?.locked_price);
-  if(locked>0)return {amount:locked,source:'확정단가'};
-  const bundle=calendarFindBundleForEvent(e,rows||_allEvents||[]);
-  const count=bundle?bundle.rows.length:1;
-  const priced=calendarPriceByCount(info,count,evQty(e));
-  if(bundle&&priced.amount>0){
-    priced.source='묶음#'+bundle.seq+' '+count+'/'+bundle.capacity+' 기준 · '+priced.source;
-  }
-  return priced;
-}
-function calendarCampNames(){
-  const names=[];
-  (_calendarCamps||[]).forEach(c=>names.push(c.n||c.camp_name||c.name));
-  (_allEvents||[]).forEach(e=>names.push(evCampName(e)));
-  return [...new Set(names.filter(Boolean).filter(c=>!isForfeitedBudgetCamp(c)))].sort((a,b)=>a.localeCompare(b,'ko'));
-}
-function calendarCampUsage(rows,includeAll=true){
-  const map={};
-  if(includeAll){
-    calendarCampNames().forEach(c=>{map[c]={camp:c,used:0,count:0,limit:calendarCampLimit(c),remain:calendarCampLimit(c)};});
-  }
-  (rows||[]).forEach(e=>{
-    const c=evCampName(e);
-    if(!c||isForfeitedBudgetCamp(c))return;
-    if(!map[c])map[c]={camp:c,used:0,count:0,limit:calendarCampLimit(c),remain:calendarCampLimit(c)};
-    const a=calendarEventAmount(e,rows).amount;
-    map[c].used+=a;map[c].count++;
-  });
-  Object.values(map).forEach(x=>{x.remain=x.limit-x.used;});
-  return Object.values(map).sort((a,b)=>a.remain-b.remain||b.used-a.used||a.camp.localeCompare(b.camp,'ko'));
-}
-function calendarProviderUsage(rows){
-  const map={};
-  (rows||[]).forEach(e=>{
-    if(isForfeitedBudgetCamp(evCampName(e)))return;
-    const p=calendarProvider(e);
-    if(!map[p])map[p]={provider:p,used:0,count:0,camps:new Set(),programs:new Set()};
-    map[p].used+=calendarEventAmount(e,rows).amount;
-    map[p].count++;
-    map[p].camps.add(evCampName(e));
-    map[p].programs.add(evTitle(e));
-  });
-  return Object.values(map).map(x=>Object.assign(x,{campCount:x.camps.size,programCount:x.programs.size})).sort((a,b)=>b.used-a.used||b.count-a.count||a.provider.localeCompare(b.provider,'ko'));
-}
-async function fetchCalendarCampsSafe(){
-  try{
-    let res=await db.from('camps').select('*').eq('is_active',true);
-    if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
-    if(res.error)throw res.error;
-    const rows=res.data||[];
-    const camps=rows.map(c=>({
-      n:c.camp_name||c.name||c.title||c.n||'',
-      c:c.region||c.group_name||c.group||'',
-      o:c.owner_name||c.representative_name||c.member_name||c.owner||c.manager_name||'',
-      e:c.email||c.member_email||'',
-      a:c.address||''
-    })).filter(c=>c.n);
-    _calendarCamps=camps.length?camps:MEMBER_CAMPS;
-  }catch(e){
-    console.warn('calendar camps fallback:',errMsg(e));
-    _calendarCamps=MEMBER_CAMPS;
-  }
-  return _calendarCamps;
-}
-function renderCalendarPolicy(){
-  const el=g('calendar-policy');if(!el)return;
-  const p=EVENT_BUDGET_POLICY;
-  el.innerHTML='<div class="policy-card"><div class="pnum">'+won(p.final_budget_per_camp)+'</div><div class="plbl">캠프별 최종 한도</div><div class="pmeta">기본+포기분+해밀터 차액</div></div><div class="policy-card"><div class="pnum">'+won(p.project_total_budget)+'</div><div class="plbl">총 지원 기준</div><div class="pmeta">21곳 기준</div></div><div class="policy-card"><div class="pnum">'+won(p.hamilton_used_amount)+'</div><div class="plbl">해밀터 사용액</div><div class="pmeta">차액 재분배 반영</div></div><div class="policy-card"><div class="pnum">상시</div><div class="plbl">신청 마감</div><div class="pmeta">마감시간 없음</div></div>';
-}
-async function loadCalendarPage(){
-  const list=g('calendar-list'),controls=g('calendar-controls'),summary=g('calendar-summary');
-  if(list)list.innerHTML='<div class="loading">불러오는 중...</div>';
-  renderCalendarPolicy();
-  const r=await fetchCampEventsSafe();
-  await fetchCalendarCampsSafe();
-  const camps=calendarCampNames();
-  const providers=[...new Set((_allEvents||[]).map(calendarProvider).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
-  if(controls){
-    const catOptions='<option value="all">전체 분류</option>'+Object.keys(EVENT_CATEGORY_META).map(k=>'<option value="'+k+'" '+(_calendarCat===k?'selected':'')+'>'+k+' '+esc(EVENT_CATEGORY_META[k].name)+'</option>').join('');
-    const providerOptions='<option value="all">전체 업체</option>'+providers.map(p=>'<option value="'+esc(p)+'" '+(_calendarProvider===p?'selected':'')+'>'+esc(p)+'</option>').join('');
-    controls.innerHTML='<button class="btn bo btn-sm" onclick="moveCalendarMonth(-1)">‹ 이전달</button><input type="month" id="cal-month" value="'+esc(_calendarMonth)+'" onchange="_calendarMonth=this.value||todayLocalDate().slice(0,7);renderCalendarPage()"><button class="btn bo btn-sm" onclick="moveCalendarMonth(1)">다음달 ›</button><select id="cal-camp" onchange="_calendarCamp=this.value;renderCalendarPage()"><option value="all">전체 캠핑장</option>'+camps.map(c=>'<option value="'+esc(c)+'" '+(_calendarCamp===c?'selected':'')+'>'+esc(c)+'</option>').join('')+'</select><select id="cal-cat" onchange="_calendarCat=this.value;renderCalendarPage()">'+catOptions+'</select><select id="cal-provider" onchange="_calendarProvider=this.value;renderCalendarPage()">'+providerOptions+'</select><button class="btn bo btn-sm" onclick="_calendarCamp=\'all\';_calendarCat=\'all\';_calendarProvider=\'all\';loadCalendarPage()">전체 보기</button><a class="btn bp btn-sm" href="events.html">event.html</a>';
-  }
-  if(r.error){if(summary)summary.innerHTML='';if(list)list.innerHTML='<div class="ev-empty">행사 데이터를 읽지 못했습니다.<br>'+esc(_lastEventsError)+'</div>';return;}
-  renderCalendarPage();
-}
-function moveCalendarMonth(delta){
-  const parts=(_calendarMonth||todayLocalDate().slice(0,7)).split('-');
-  const d=new Date(Number(parts[0]),Number(parts[1])-1+delta,1);
-  _calendarMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-  const inp=g('cal-month');if(inp)inp.value=_calendarMonth;renderCalendarPage();
-}
-function calendarFilteredRowsForCurrent(){
-  const allRows=[...(_allEvents||[])];
-  let rows=allRows.filter(e=>{const d=evDate(e);return d&&d.slice(0,7)===_calendarMonth;});
-  if(_calendarCamp!=='all')rows=rows.filter(e=>evCampName(e)===_calendarCamp);
-  if(_calendarCat!=='all')rows=rows.filter(e=>evCategoryKey(e)===_calendarCat);
-  if(_calendarProvider!=='all')rows=rows.filter(e=>calendarProvider(e)===_calendarProvider);
-  return {rows,allRows};
-}
-function calendarCampInfo(name){
-  const target=normalizeBudgetCampName(name);
-  const c=(_calendarCamps||[]).find(x=>normalizeBudgetCampName(x.n||x.camp_name||x.name)===target)||{};
-  return {camp:name||'미지정 캠핑장',owner:c.o||c.owner_name||c.member_name||'',group:c.c||c.region||c.group_name||c.group||'',email:c.e||c.email||'',address:c.a||c.address||''};
-}
-function calendarDateShort(d){
-  if(!d||d.length<10)return '수시';
-  return parseInt(d.slice(5,7),10)+'/'+parseInt(d.slice(8,10),10);
-}
-function calendarDateBoxSmall(d){
-  if(!d||d.length<10)return '<div class="member-date">수시<b>매</b></div>';
-  return '<div class="member-date">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';
-}
-function calendarBuildMemberPurchases(rows,allRows){
-  const balance={};
-  calendarCampUsage(allRows,true).forEach(c=>{balance[c.camp]=c;});
-  const map={};
-  (rows||[]).forEach(e=>{
-    const camp=evCampName(e);
-    if(!camp||isForfeitedBudgetCamp(camp))return;
-    const priced=calendarEventAmount(e,allRows);
-    const info=calendarCampInfo(camp);
-    if(!map[camp])map[camp]={camp,info,selectedUsed:0,selectedCount:0,events:[],balance:balance[camp]||{used:0,count:0,limit:calendarCampLimit(camp),remain:calendarCampLimit(camp)}};
-    const row={event:e,date:evDate(e),category:evCategoryKey(e),meta:categoryMeta(evCategoryKey(e)),title:evTitle(e),provider:calendarProvider(e),qty:evQty(e),amount:priced.amount,source:priced.source,status:e.finalized?'확정':'검토',pricing:eventPricingLabel(evProgramInfo(e))};
-    map[camp].events.push(row);
-    map[camp].selectedUsed+=priced.amount;
-    map[camp].selectedCount++;
-  });
-  return Object.values(map).map(x=>{
-    x.events.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')||a.provider.localeCompare(b.provider,'ko')||a.title.localeCompare(b.title,'ko'));
-    const bal=balance[x.camp]||x.balance;
-    x.totalUsed=bal.used||0;
-    x.totalCount=bal.count||0;
-    x.limit=bal.limit||calendarCampLimit(x.camp);
-    x.remain=x.limit-x.totalUsed;
-    return x;
-  }).sort((a,b)=>a.camp.localeCompare(b.camp,'ko'));
-}
-function renderMemberPurchaseBoard(rows,allRows){
-  const groups=calendarBuildMemberPurchases(rows,allRows);
-  if(!groups.length)return '<div class="member-ledger-board"><div class="cal-ledger-h"><div><div class="cal-ledger-title">회원별 선택·구매내역</div><div class="cal-ledger-sub">해당 조건의 회원별 구매 데이터가 없습니다.</div></div></div><div class="member-empty">월/캠핑장/업체 필터를 조정하거나 event.html 신청 데이터를 확인하세요.</div></div>';
-  const selectedTotal=groups.reduce((s,g)=>s+g.selectedUsed,0);
-  const body=groups.map(g=>{
-    const cls=g.remain<0?'over':g.remain<300000?'warn':'';
-    const owner=g.info.owner?'대표/회원 '+esc(g.info.owner):'회원명 미등록';
-    return '<div class="member-card"><div class="member-card-h"><div><div class="member-name">'+esc(g.camp)+'</div><div class="member-meta"><span>'+esc(owner)+'</span><span>'+esc(g.info.group||'지역/조 미지정')+'</span><span>선택 '+g.selectedCount+'건</span><span>전체 '+g.totalCount+'건</span></div></div><div class="member-total '+cls+'">'+won(g.selectedUsed)+'<small>선택조건 사용액 · 전체잔여 '+won(g.remain)+'</small></div></div><div class="member-purchase-row head"><div>날짜</div><div>선택 콘텐츠</div><div>행사 업체</div><div style="text-align:right">구매금액</div></div>'+g.events.map(r=>'<div class="member-purchase-row">'+calendarDateBoxSmall(r.date)+'<div class="member-content"><div class="member-content-title">'+esc(r.title)+'</div><div class="member-content-meta"><span class="ev-cat ev-cat-'+esc(r.category)+'">'+esc(r.category)+' '+esc(r.meta.name)+'</span><span>'+esc(r.status)+'</span><span>'+r.qty+'매</span></div></div><div class="member-vendor">'+esc(r.provider)+'<small>'+esc(r.pricing)+'</small></div><div class="member-amount">'+won(r.amount)+'<small>'+esc(r.source)+'</small></div></div>').join('')+'</div>';
-  }).join('');
-  return '<div class="member-ledger-board"><div class="member-ledger-head"><div><div class="member-ledger-title">회원별 선택·구매내역</div><div class="member-ledger-sub">회원/캠핑장별로 선택한 콘텐츠, 행사 날짜, 행사 업체, 구매금액을 정산표로 묶었습니다. 선택조건 합계 '+won(selectedTotal)+' · '+groups.length+'개 회원/캠프</div></div><div class="member-ledger-actions"><button class="btn bo btn-sm" onclick="downloadMemberPurchaseCsv()">회원별 CSV</button><button class="btn bo btn-sm" onclick="downloadMemberPurchaseSummaryCsv()">요약 CSV</button></div></div>'+body+'</div>';
-}
-function csvCellV418(v){const s=String(v??'');return /[",\n\t,]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
-function downloadTextFileV418(filename,text,type){const blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-function downloadMemberPurchaseCsv(){
-  const {rows,allRows}=calendarFilteredRowsForCurrent();
-  const groups=calendarBuildMemberPurchases(rows,allRows);
-  const out=[['회원/캠핑장','대표/회원명','지역/조','날짜','카테고리','콘텐츠','행사 업체','수량','구매금액','금액산출근거','선택조건 캠프합계','전체사용액','전체잔여금액','상태']];
-  groups.forEach(g=>g.events.forEach(r=>out.push([g.camp,g.info.owner||'',g.info.group||'',r.date||'수시',r.category+' '+r.meta.name,r.title,r.provider,r.qty,r.amount,r.source,g.selectedUsed,g.totalUsed,g.remain,r.status])));
-  const csv='\ufeff'+out.map(row=>row.map(csvCellV418).join(',')).join('\n');
-  downloadTextFileV418('goesan_member_purchase_detail_v4_18_'+_calendarMonth+'.csv',csv,'text/csv;charset=utf-8');toast('회원별 구매내역 CSV 다운로드');
-}
-function downloadMemberPurchaseSummaryCsv(){
-  const {rows,allRows}=calendarFilteredRowsForCurrent();
-  const groups=calendarBuildMemberPurchases(rows,allRows);
-  const out=[['회원/캠핑장','대표/회원명','지역/조','선택조건 건수','선택조건 사용액','전체건수','전체사용액','캠프별한도','전체잔여금액']];
-  groups.forEach(g=>out.push([g.camp,g.info.owner||'',g.info.group||'',g.selectedCount,g.selectedUsed,g.totalCount,g.totalUsed,g.limit,g.remain]));
-  const csv='\ufeff'+out.map(row=>row.map(csvCellV418).join(',')).join('\n');
-  downloadTextFileV418('goesan_member_purchase_summary_v4_18_'+_calendarMonth+'.csv',csv,'text/csv;charset=utf-8');toast('회원별 요약 CSV 다운로드');
-}
-function renderCalendarPage(){
-  const list=g('calendar-list'),summary=g('calendar-summary');if(!list)return;
-  const {rows,allRows}=calendarFilteredRowsForCurrent();
-  const selectedUse=rows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
-  const allUse=allRows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
-  const campUsage=calendarCampUsage(allRows,true);
-  const totalLimit=campUsage.reduce((a,c)=>a+c.limit,0);
-  const totalRemain=totalLimit-allUse;
-  const providers=calendarProviderUsage(rows);
-  if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+won(selectedUse)+'</div><div class="mini-l">선택조건 구매금액</div><div class="mini-m">'+esc(_calendarMonth)+' · '+rows.length+'건</div></div><div class="mini-card"><div class="mini-n">'+won(allUse)+'</div><div class="mini-l">전체 회원 구매액</div><div class="mini-m">회원별 구매내역 기준</div></div><div class="mini-card"><div class="mini-n '+(totalRemain<0?'over':'')+'">'+won(totalRemain)+'</div><div class="mini-l">전체 잔여합계</div><div class="mini-m">대상캠프 한도 '+won(totalLimit)+'</div></div>';
-  if(!rows.length){list.innerHTML='<div class="cal-budget-note">해당 조건의 회원별 구매/선택 내역이 없습니다. 월/캠핑장/업체 필터를 조정하세요.</div>';return;}
-  const memberBoard=renderMemberPurchaseBoard(rows,allRows);
-  const providerHtml='<div class="cal-provider-board"><div class="cal-board-card"><div class="cal-board-title">업체별 사용금액 TOP</div>'+providers.slice(0,8).map(p=>'<div class="cal-small-row"><strong>'+esc(p.provider)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+p.count+'건 · 캠프 '+p.campCount+'곳</span></strong><span>'+won(p.used)+'</span></div>').join('')+'</div><div class="cal-board-card"><div class="cal-board-title">잔여금액 위험 회원/캠프</div>'+campUsage.slice(0,8).map(c=>'<div class="cal-small-row"><strong>'+esc(c.camp)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+c.count+'건 · 사용 '+won(c.used)+'</span></strong><span class="'+(c.remain<0?'over':'')+'">'+won(c.remain)+'</span></div>').join('')+'</div></div>';
-  const note='<div class="cal-budget-note">정리 기준: <b>회원/캠핑장별 선택 내역</b>을 우선 표시합니다. 금액은 event.html 원본 산식 기준이며, 티켓은 단가×수량, 일반행사는 같은 날짜·같은 프로그램을 신청순으로 묶어 묶음별 단가를 적용합니다. <b>locked_price</b>가 있으면 확정단가로 우선 반영합니다.</div>';
-  const sorted=rows.sort((a,b)=>(evCampName(a)||'').localeCompare(evCampName(b)||'', 'ko')||(evDate(a)||'9999').localeCompare(evDate(b)||'9999')||calendarProvider(a).localeCompare(calendarProvider(b),'ko'));
-  const ledger='<div class="cal-ledger"><div class="cal-ledger-h"><div><div class="cal-ledger-title">전체 상세 내역</div><div class="cal-ledger-sub">회원 / 날짜 / 콘텐츠 / 행사 업체 / 구매금액 / 잔여금액</div></div><div class="cal-ledger-sub">'+sorted.length+'건</div></div><div class="cal-money-row head"><div>날짜</div><div>회원/콘텐츠</div><div>행사 업체</div><div style="text-align:right">구매금액</div><div style="text-align:right">잔여</div></div>'+sorted.map(e=>{const d=evDate(e);const amount=calendarEventAmount(e,allRows);const camp=evCampName(e);const used=campUsage.find(c=>c.camp===camp)?.used||0;const remain=calendarCampLimit(camp)-used;const key=evCategoryKey(e);const meta=categoryMeta(key);const dateBox=(!d||d.length<10)?'<div class="cal-day">수시<b>매</b></div>':'<div class="cal-day">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';return '<div class="cal-money-row">'+dateBox+'<div><div class="cal-event-name">'+esc(evTitle(e))+'</div><div class="cal-event-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>회원/캠프 '+esc(camp)+'</span><span>'+evQty(e)+'매</span><span>'+(e.finalized?'확정':'검토')+'</span></div></div><div><div class="cal-provider-name">'+esc(calendarProvider(e))+'</div><div class="cal-provider-meta">'+esc(eventPricingLabel(evProgramInfo(e)))+'</div></div><div><div class="cal-money">'+won(amount.amount)+'</div><div class="cal-source">'+esc(amount.source)+'</div></div><div><div class="cal-money '+(remain<0?'over':remain<300000?'warn':'ok')+'">'+won(remain)+'</div><div class="cal-source">한도 '+won(calendarCampLimit(camp))+'</div></div></div>';}).join('')+'</div>';
-  list.innerHTML=note+memberBoard+providerHtml+ledger;
-}
-
-function renderSupportProgramFilter(){return;}
-function renderSupportPolicy(){return;}
-function renderCategoryDashboard(rows){return;}
-async function loadSupportPage(){
-  const list=g('support-list');
-  const holder=document.querySelector('#page-support .support-empty');
-  if(holder){
-    holder.innerHTML='<div class="support-empty-k">지원사업 메뉴 비움</div><div class="support-empty-t">현재 데이터 계산은 행사캘린더로 통합했습니다.</div><div class="support-empty-d">요청에 따라 지원사업 메뉴는 데이터를 불러오지 않습니다. 예산/업체별 사용금액/잔여금액/행사 날짜/행사 업체 확인은 하단 메뉴의 <b>행사캘린더</b>에서만 진행합니다.</div>';
-  }
-  if(list)list.innerHTML='';
-}
-function renderSupportPage(){loadSupportPage();}
-
-async function loadContent(){
-  renderContentPlaybook();
-  const list=g('content-list');if(list)list.innerHTML='<div class="loading">불러오는 중...</div>';
-  try{
-    let r=await db.from('attachments').select('*, members!attachments_uploaded_by_fkey(name)').in('target_type',['library','content']).order('created_at',{ascending:false});
-    if(r.error&&isRelationshipError(r.error))r=await db.from('attachments').select('*').in('target_type',['library','content']).order('created_at',{ascending:false});
-    if(r.error){if(list)list.innerHTML='<div class="errm">콘텐츠 불러오기 실패: '+esc(r.error.message)+'</div>';return;}
-    _contentFiles=r.data||[];renderContentFiles();
-  }catch(e){if(list)list.innerHTML='<div class="errm">콘텐츠 불러오기 오류: '+esc(errMsg(e))+'</div>';}
-}
-function renderContentPlaybook(){
-  const el=g('content-playbook');if(!el)return;
-  const counts=catalogCategoryCounts();
-  el.innerHTML=Object.keys(EVENT_CATEGORY_META).map(k=>{const m=EVENT_CATEGORY_META[k];const providers=new Set(EVENT_PROGRAM_CATALOG.filter(p=>p.category===k).map(p=>p.provider)).size;return '<div class="content-card" style="background:'+esc(m.bg)+'"><span class="content-pill" style="background:'+esc(m.color)+';color:white">'+k+' '+esc(m.name)+'</span><h3>'+esc(m.role)+'</h3><p>'+esc(m.desc)+'</p><p style="font-weight:900;color:'+esc(m.color)+';margin-top:8px">프로그램 '+counts[k]+'개 · 업체 '+providers+'개</p></div>';}).join('');
-  const cat=g('content-program-catalog');if(cat){
-    const providers=catalogProviderCounts();
-    cat.innerHTML='<div class="program-catalog-h"><span>행사업체·프로그램 자동 세팅</span><span style="font-size:11px;color:var(--mid)">event.html 추출 '+EVENT_PROGRAM_CATALOG.length+'개</span></div>'+providers.map(pr=>'<div class="program-provider"><div><div class="provider-name"><span class="badge b-'+esc(pr.category)+'">'+esc(pr.category)+'</span> '+esc(pr.provider)+'</div><div class="provider-meta">'+esc(categoryMeta(pr.category).name)+' · '+pr.programs.length+'개 프로그램</div></div><div class="provider-programs">'+pr.programs.map(p=>'<span class="program-chip"><strong>'+esc(p.name)+'</strong> '+esc(eventBundleRule(p))+' · '+esc(eventPricingLabel(p))+'</span>').join('')+'</div></div>').join('');
-  }
-}
-async function renderContentFiles(){
-  const list=g('content-list');if(!list)return;
-  const q=(g('content-search')?.value||'').trim().toLowerCase();
-  let files=[...(_contentFiles||[])];
-  if(q)files=files.filter(f=>((f.file_name||'')+' '+(f.members?.name||'')+' '+(f.target_type||'')).toLowerCase().includes(q));
-  if(!files.length){list.innerHTML='<div class="empty"><div class="emptyic">📚</div>등록된 콘텐츠 자료가 없습니다</div>';return;}
-  const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px;font-weight:700">'+esc(f.file_name)+'</div><div class="rm">'+esc(f.members?.name||'')+' · 콘텐츠 · '+fd(f.created_at)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm" download>↓</a></div>'; }));
-  list.innerHTML=rows.join('');
-}
-
-const _baseOpenModal_v414=openModal;
-openModal=function(type){
-  if(type!=='content')return _baseOpenModal_v414(type);
-  if(App.role!=='admin'){toast('관리자만 콘텐츠를 등록할 수 있습니다');return;}
-  g('mo-body').innerHTML='<div class="mot">콘텐츠 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">행사업체 제안서, 마케팅 이미지, 포스터, 홍보문구 파일을 업로드하세요.</div><div class="ff"><label>콘텐츠 파일</label><input type="file" id="ct-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitContent()">등록</button></div>';
-  g('mover').classList.add('open');
-};
-async function submitContent(){
-  if(App.role!=='admin'){toast('관리자만 콘텐츠를 등록할 수 있습니다');return;}
-  const fi=g('ct-file');if(!fi||!fi.files||!fi.files.length){toast('업로드할 파일을 선택하세요');return;}
-  const targetId=crypto.randomUUID?crypto.randomUUID():String(Date.now()).padEnd(32,'0');
-  const lock='content-upload:'+targetId;if(_actionLocks.has(lock))return;_actionLocks.add(lock);load(true);
-  try{await uploadAtt(fi.files,'library',targetId);load(false);_actionLocks.delete(lock);toast('콘텐츠 등록 완료');closeMo();loadContent();}
-  catch(e){load(false);_actionLocks.delete(lock);toast('콘텐츠 등록 오류: '+errMsg(e));}
-}
-
-async function loadLibrary(){return loadContent();}
-
-// 기존 지도 탭의 행사 현황도 v4.14 공통 이벤트 로더를 사용한다.
-async function loadEventsList(){
-  const list=g('events-list'),stats=g('events-stats');if(!list)return;list.innerHTML='<div class="loading">불러오는 중...</div>';
-  const r=await fetchCampEventsSafe();
-  if(r.error){list.innerHTML='<div class="ev-empty">행사 테이블을 읽지 못했습니다.<br>'+esc(_lastEventsError)+'</div>';if(stats)stats.textContent='행사 데이터 연결 확인 필요';return;}
-  const today=todayLocalDate();
-  const upcoming=_allEvents.filter(e=>!evDate(e)||evDate(e)>=today).length;
-  const locked=_allEvents.filter(e=>!!e.finalized).length;
-  if(stats)stats.innerHTML='총 '+_allEvents.length+'건 · 다가오는 '+upcoming+'건 · 확정 '+locked+'건';
-  bindEventsFilter();renderEventsList();
-}
-function renderEventsList(){
-  const list=g('events-list'),today=todayLocalDate();if(!list)return;let filtered=[...(_allEvents||[])];
-  if(_evFilter==='upcoming')filtered=filtered.filter(e=>!evDate(e)||evDate(e)>=today);
-  else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
-  else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>evCategoryKey(e)===_evFilter);
-  if(!filtered.length){list.innerHTML='<div class="ev-empty">📭 해당 조건의 일정이 없습니다</div>';return;}
-  list.innerHTML=filtered.slice(0,30).map(eventCard).join('')+(filtered.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-30)+'건 더보기는 <a href="events.html" style="color:var(--g);font-weight:700">지원사업</a>에서</div>':'');
-}
-
 </script>
 </body>
 </html>
