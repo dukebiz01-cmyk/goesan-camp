@@ -12,6 +12,8 @@
 
 <title>괴산캠핑장협회</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 
@@ -34,15 +36,12 @@
 html{-webkit-font-smoothing:antialiased}
 body{font-family:var(--fd);background:radial-gradient(circle at top right,rgba(24,92,66,.06),transparent 22%),var(--cream);color:var(--ch);min-height:100vh;line-height:1.85;word-break:keep-all}
 button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}
-/* 로딩 */
 .lovo{position:fixed;inset:0;background:rgba(245,247,241,.82);backdrop-filter:blur(12px);z-index:600;display:none;align-items:center;justify-content:center}
 .lovo.show{display:flex}
 .spin{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-/* 토스트 */
 .toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(18,18,18,.88);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:500;opacity:0;transition:all .25s;white-space:nowrap;max-width:90vw;text-align:center;font-weight:600}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-/* 로그인 */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#091d10,#12442d 55%,#185c42)}
 .lcard{background:rgba(253,254,251,.94);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:40px 36px;width:400px;max-width:94vw;box-shadow:0 32px 80px rgba(0,0,0,.3);animation:fu .4s ease}
 @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -62,15 +61,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .lf input:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(24,92,66,.08);background:var(--w)}
 .ebtn{background:var(--g);color:var(--w);margin-top:2px}
 .lerr{background:var(--rb);color:var(--red);border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px;display:none}
-/* 앱 */
 #app{display:none}
-/* 상단바 */
 .topbar{position:sticky;top:0;z-index:50;background:rgba(248,250,246,.9);backdrop-filter:blur(18px);border-bottom:1px solid rgba(24,33,26,.07);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
 .tb-title{font-family:var(--fh);font-size:16px;font-weight:800;letter-spacing:-.02em}
 .tb-right{display:flex;align-items:center;gap:8px}
 .uchip{background:var(--gp);color:var(--g);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:800}
 .lobtn{border:1px solid var(--bdr);background:var(--w);border-radius:10px;padding:7px 11px;color:var(--mid);font-size:12px;font-weight:700}
-/* 회원 카운터 */
 .mc-bar{position:sticky;top:56px;z-index:40;background:linear-gradient(90deg,var(--g),#1a6e4e);color:#e8f7ee;padding:9px 16px;display:flex;align-items:center;gap:10px}
 .mc-bar strong{font-family:var(--fh);font-size:20px;font-weight:800;letter-spacing:-.02em;line-height:1;min-width:44px;display:inline-block;transition:transform .15s}
 .mc-bar strong.bump{transform:scale(1.15)}
@@ -78,15 +74,12 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .mc-join{margin-left:auto;padding:5px 13px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:white;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .18s}
 .mc-join:hover{background:rgba(255,255,255,.22)}
 .mc-join svg{width:13px;height:13px;stroke:currentColor}
-/* 페이지 */
 .page{display:none;padding:18px 14px 90px;min-height:calc(100vh - 56px);animation:fi .18s}
 .page.active{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-/* 페이지 헤더 */
 .ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
 .ph-title{font-family:var(--fh);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
 .ph-sub{font-size:12px;color:var(--mid);margin-top:5px;line-height:1.6;max-width:48ch}
-/* 버튼 */
 .btn{padding:10px 15px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;border:none;transition:all var(--tr);display:inline-flex;align-items:center;gap:6px}
 .bp{background:var(--g);color:var(--w);box-shadow:var(--s1)}
 .bo{background:var(--w);color:var(--g);border:1.5px solid var(--bdr)}
@@ -94,7 +87,6 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .bk{background:var(--kk);color:var(--kkt);border:none}
 .btn-sm{padding:7px 12px;font-size:12px;border-radius:10px}
 .bp:hover,.bo:hover,.bk:hover{transform:translateY(-1px)}
-/* 카드/리스트 */
 .card{background:var(--w);border-radius:18px;border:1px solid rgba(24,33,26,.07);overflow:hidden;margin-bottom:12px;box-shadow:var(--s1)}
 .row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--cd);gap:10px;cursor:pointer;transition:background var(--tr)}
 .row:hover{background:#f5f9f5}
@@ -106,12 +98,10 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .rmain{flex:1;min-width:0}
 .rt{font-size:15px;font-weight:700;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rm{font-size:12px;color:var(--mid);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
-/* 태그 */
 .tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:800}
 .tg{background:var(--gb);color:var(--green)}.tr{background:var(--rb);color:var(--red)}
 .ta{background:var(--ab);color:var(--amber)}.tb{background:var(--bb);color:var(--blue)}
 .tgr{background:var(--cd);color:var(--mid)}
-/* 예산안 툴바 */
 .infobar{background:var(--gp);border:1px solid rgba(24,92,66,.12);border-radius:14px;padding:11px 14px;font-size:12px;color:var(--g);font-weight:700;margin-bottom:14px}
 .budget-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;padding:12px 14px;margin-bottom:14px;box-shadow:var(--s1);display:flex;flex-direction:column;gap:10px}
 .seg{display:flex;gap:5px;flex-wrap:wrap}
@@ -120,7 +110,6 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .bsearch{display:flex;align-items:center;gap:7px;background:#f4f7f3;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 12px}
 .bsearch svg{width:15px;height:15px;stroke:var(--mid);flex-shrink:0}
 .bsearch input{border:none;outline:none;background:transparent;font-size:13px;width:100%;color:var(--ch)}
-/* 예산 카드 */
 .pc{background:var(--w);border-radius:20px;border:1px solid rgba(24,33,26,.07);padding:16px;margin-bottom:12px;box-shadow:var(--s1);position:relative;overflow:hidden;transition:all var(--tr)}
 .pc:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:transparent}
 .pc.voting:before{background:#d4a020}.pc.approved:before{background:var(--green)}.pc.rejected:before{background:var(--red)}
@@ -139,23 +128,20 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .vby{border:none;background:var(--g);color:#fff}.vbn{border:1.5px solid #f2b5b5;background:#fff;color:var(--red)}
 .vdone{background:#eefaf1;border:1px solid #bde4c8;border-radius:12px;padding:10px;text-align:center;font-size:12px;font-weight:800;color:var(--g)}
 .adm-acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--cd)}
-/* 자료실 */
 .file-row{display:flex;align-items:center;padding:12px 14px;border:1px solid var(--cd);border-radius:14px;gap:8px;margin-bottom:8px;background:var(--w)}
 .fext{padding:3px 7px;border-radius:6px;font-size:10px;font-weight:800}
 .fe-pdf{background:#fee2e2;color:#b91c1c}.fe-hwp{background:#dbeafe;color:#1d4ed8}
 .fe-xlsx,.fe-xls{background:#dcfce7;color:#15803d}.fe-pptx{background:#fff3e0;color:#e65100}
 .fe-zip{background:#f3e5f5;color:#6a1b9a}.fe-def{background:var(--cd);color:var(--mid)}
-/* 하단 탭 */
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(253,254,251,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(24,33,26,.08);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);box-shadow:0 -8px 24px rgba(24,33,26,.06)}
-.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#8b968d;transition:color var(--tr)}
-.bn-inner{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 16px;border-radius:14px;transition:background var(--tr)}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:#8b968d;transition:color var(--tr);position:relative}
+.bn-inner{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 8px;border-radius:14px;transition:background var(--tr)}
 .bn.active{color:var(--g)}
 .bn.active .bn-inner{background:var(--gp)}
 .bni{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
 .bni svg{width:21px;height:21px;stroke:currentColor}
 .bn-lb{font-size:10px;font-weight:700;letter-spacing:.01em}
 .bnb{position:absolute;top:5px;right:calc(50% - 17px);background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:20px;min-width:14px;text-align:center}
-/* 패널 */
 .pover{position:fixed;inset:0;background:rgba(16,20,16,.45);z-index:199;display:none}
 .pover.open{display:block}
 .pan{position:fixed;bottom:0;left:0;right:0;background:var(--w);border-radius:24px 24px 0 0;z-index:200;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -24px 60px rgba(0,0,0,.2)}
@@ -170,7 +156,6 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .p-content{font-size:14px;color:var(--ch);line-height:1.92}
 .p-sec{margin-top:16px;padding-top:16px;border-top:1px solid var(--bdr)}
 .p-sec-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-/* 모달 */
 .mover{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:300;display:none;align-items:flex-end;justify-content:center}
 .mover.open{display:flex}
 .mo{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:20px 18px 32px;animation:su .25s ease}
@@ -185,11 +170,25 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 .ffrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .moa{display:flex;gap:8px;margin-top:14px}
 .moa .btn{flex:1;justify-content:center}
-/* 빈 상태 */
 .empty{text-align:center;padding:40px 18px;color:var(--mid);font-size:13px}
 .emptyic{font-size:32px;margin-bottom:8px}
 .errm{color:var(--red);font-size:13px;padding:14px;text-align:center}
-@media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}}
+
+/* 지도 페이지 */
+.map-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.map-stat{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;text-align:center;box-shadow:var(--s1)}
+.map-stat-n{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--g);line-height:1}
+.map-stat-l{font-size:10px;color:var(--mid);font-weight:700;margin-top:4px;letter-spacing:.02em}
+#assoc-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid var(--bdr);box-shadow:var(--s1);font-family:var(--fd)}
+.leaflet-popup-content{font-family:var(--fd);font-size:13px;line-height:1.6;margin:10px 12px}
+.leaflet-popup-content b{font-size:14px;color:var(--g);font-family:var(--fh);display:block;margin-bottom:4px}
+.leaflet-popup-content-wrapper{border-radius:14px}
+.region-legend{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:12px 14px;margin-top:10px;box-shadow:var(--s1)}
+.region-legend-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.region-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}
+.region-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+
+@media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
 </style></head>
 <body>
 <div class="lovo" id="lovo"><div class="spin"></div></div>
@@ -265,7 +264,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
         <button data-bf="voting">진행중</button>
         <button data-bf="approved">가결</button>
         <button data-bf="rejected">반려</button>
-        <button data-bf="draft">초안</button><!-- 주의: DB status에 draft 없음 -->
+        <button data-bf="draft">초안</button>
       </div>
       <label class="bsearch">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -273,6 +272,33 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
       </label>
     </div>
     <div id="budget-list"><div class="loading">불러오는 중...</div></div>
+  </div>
+
+  <div class="page" id="page-map">
+    <div class="ph">
+      <div>
+        <div class="ph-title">회원 캠프 지도</div>
+        <div class="ph-sub">협회 등록 19개 캠프의 위치 · 마커 클릭 시 상세 정보</div>
+      </div>
+    </div>
+    
+    <div class="map-stats">
+      <div class="map-stat"><div class="map-stat-n">19</div><div class="map-stat-l">총 회원 캠프</div></div>
+      <div class="map-stat"><div class="map-stat-n">6</div><div class="map-stat-l">면 단위 분포</div></div>
+      <div class="map-stat"><div class="map-stat-n">11</div><div class="map-stat-l">청천면 밀집</div></div>
+    </div>
+    
+    <div id="assoc-map"></div>
+    
+    <div class="region-legend">
+      <div class="region-legend-t">📍 면별 색상</div>
+      <div class="region-row"><div class="region-dot" style="background:#2563EB"></div>청천면 (11곳) — 화양구곡 중심</div>
+      <div class="region-row"><div class="region-dot" style="background:#059669"></div>칠성면 (4곳) — 쌍곡 계곡</div>
+      <div class="region-row"><div class="region-dot" style="background:#F59E0B"></div>감물면 (2곳)</div>
+      <div class="region-row"><div class="region-dot" style="background:#DC2626"></div>괴산읍 (1곳)</div>
+      <div class="region-row"><div class="region-dot" style="background:#7C3AED"></div>사리면 (1곳)</div>
+      <div class="region-row"><div class="region-dot" style="background:#0891B2"></div>장연면 (1곳)</div>
+    </div>
   </div>
 
   <div class="page" id="page-library">
@@ -284,27 +310,33 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
     <div class="bn active" data-page="notices" onclick="nav('notices')">
       <div class="bn-inner">
         <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
-        <span style="font-size:10px;font-weight:700">공지</span>
+        <span class="bn-lb">공지</span>
       </div>
       <div class="bnb" id="bdg-n" style="display:none"></div>
     </div>
     <div class="bn" data-page="meetings" onclick="nav('meetings')">
       <div class="bn-inner">
         <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <span style="font-size:10px;font-weight:700">회의</span>
+        <span class="bn-lb">회의</span>
       </div>
     </div>
     <div class="bn" data-page="budget" onclick="nav('budget')">
       <div class="bn-inner">
         <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-        <span style="font-size:10px;font-weight:700">투표</span>
+        <span class="bn-lb">투표</span>
       </div>
       <div class="bnb" id="bdg-b" style="display:none"></div>
+    </div>
+    <div class="bn" data-page="map" onclick="nav('map')">
+      <div class="bn-inner">
+        <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <span class="bn-lb">지도</span>
+      </div>
     </div>
     <div class="bn" data-page="library" onclick="nav('library')">
       <div class="bn-inner">
         <div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
-        <span style="font-size:10px;font-weight:700">자료실</span>
+        <span class="bn-lb">자료실</span>
       </div>
     </div>
   </nav>
@@ -324,18 +356,81 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoratio
 <div class="toast" id="toast"></div>
 
 <script>
-// ★ CONFIG
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
 const KK_OC='https://open.kakao.com/o/XXXXXX';
 const KK_CH='http://pf.kakao.com/_XXXXXX';
+
+// ── 회원 캠프 데이터 (지도용) ──
+const MEMBER_CAMPS = [
+  {n:"가자우리집",      lat:36.7493059, lng:127.8985382, o:"안미선",  e:"gaja@camp.kr",    a:"칠성면 쌍곡로 504",        c:"칠성"},
+  {n:"솔베이캠핑장",    lat:36.837365,  lng:127.9008995, o:"이광훈",  e:"sol@camp.kr",     a:"감물면 충민로 1083-12",    c:"감물"},
+  {n:"도명산캠핑장",    lat:36.6593957, lng:127.7851397, o:"강정숙",  e:"domyeong@camp.kr",a:"청천면 고성4길 4-2",       c:"청천"},
+  {n:"아빠의나무 야영장",lat:36.7237897, lng:127.7400448, o:"박비호",  e:"abba@camp.kr",    a:"청천면 괴산로부성1길 15-22",c:"청천"},
+  {n:"시냇가캠핑장",    lat:36.7824885, lng:127.887501,  o:"김광섭",  e:"sinet@camp.kr",   a:"칠성면 연풍로쌍곡길 75",   c:"칠성"},
+  {n:"후평숲캠핑장",    lat:36.6589537, lng:127.7561403, o:"허가윤",  e:"hupy@camp.kr",    a:"청천면 후평도원로 129-19", c:"청천"},
+  {n:"해밀터",         lat:36.6808951, lng:127.8056528, o:"권구영",  e:"hae@camp.kr",     a:"청천면 이평4길 23-14",    c:"청천"},
+  {n:"원탑캠핑장",      lat:36.6807005, lng:127.8120682, o:"허감",    e:"wontop@camp.kr",  a:"청천면 화양로 834-12",    c:"청천"},
+  {n:"즐거운녀석들",    lat:36.7925826, lng:127.8317361, o:"서상욱",  e:"nyseok@camp.kr",  a:"칠성면 오천자전거길 8901", c:"칠성"},
+  {n:"따봄스테이",      lat:36.7042686, lng:127.8354695, o:"박민준",  e:"ddabom@camp.kr",  a:"청천면 사기막길 30-46",   c:"청천"},
+  {n:"모래재캠핑장",    lat:36.8084085, lng:127.678133,  o:"이훈규",  e:"morae@camp.kr",   a:"사리면 모래재로 483-12",  c:"사리"},
+  {n:"자연애캠핑장",    lat:36.8407172, lng:127.8546441, o:"곽정환",  e:"nature@camp.kr",  a:"괴산읍 능촌로 390",        c:"괴산"},
+  {n:"루파니애견캠핑장", lat:36.8590863, lng:127.8779887, o:"김지윤",  e:"lupani@camp.kr",  a:"감물면 감물로 362-54",    c:"감물"},
+  {n:"숲속의하모니",    lat:36.6578246, lng:127.7572701, o:"최인희",  e:"supsok@camp.kr",  a:"청천면 후평도원로 153-6", c:"청천"},
+  {n:"아이뜰관광농원",  lat:36.844573,  lng:127.9023632, o:"하주선",  e:"iddeul@camp.kr",  a:"장연면 충민로 1183",      c:"장연"},
+  {n:"운교랜드",       lat:36.7297844, lng:127.8152787, o:"정옥훈",  e:"unkyo@camp.kr",   a:"청천면 운교리 533-2",     c:"청천"},
+  {n:"화양숲노리",      lat:36.6806848, lng:127.8139369, o:"조성문",  e:"forest@camp.kr",  a:"청천면 화양로 834-9",     c:"청천"},
+  {n:"캠프그린비",      lat:36.6835767, lng:127.8035812, o:"양준호",  e:"greenbi@camp.kr", a:"청천면 화양리 141-25",    c:"청천"},
+  {n:"북두칠성캠핑장",  lat:36.7658995, lng:127.8445934, o:"지태훈",  e:"bukdu@camp.kr",   a:"칠성면 칠성로 10길27 (9조)",c:"칠성"}
+];
+const REGION_COLORS = {
+  "청천":"#2563EB","칠성":"#059669","감물":"#F59E0B",
+  "괴산":"#DC2626","사리":"#7C3AED","장연":"#0891B2"
+};
+let assocMapInstance = null;
+
+function showAssocMap(){
+  if(assocMapInstance){
+    setTimeout(()=>assocMapInstance.invalidateSize(), 100);
+    return;
+  }
+  
+  assocMapInstance = L.map('assoc-map').setView([36.76, 127.83], 11);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 18
+  }).addTo(assocMapInstance);
+  
+  MEMBER_CAMPS.forEach(c => {
+    const color = REGION_COLORS[c.c] || "#185c42";
+    const icon = L.divIcon({
+      className: 'camp-marker',
+      html: `<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:Manrope,sans-serif">${c.c.charAt(0)}</span></div>`,
+      iconSize: [26, 26],
+      iconAnchor: [13, 26],
+      popupAnchor: [0, -26]
+    });
+    
+    L.marker([c.lat, c.lng], {icon})
+      .addTo(assocMapInstance)
+      .bindPopup(`
+        <b>${c.n}</b>
+        👤 ${c.o}<br>
+        📍 ${c.a}<br>
+        📧 <span style="font-size:11px;color:#5e6d61">${c.e}</span>
+      `);
+  });
+  
+  const bounds = L.latLngBounds(MEMBER_CAMPS.map(c => [c.lat, c.lng]));
+  assocMapInstance.fitBounds(bounds, {padding: [40, 40]});
+}
 
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
 let _tt=null;
 
-// ── 회원 카운터 ──
 function getMC(){return parseInt(localStorage.getItem('gca_mc')||'116');}
 function setMC(n){localStorage.setItem('gca_mc',n);}
 function animMC(from,to){
@@ -351,7 +446,6 @@ function joinMember(){
   toast('신규 회원 등록 ('+next+'명) ✓');
 }
 
-// ── 예산 필터 + 검색 ──
 var _bFilter='all';
 function bindBudgetBar(){
   document.querySelectorAll('[data-bf]').forEach(function(btn){
@@ -372,7 +466,6 @@ function applyBF(){
     c.style.display=(okS&&okQ)?'':'none';
   });
 }
-
 
 document.addEventListener('DOMContentLoaded',async()=>{
   g('kk-oc').href=KK_OC; g('kk-ch').href=KK_CH;
@@ -412,11 +505,10 @@ function showApp(){
   const isAdmin=App.role==='admin';
   const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
   g('uchip').textContent=(App.member.camp_name||App.member.name)+' · '+(roleLabel[App.role]||App.role);
-  // 관리자 전용 버튼
   ['btn-notice','btn-meeting','btn-proposal'].forEach(function(id){
     const el=g(id); if(el) el.style.display=isAdmin?'inline-flex':'none';
   });
-  const joinBtn=g('mc-join-btn');
+  const joinBtn=document.querySelector('.mc-join');
   if(joinBtn) joinBtn.style.display=isAdmin?'flex':'none';
   initMC();nav('notices',true);loadBadges();
 }
@@ -426,9 +518,9 @@ function nav(page,push=true){
   const pg=g('page-'+page);if(!pg)return;
   pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',library:'자료실'};
+  const titles={notices:'공지사항',meetings:'회의',budget:'예산안 투표',map:'회원 캠프 지도',library:'자료실'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
-  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,library:loadLibrary};
+  const loaders={notices:loadNotices,meetings:loadMeetings,budget:loadBudget,map:showAssocMap,library:loadLibrary};
   if(loaders[page])loaders[page]();
   if(push)history.pushState({page},'','#'+page);
 }
@@ -449,7 +541,6 @@ async function loadBadges(){
   const bv=g('bdg-b');if(vc>0){bv.textContent=vc;bv.style.display='';}
 }
 
-// ── 공지사항 ──
 async function loadNotices(){
   const list=g('notice-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
   const [nr,rr]=await Promise.all([
@@ -468,8 +559,8 @@ async function openNotice(id){
     await db.from('notice_reads').upsert({notice_id:id,member_id:App.member.id},{onConflict:'notice_id,member_id',ignoreDuplicates:true});
     loadNotices();loadBadges();
   }
-  const files=[];  // attachments 테이블에 notice_id 컬럼 미존재 - schema 확장 후 활성화
-  showPan(n.title,'<div class="p-meta">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+(n.is_pinned?' · 📌 고정':'')+'</div><div class="p-content">'+esc(n.content).replace(/\n/g,'<br>')+'</div>'+(files?.length?'<div class="p-sec"><div class="p-sec-t">첨부파일</div>'+files.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>').join('')+'</div>':'')+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delNotice(\''+id+'\')">🗑️ 삭제</button></div>':''));
+  const files=[];
+  showPan(n.title,'<div class="p-meta">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+(n.is_pinned?' · 📌 고정':'')+'</div><div class="p-content">'+esc(n.content).replace(/\n/g,'<br>')+'</div>'+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delNotice(\''+id+'\')">🗑️ 삭제</button></div>':''));
 }
 async function submitNotice(){
   const title=v('n-title'),content=v('n-content'),pinned=g('n-pin').checked;
@@ -483,7 +574,6 @@ async function submitNotice(){
 }
 async function delNotice(id){if(!confirm('삭제하시겠습니까?'))return;await db.from('notices').delete().eq('id',id);closePan();toast('삭제되었습니다');loadNotices();}
 
-// ── 회의 ──
 async function loadMeetings(){
   const list=g('meeting-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
   const {data,error}=await db.from('meetings').select('*, members!meetings_created_by_fkey(name)').order('meeting_date',{ascending:false});
@@ -494,15 +584,13 @@ async function loadMeetings(){
 async function openMeeting(id){
   const {data:m}=await db.from('meetings').select('*, members!meetings_created_by_fkey(name)').eq('id',id).single();
   if(!m)return;
-  const files=[];  // attachments 테이블에 meeting_id 컬럼 미존재 - schema 확장 후 활성화
-  showPan(m.title,'<div class="p-meta">📅 '+fdt(m.meeting_date)+'</div>'+(m.agenda?'<div class="p-sec"><div class="p-sec-t">📋 안건</div><div class="p-content">'+esc(m.agenda).replace(/\n/g,'<br>')+'</div></div>':'')+(m.minutes?'<div class="p-sec"><div class="p-sec-t">📝 회의록</div><div class="p-content">'+esc(m.minutes).replace(/\n/g,'<br>')+'</div></div>':'')+(m.kakao_chat_url?'<a href="'+esc(m.kakao_chat_url)+'" target="_blank" class="btn bk" style="margin-top:12px;display:inline-flex">💬 오픈채팅 참여</a>':'')+(files?.length?'<div class="p-sec"><div class="p-sec-t">첨부자료</div>'+files.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>').join('')+'</div>':'')+(App.role==='admin'&&!m.minutes?'<div class="p-sec"><button class="btn bp btn-sm" onclick="openMinutes(\''+id+'\')">📝 회의록 작성</button></div>':''));
+  showPan(m.title,'<div class="p-meta">📅 '+fdt(m.meeting_date)+'</div>'+(m.agenda?'<div class="p-sec"><div class="p-sec-t">📋 안건</div><div class="p-content">'+esc(m.agenda).replace(/\n/g,'<br>')+'</div></div>':'')+(m.minutes?'<div class="p-sec"><div class="p-sec-t">📝 회의록</div><div class="p-content">'+esc(m.minutes).replace(/\n/g,'<br>')+'</div></div>':'')+(m.kakao_chat_url?'<a href="'+esc(m.kakao_chat_url)+'" target="_blank" class="btn bk" style="margin-top:12px;display:inline-flex">💬 오픈채팅 참여</a>':'')+(App.role==='admin'&&!m.minutes?'<div class="p-sec"><button class="btn bp btn-sm" onclick="openMinutes(\''+id+'\')">📝 회의록 작성</button></div>':''));
 }
 async function submitMeeting(){
   const title=v('mt-title'),date=v('mt-date'),chat=v('mt-chat'),agenda=v('mt-agenda');
   if(!title||!date){toast('제목과 날짜를 입력하세요');return;}
   load(true);
   const {data,error}=await db.from('meetings').insert({created_by:App.member.id,title,agenda,meeting_date:new Date(date).toISOString(),kakao_chat_url:chat||null,status:'upcoming'}).select().single();
-  if(!error&&data){const fi=g('mt-file');if(fi.files.length)await uploadAtt(fi.files,'meeting',data.id);}
   load(false);
   if(error){toast('오류: '+error.message);return;}
   toast('회의 등록 완료 ✓');closeMo();loadMeetings();
@@ -517,7 +605,6 @@ async function submitMinutes(){
   toast('회의록 저장 완료 ✓');closeMo();loadMeetings();
 }
 
-// ── 예산안 투표 ──
 async function loadBudget(){
   const list=g('budget-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
   const {data,error}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
@@ -579,7 +666,6 @@ async function startVoting(id){
 async function finalize(id){
   if(!confirm('투표를 마감 처리합니다. 결과가 확정됩니다. 진행하시겠습니까?'))return;
   load(true);
-  // finalize_budget_proposal RPC 미존재 → 직접 집계 후 status UPDATE
   const {data:vdata}=await db.from('votes').select('vote').eq('proposal_id',id);
   const yes=(vdata||[]).filter(v=>v.vote==='yes').length;
   const no=(vdata||[]).filter(v=>v.vote==='no').length;
@@ -620,7 +706,6 @@ async function submitProposal(){
   toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();
 }
 
-// ── 자료실 ──
 async function loadLibrary(){
   const list=g('library-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
   const {data,error}=await db.from('attachments').select('*, members!attachments_uploaded_by_fkey(name)').order('created_at',{ascending:false});
@@ -629,7 +714,6 @@ async function loadLibrary(){
   list.innerHTML=data.map(f=>'<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px;font-weight:500">'+esc(f.file_name)+'</div><div class="rm">'+esc(f.members?.name||'')+' · '+esc(f.target_type)+' · '+fd(f.created_at)+'</div></div><a href="'+esc(f.file_url)+'" target="_blank" class="btn bo btn-sm" download>↓</a></div>').join('');
 }
 
-// ── 파일 업로드 공통 ──
 async function uploadAtt(files,targetType,targetId){
   if(targetType!=='proposal'){
     toast('현재 버전에서는 예산안 첨부만 지원됩니다');return;
@@ -652,11 +736,10 @@ async function uploadAtt(files,targetType,targetId){
   }
 }
 
-// ── 모달 ──
 function openModal(type){
   const tpls={
     notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
-    meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="ff"><label>첨부자료 (선택)</label><input type="file" id="mt-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
+    meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
     proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:600;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="number" id="pr-amt" placeholder="예: 4500000"></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
   };
