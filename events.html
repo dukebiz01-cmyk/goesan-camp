@@ -1147,6 +1147,15 @@ if(typeof supabase === 'undefined'){
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 // ============================================================
+// 중요: Supabase SQL Editor 에 아래 DELETE 정책 필요
+// create policy "delete_own_events"
+// on camp_events
+// for delete
+// using (auth.uid() = created_by);
+// ============================================================
+
+
+// ============================================================
 // 데이터 정의
 // ============================================================
 // 예산 계산: 총 1억 / 21곳 기준 + 포기 2곳 재분배 + 해밀턴 미사용 차액 재분배
@@ -3278,17 +3287,110 @@ async function saveEvent(){
   }
 }
 
+async function recomputeBundlesAfterDelete(date, programName){
+  try{
+    const {data:rows,error} = await sb
+      .from('camp_events')
+      .select('id,event_date,program_name,bundle_type,bundle_seq,locked_price,finalized,created_at')
+      .eq('event_date', date)
+      .eq('program_name', programName)
+      .neq('bundle_type','ticket')
+      .order('created_at',{ascending:true});
+
+    if(error){
+      console.error('recompute load error:', error);
+      return;
+    }
+
+    const items = rows || [];
+    const cap = bundleCapacity(programName);
+
+    // 초기화
+    for(let i=0;i<items.length;i++){
+      const row = items[i];
+      const seq = i + 1;
+
+      let lockedPrice = null;
+      let finalized = false;
+
+      const currentBundleIndex = Math.floor(i / cap);
+      const start = currentBundleIndex * cap;
+      const end = start + cap;
+      const bundleItems = items.slice(start, end);
+
+      if(bundleItems.length === cap){
+        lockedPrice = autoPrice(programName, cap).price;
+        finalized = true;
+      }
+
+      await sb
+        .from('camp_events')
+        .update({
+          bundle_seq: seq,
+          locked_price: lockedPrice,
+          finalized: finalized
+        })
+        .eq('id', row.id);
+    }
+  }catch(err){
+    console.error('recomputeBundlesAfterDelete failed:', err);
+  }
+}
+
 async function deleteEvent(id){
   const e = state.events.find(x=>String(x.id)===String(id));
-  if(!e){toast('일정을 찾을 수 없습니다');return;}
-  if(!canEdit(e.camp_name)){toast('❌ 본인 캠프 일정만 삭제할 수 있습니다');return;}
-  if(!confirm(`${e.camp_name} / ${e.program_name} 일정을 삭제할까요?`)) return;
 
-  const {error} = await sb.from('camp_events').delete().eq('id', id);
-  if(error){toast('❌ 삭제 실패: ' + error.message);return;}
-  await loadEvents();
-  renderAll();
-  toast('삭제 완료');
+  if(!e){
+    toast('❌ 일정을 찾을 수 없습니다');
+    return;
+  }
+
+  if(!canEdit(e.camp_name)){
+    toast('❌ 본인 캠프 일정만 삭제할 수 있습니다');
+    return;
+  }
+
+  if(!confirm(`${e.camp_name} / ${e.program_name} 일정을 삭제할까요?`)){
+    return;
+  }
+
+  try{
+    const {data,error} = await sb
+      .from('camp_events')
+      .delete()
+      .eq('id', id)
+      .select();
+
+    if(error){
+      console.error('DELETE ERROR:', error);
+
+      if(error.message?.includes('row-level security')){
+        toast('❌ DB 삭제 권한(RLS) 문제 — SQL 정책 적용 필요');
+      }else{
+        toast('❌ 삭제 실패: ' + error.message);
+      }
+      return;
+    }
+
+    if(!data || data.length === 0){
+      toast('❌ 삭제 실패 — 권한 또는 RLS 정책 문제');
+      return;
+    }
+
+    // 묶음 재계산
+    if(e.event_date && e.bundle_type !== 'ticket'){
+      await recomputeBundlesAfterDelete(e.event_date, e.program_name);
+    }
+
+    await loadEvents();
+    renderAll();
+
+    toast('🗑 삭제 완료');
+
+  }catch(err){
+    console.error(err);
+    toast('❌ 삭제 중 오류 발생');
+  }
 }
 
 // ============================================================
