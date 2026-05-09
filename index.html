@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.17-20260509-event-calendar-data-sync">
+<meta name="app-version" content="gca-v4.18-20260509-member-purchase-ledger">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -121,6 +121,30 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   .cal-money-row .cal-provider-name,.cal-money-row .cal-provider-meta,.cal-money-row .cal-money,.cal-money-row .cal-source{grid-column:2;text-align:left}
 }
 
+
+/* v4.18 회원별 구매내역 정산표 */
+.member-ledger-board{margin-bottom:14px}
+.member-ledger-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.member-ledger-title{font-size:15px;font-weight:900;letter-spacing:-.03em}
+.member-ledger-sub{font-size:11px;color:var(--mid);font-weight:800;line-height:1.55}
+.member-ledger-actions{display:flex;gap:6px;flex-wrap:wrap}
+.member-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:18px;box-shadow:var(--s1);overflow:hidden;margin-bottom:12px}
+.member-card-h{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;padding:13px 15px;background:#f5f8f4;border-bottom:1px solid var(--cd)}
+.member-name{font-size:15px;font-weight:900;letter-spacing:-.03em}
+.member-meta{font-size:11px;color:var(--mid);font-weight:800;margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
+.member-total{text-align:right;font-family:var(--fh);font-size:18px;font-weight:900;color:var(--g);line-height:1.15;white-space:nowrap}
+.member-total small{display:block;font-family:var(--fd);font-size:10px;color:var(--mid);font-weight:800;margin-top:3px}
+.member-total.over{color:var(--red)}.member-total.warn{color:var(--amber)}
+.member-purchase-row{display:grid;grid-template-columns:70px 1.1fr .85fr .7fr;gap:10px;align-items:center;padding:11px 15px;border-bottom:1px solid var(--cd);font-size:12px}
+.member-purchase-row:last-child{border-bottom:none}
+.member-purchase-row.head{background:#fbfcf9;color:var(--mid);font-size:11px;font-weight:900}
+.member-date{background:var(--gp);color:var(--g);border-radius:12px;text-align:center;padding:7px 4px;font-family:var(--fh);font-size:11px;font-weight:900;line-height:1.2}
+.member-date b{display:block;font-size:17px}
+.member-content{min-width:0}.member-content-title{font-size:14px;font-weight:900;line-height:1.35}.member-content-meta{font-size:11px;color:var(--mid);display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.member-vendor{font-weight:900;font-size:13px}.member-vendor small{display:block;font-size:10px;color:var(--mid);font-weight:800;margin-top:2px;line-height:1.35}
+.member-amount{text-align:right;font-family:var(--fh);font-size:14px;font-weight:900;white-space:nowrap}.member-amount small{display:block;font-family:var(--fd);font-size:10px;color:var(--mid);font-weight:800;margin-top:2px;white-space:normal}.member-empty{padding:16px;text-align:center;color:var(--mid);font-size:12px;font-weight:800}
+@media(max-width:700px){.member-card-h{grid-template-columns:1fr}.member-total{text-align:left}.member-purchase-row{grid-template-columns:52px 1fr;gap:9px}.member-purchase-row.head{display:none}.member-purchase-row .member-vendor,.member-purchase-row .member-amount{grid-column:2;text-align:left}}
+
 .version-mark{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:120;background:rgba(253,254,251,.88);border:1px solid rgba(24,33,26,.09);color:#6b756c;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:-.01em;box-shadow:0 4px 14px rgba(24,33,26,.05);backdrop-filter:blur(10px);pointer-events:none}
 @media(max-width:700px){.version-mark{left:50%;right:auto;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));font-size:9px;white-space:nowrap}}
 @media(max-width:700px){.budget-summary{grid-template-columns:repeat(2,1fr)}.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
@@ -204,7 +228,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <div class="page" id="page-calendar">
-    <div class="ph"><div><div class="ph-title">행사캘린더</div><div class="ph-sub">예산 · 업체별 사용금액 · 잔여금액 · 행사 날짜 · 행사 업체를 한 화면에서 확인합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadCalendarPage()">↻ 새로고침</button><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
+    <div class="ph"><div><div class="ph-title">행사캘린더</div><div class="ph-sub">회원/캠핑장별 선택 콘텐츠 · 구매금액 · 날짜 · 행사 업체 · 잔여예산을 정산표로 확인합니다.</div></div><div class="ph-actions"><button class="btn bo btn-sm" onclick="loadCalendarPage()">↻ 새로고침</button><a href="events.html" class="btn bp btn-sm">event.html 열기</a></div></div>
     <div class="budget-policy" id="calendar-policy"></div>
     <div class="cal-toolbar" id="calendar-controls"><div class="loading">행사캘린더 준비 중...</div></div>
     <div class="cal-summary" id="calendar-summary"></div>
@@ -243,7 +267,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.17 · 2026.05.09 · 행사캘린더 데이터 재정렬</div>
+<div class="version-mark" id="version-mark">GCA v4.18 · 2026.05.09 · 회원별 구매내역 정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -254,7 +278,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.17 · 2026.05.09 · 행사캘린더 데이터 재정렬';
+const APP_VERSION='GCA v4.18 · 2026.05.09 · 회원별 구매내역 정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -270,7 +294,7 @@ let _authBootDone=false;
 let _manualLoginInProgress=false;
 const AUTH_RETURN_KEY='gca_oauth_manual_return';
 const AUTH_RETURN_TTL=10*60*1000;
-const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_16';
+const PROPOSAL_DRAFT_KEY='gca_proposal_draft_v4_18';
 let _proposalDraftTimer=null;
 let _lastSystemReport='';
 function markManualOAuthIntent(){try{sessionStorage.setItem(AUTH_RETURN_KEY,String(Date.now()));}catch(e){}}
@@ -319,7 +343,7 @@ function catalogProviderCounts(){return Object.values(EVENT_PROVIDER_INDEX).sort
 function downloadEventCatalog(){
   const payload={version:APP_VERSION,category_meta:EVENT_CATEGORY_META,budget_policy:EVENT_BUDGET_POLICY,programs:EVENT_PROGRAM_CATALOG,generated_at:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='goesan_event_catalog_v4_16.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('행사 카탈로그 JSON 다운로드');
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='goesan_event_catalog_v4_18.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('행사 카탈로그 JSON 다운로드');
 }
 
 const MEMBER_CAMPS=[
@@ -1822,7 +1846,13 @@ async function fetchCalendarCampsSafe(){
     if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
     if(res.error)throw res.error;
     const rows=res.data||[];
-    const camps=rows.map(c=>({n:c.camp_name||c.name||c.title||c.n||'',c:c.region||c.group_name||c.group||''})).filter(c=>c.n);
+    const camps=rows.map(c=>({
+      n:c.camp_name||c.name||c.title||c.n||'',
+      c:c.region||c.group_name||c.group||'',
+      o:c.owner_name||c.representative_name||c.member_name||c.owner||c.manager_name||'',
+      e:c.email||c.member_email||'',
+      a:c.address||''
+    })).filter(c=>c.n);
     _calendarCamps=camps.length?camps:MEMBER_CAMPS;
   }catch(e){
     console.warn('calendar camps fallback:',errMsg(e));
@@ -1857,28 +1887,99 @@ function moveCalendarMonth(delta){
   _calendarMonth=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
   const inp=g('cal-month');if(inp)inp.value=_calendarMonth;renderCalendarPage();
 }
-function renderCalendarPage(){
-  const list=g('calendar-list'),summary=g('calendar-summary');if(!list)return;
+function calendarFilteredRowsForCurrent(){
   const allRows=[...(_allEvents||[])];
   let rows=allRows.filter(e=>{const d=evDate(e);return d&&d.slice(0,7)===_calendarMonth;});
   if(_calendarCamp!=='all')rows=rows.filter(e=>evCampName(e)===_calendarCamp);
   if(_calendarCat!=='all')rows=rows.filter(e=>evCategoryKey(e)===_calendarCat);
   if(_calendarProvider!=='all')rows=rows.filter(e=>calendarProvider(e)===_calendarProvider);
+  return {rows,allRows};
+}
+function calendarCampInfo(name){
+  const target=normalizeBudgetCampName(name);
+  const c=(_calendarCamps||[]).find(x=>normalizeBudgetCampName(x.n||x.camp_name||x.name)===target)||{};
+  return {camp:name||'미지정 캠핑장',owner:c.o||c.owner_name||c.member_name||'',group:c.c||c.region||c.group_name||c.group||'',email:c.e||c.email||'',address:c.a||c.address||''};
+}
+function calendarDateShort(d){
+  if(!d||d.length<10)return '수시';
+  return parseInt(d.slice(5,7),10)+'/'+parseInt(d.slice(8,10),10);
+}
+function calendarDateBoxSmall(d){
+  if(!d||d.length<10)return '<div class="member-date">수시<b>매</b></div>';
+  return '<div class="member-date">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';
+}
+function calendarBuildMemberPurchases(rows,allRows){
+  const balance={};
+  calendarCampUsage(allRows,true).forEach(c=>{balance[c.camp]=c;});
+  const map={};
+  (rows||[]).forEach(e=>{
+    const camp=evCampName(e);
+    if(!camp||isForfeitedBudgetCamp(camp))return;
+    const priced=calendarEventAmount(e,allRows);
+    const info=calendarCampInfo(camp);
+    if(!map[camp])map[camp]={camp,info,selectedUsed:0,selectedCount:0,events:[],balance:balance[camp]||{used:0,count:0,limit:calendarCampLimit(camp),remain:calendarCampLimit(camp)}};
+    const row={event:e,date:evDate(e),category:evCategoryKey(e),meta:categoryMeta(evCategoryKey(e)),title:evTitle(e),provider:calendarProvider(e),qty:evQty(e),amount:priced.amount,source:priced.source,status:e.finalized?'확정':'검토',pricing:eventPricingLabel(evProgramInfo(e))};
+    map[camp].events.push(row);
+    map[camp].selectedUsed+=priced.amount;
+    map[camp].selectedCount++;
+  });
+  return Object.values(map).map(x=>{
+    x.events.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')||a.provider.localeCompare(b.provider,'ko')||a.title.localeCompare(b.title,'ko'));
+    const bal=balance[x.camp]||x.balance;
+    x.totalUsed=bal.used||0;
+    x.totalCount=bal.count||0;
+    x.limit=bal.limit||calendarCampLimit(x.camp);
+    x.remain=x.limit-x.totalUsed;
+    return x;
+  }).sort((a,b)=>a.camp.localeCompare(b.camp,'ko'));
+}
+function renderMemberPurchaseBoard(rows,allRows){
+  const groups=calendarBuildMemberPurchases(rows,allRows);
+  if(!groups.length)return '<div class="member-ledger-board"><div class="cal-ledger-h"><div><div class="cal-ledger-title">회원별 선택·구매내역</div><div class="cal-ledger-sub">해당 조건의 회원별 구매 데이터가 없습니다.</div></div></div><div class="member-empty">월/캠핑장/업체 필터를 조정하거나 event.html 신청 데이터를 확인하세요.</div></div>';
+  const selectedTotal=groups.reduce((s,g)=>s+g.selectedUsed,0);
+  const body=groups.map(g=>{
+    const cls=g.remain<0?'over':g.remain<300000?'warn':'';
+    const owner=g.info.owner?'대표/회원 '+esc(g.info.owner):'회원명 미등록';
+    return '<div class="member-card"><div class="member-card-h"><div><div class="member-name">'+esc(g.camp)+'</div><div class="member-meta"><span>'+esc(owner)+'</span><span>'+esc(g.info.group||'지역/조 미지정')+'</span><span>선택 '+g.selectedCount+'건</span><span>전체 '+g.totalCount+'건</span></div></div><div class="member-total '+cls+'">'+won(g.selectedUsed)+'<small>선택조건 사용액 · 전체잔여 '+won(g.remain)+'</small></div></div><div class="member-purchase-row head"><div>날짜</div><div>선택 콘텐츠</div><div>행사 업체</div><div style="text-align:right">구매금액</div></div>'+g.events.map(r=>'<div class="member-purchase-row">'+calendarDateBoxSmall(r.date)+'<div class="member-content"><div class="member-content-title">'+esc(r.title)+'</div><div class="member-content-meta"><span class="ev-cat ev-cat-'+esc(r.category)+'">'+esc(r.category)+' '+esc(r.meta.name)+'</span><span>'+esc(r.status)+'</span><span>'+r.qty+'매</span></div></div><div class="member-vendor">'+esc(r.provider)+'<small>'+esc(r.pricing)+'</small></div><div class="member-amount">'+won(r.amount)+'<small>'+esc(r.source)+'</small></div></div>').join('')+'</div>';
+  }).join('');
+  return '<div class="member-ledger-board"><div class="member-ledger-head"><div><div class="member-ledger-title">회원별 선택·구매내역</div><div class="member-ledger-sub">회원/캠핑장별로 선택한 콘텐츠, 행사 날짜, 행사 업체, 구매금액을 정산표로 묶었습니다. 선택조건 합계 '+won(selectedTotal)+' · '+groups.length+'개 회원/캠프</div></div><div class="member-ledger-actions"><button class="btn bo btn-sm" onclick="downloadMemberPurchaseCsv()">회원별 CSV</button><button class="btn bo btn-sm" onclick="downloadMemberPurchaseSummaryCsv()">요약 CSV</button></div></div>'+body+'</div>';
+}
+function csvCellV418(v){const s=String(v??'');return /[",\n\t,]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function downloadTextFileV418(filename,text,type){const blob=new Blob([text],{type:type||'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function downloadMemberPurchaseCsv(){
+  const {rows,allRows}=calendarFilteredRowsForCurrent();
+  const groups=calendarBuildMemberPurchases(rows,allRows);
+  const out=[['회원/캠핑장','대표/회원명','지역/조','날짜','카테고리','콘텐츠','행사 업체','수량','구매금액','금액산출근거','선택조건 캠프합계','전체사용액','전체잔여금액','상태']];
+  groups.forEach(g=>g.events.forEach(r=>out.push([g.camp,g.info.owner||'',g.info.group||'',r.date||'수시',r.category+' '+r.meta.name,r.title,r.provider,r.qty,r.amount,r.source,g.selectedUsed,g.totalUsed,g.remain,r.status])));
+  const csv='\ufeff'+out.map(row=>row.map(csvCellV418).join(',')).join('\n');
+  downloadTextFileV418('goesan_member_purchase_detail_v4_18_'+_calendarMonth+'.csv',csv,'text/csv;charset=utf-8');toast('회원별 구매내역 CSV 다운로드');
+}
+function downloadMemberPurchaseSummaryCsv(){
+  const {rows,allRows}=calendarFilteredRowsForCurrent();
+  const groups=calendarBuildMemberPurchases(rows,allRows);
+  const out=[['회원/캠핑장','대표/회원명','지역/조','선택조건 건수','선택조건 사용액','전체건수','전체사용액','캠프별한도','전체잔여금액']];
+  groups.forEach(g=>out.push([g.camp,g.info.owner||'',g.info.group||'',g.selectedCount,g.selectedUsed,g.totalCount,g.totalUsed,g.limit,g.remain]));
+  const csv='\ufeff'+out.map(row=>row.map(csvCellV418).join(',')).join('\n');
+  downloadTextFileV418('goesan_member_purchase_summary_v4_18_'+_calendarMonth+'.csv',csv,'text/csv;charset=utf-8');toast('회원별 요약 CSV 다운로드');
+}
+function renderCalendarPage(){
+  const list=g('calendar-list'),summary=g('calendar-summary');if(!list)return;
+  const {rows,allRows}=calendarFilteredRowsForCurrent();
   const selectedUse=rows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
   const allUse=allRows.reduce((a,e)=>a+calendarEventAmount(e,allRows).amount,0);
   const campUsage=calendarCampUsage(allRows,true);
   const totalLimit=campUsage.reduce((a,c)=>a+c.limit,0);
   const totalRemain=totalLimit-allUse;
   const providers=calendarProviderUsage(rows);
-  if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+won(selectedUse)+'</div><div class="mini-l">선택월 사용금액</div><div class="mini-m">'+esc(_calendarMonth)+' · '+rows.length+'건</div></div><div class="mini-card"><div class="mini-n">'+won(allUse)+'</div><div class="mini-l">전체 신청 사용액</div><div class="mini-m">event.html 산식 기준</div></div><div class="mini-card"><div class="mini-n '+(totalRemain<0?'over':'')+'">'+won(totalRemain)+'</div><div class="mini-l">전체 잔여합계</div><div class="mini-m">대상캠프 한도 '+won(totalLimit)+'</div></div>';
-  if(!rows.length){list.innerHTML='<div class="cal-budget-note">해당 조건의 행사 일정이 없습니다. 월/캠핑장/업체 필터를 조정하세요.</div>';return;}
-  const providerHtml='<div class="cal-provider-board"><div class="cal-board-card"><div class="cal-board-title">업체별 사용금액 TOP</div>'+providers.slice(0,8).map(p=>'<div class="cal-small-row"><strong>'+esc(p.provider)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+p.count+'건 · 캠프 '+p.campCount+'곳</span></strong><span>'+won(p.used)+'</span></div>').join('')+'</div><div class="cal-board-card"><div class="cal-board-title">잔여금액 위험 캠프</div>'+campUsage.slice(0,8).map(c=>'<div class="cal-small-row"><strong>'+esc(c.camp)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+c.count+'건 · 사용 '+won(c.used)+'</span></strong><span class="'+(c.remain<0?'over':'')+'">'+won(c.remain)+'</span></div>').join('')+'</div></div>';
-  const note='<div class="cal-budget-note">금액 기준: <b>event.html 원본 산식</b>과 동일하게 계산합니다. 티켓은 단가×수량, 일반행사는 같은 날짜·같은 프로그램을 신청순으로 묶어 묶음별 단가를 적용합니다. <b>locked_price</b>가 있으면 확정단가로 우선 반영합니다.</div>';
-  const sorted=rows.sort((a,b)=>(evDate(a)||'9999').localeCompare(evDate(b)||'9999')||calendarProvider(a).localeCompare(calendarProvider(b),'ko')||evCampName(a).localeCompare(evCampName(b),'ko'));
-  const ledger='<div class="cal-ledger"><div class="cal-ledger-h"><div><div class="cal-ledger-title">행사 일정·업체·예산 한눈표</div><div class="cal-ledger-sub">날짜 / 캠핑장 / 행사 업체 / 원본산식 금액 / 잔여금액</div></div><div class="cal-ledger-sub">'+sorted.length+'건</div></div><div class="cal-money-row head"><div>날짜</div><div>행사/캠핑장</div><div>행사 업체</div><div style="text-align:right">사용금액</div><div style="text-align:right">캠프 잔여</div></div>'+sorted.map(e=>{const d=evDate(e);const amount=calendarEventAmount(e,allRows);const camp=evCampName(e);const used=campUsage.find(c=>c.camp===camp)?.used||0;const remain=calendarCampLimit(camp)-used;const key=evCategoryKey(e);const meta=categoryMeta(key);const dateBox=(!d||d.length<10)?'<div class="cal-day">수시<b>매</b></div>':'<div class="cal-day">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';return '<div class="cal-money-row">'+dateBox+'<div><div class="cal-event-name">'+esc(evTitle(e))+'</div><div class="cal-event-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>🏕 '+esc(camp)+'</span><span>'+evQty(e)+'매</span><span>'+(e.finalized?'확정':'검토')+'</span></div></div><div><div class="cal-provider-name">'+esc(calendarProvider(e))+'</div><div class="cal-provider-meta">'+esc(eventPricingLabel(evProgramInfo(e)))+'</div></div><div><div class="cal-money">'+won(amount.amount)+'</div><div class="cal-source">'+esc(amount.source)+'</div></div><div><div class="cal-money '+(remain<0?'over':remain<300000?'warn':'ok')+'">'+won(remain)+'</div><div class="cal-source">한도 '+won(calendarCampLimit(camp))+'</div></div></div>';}).join('')+'</div>';
-  list.innerHTML=note+providerHtml+ledger;
+  if(summary)summary.innerHTML='<div class="mini-card"><div class="mini-n">'+won(selectedUse)+'</div><div class="mini-l">선택조건 구매금액</div><div class="mini-m">'+esc(_calendarMonth)+' · '+rows.length+'건</div></div><div class="mini-card"><div class="mini-n">'+won(allUse)+'</div><div class="mini-l">전체 회원 구매액</div><div class="mini-m">회원별 구매내역 기준</div></div><div class="mini-card"><div class="mini-n '+(totalRemain<0?'over':'')+'">'+won(totalRemain)+'</div><div class="mini-l">전체 잔여합계</div><div class="mini-m">대상캠프 한도 '+won(totalLimit)+'</div></div>';
+  if(!rows.length){list.innerHTML='<div class="cal-budget-note">해당 조건의 회원별 구매/선택 내역이 없습니다. 월/캠핑장/업체 필터를 조정하세요.</div>';return;}
+  const memberBoard=renderMemberPurchaseBoard(rows,allRows);
+  const providerHtml='<div class="cal-provider-board"><div class="cal-board-card"><div class="cal-board-title">업체별 사용금액 TOP</div>'+providers.slice(0,8).map(p=>'<div class="cal-small-row"><strong>'+esc(p.provider)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+p.count+'건 · 캠프 '+p.campCount+'곳</span></strong><span>'+won(p.used)+'</span></div>').join('')+'</div><div class="cal-board-card"><div class="cal-board-title">잔여금액 위험 회원/캠프</div>'+campUsage.slice(0,8).map(c=>'<div class="cal-small-row"><strong>'+esc(c.camp)+'<br><span style="font-size:10px;color:var(--mid);font-weight:800">'+c.count+'건 · 사용 '+won(c.used)+'</span></strong><span class="'+(c.remain<0?'over':'')+'">'+won(c.remain)+'</span></div>').join('')+'</div></div>';
+  const note='<div class="cal-budget-note">정리 기준: <b>회원/캠핑장별 선택 내역</b>을 우선 표시합니다. 금액은 event.html 원본 산식 기준이며, 티켓은 단가×수량, 일반행사는 같은 날짜·같은 프로그램을 신청순으로 묶어 묶음별 단가를 적용합니다. <b>locked_price</b>가 있으면 확정단가로 우선 반영합니다.</div>';
+  const sorted=rows.sort((a,b)=>(evCampName(a)||'').localeCompare(evCampName(b)||'', 'ko')||(evDate(a)||'9999').localeCompare(evDate(b)||'9999')||calendarProvider(a).localeCompare(calendarProvider(b),'ko'));
+  const ledger='<div class="cal-ledger"><div class="cal-ledger-h"><div><div class="cal-ledger-title">전체 상세 내역</div><div class="cal-ledger-sub">회원 / 날짜 / 콘텐츠 / 행사 업체 / 구매금액 / 잔여금액</div></div><div class="cal-ledger-sub">'+sorted.length+'건</div></div><div class="cal-money-row head"><div>날짜</div><div>회원/콘텐츠</div><div>행사 업체</div><div style="text-align:right">구매금액</div><div style="text-align:right">잔여</div></div>'+sorted.map(e=>{const d=evDate(e);const amount=calendarEventAmount(e,allRows);const camp=evCampName(e);const used=campUsage.find(c=>c.camp===camp)?.used||0;const remain=calendarCampLimit(camp)-used;const key=evCategoryKey(e);const meta=categoryMeta(key);const dateBox=(!d||d.length<10)?'<div class="cal-day">수시<b>매</b></div>':'<div class="cal-day">'+parseInt(d.slice(5,7),10)+'월<b>'+parseInt(d.slice(8,10),10)+'</b></div>';return '<div class="cal-money-row">'+dateBox+'<div><div class="cal-event-name">'+esc(evTitle(e))+'</div><div class="cal-event-meta"><span class="ev-cat ev-cat-'+esc(key)+'">'+esc(key)+' '+esc(meta.name)+'</span><span>회원/캠프 '+esc(camp)+'</span><span>'+evQty(e)+'매</span><span>'+(e.finalized?'확정':'검토')+'</span></div></div><div><div class="cal-provider-name">'+esc(calendarProvider(e))+'</div><div class="cal-provider-meta">'+esc(eventPricingLabel(evProgramInfo(e)))+'</div></div><div><div class="cal-money">'+won(amount.amount)+'</div><div class="cal-source">'+esc(amount.source)+'</div></div><div><div class="cal-money '+(remain<0?'over':remain<300000?'warn':'ok')+'">'+won(remain)+'</div><div class="cal-source">한도 '+won(calendarCampLimit(camp))+'</div></div></div>';}).join('')+'</div>';
+  list.innerHTML=note+memberBoard+providerHtml+ledger;
 }
-
 
 function renderSupportProgramFilter(){return;}
 function renderSupportPolicy(){return;}
