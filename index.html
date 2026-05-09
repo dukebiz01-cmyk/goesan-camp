@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.11-20260509-p0001-nuclear-repair">
+<meta name="app-version" content="gca-v4.12-20260509-42702-ambiguity-repair">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.11 · 2026.05.09 · P0001 강제정리</div>
+<div class="version-mark" id="version-mark">GCA v4.12 · 2026.05.09 · 42702 모호성 정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.11 · 2026.05.09 · P0001 강제정리';
+const APP_VERSION='GCA v4.12 · 2026.05.09 · 42702 모호성 정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -789,7 +789,11 @@ async function castVote(pid,vote){
     await refreshMemberLinkForVote();
     let error=null;
     let data=null;
-    let r=await db.rpc('cast_budget_vote_v4_11',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    let r=await db.rpc('cast_budget_vote_v4_12',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    if(r.error&&isRpcFallbackable(r.error)){
+      console.warn('cast_budget_vote_v4_12 fallback to cast_budget_vote_v4_11:',r.error.message);
+      r=await db.rpc('cast_budget_vote_v4_11',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    }
     if(r.error&&isRpcFallbackable(r.error)){
       console.warn('cast_budget_vote_v4_11 fallback to cast_budget_vote_v4_10:',r.error.message);
       r=await db.rpc('cast_budget_vote_v4_10',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
@@ -878,7 +882,7 @@ async function startVoting(id){
   const d=new Date(Date.now()+2*24*60*60*1000);d.setHours(18,0,0,0);
   g('mo-body').innerHTML=`<div class="mot">🗳️ 투표 시작</div>
     <input type="hidden" id="sv-id" value="${esc(id)}">
-    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">v4.11부터 예전 투표 RPC/정책을 강제 정리하고, 투표는 관리자 수동 마감으로만 진행됩니다.</div>
+    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">v4.12부터 42702 컬럼 모호성 방지를 위해 JSON RPC로 처리하며, 투표는 관리자 수동 마감으로만 진행됩니다.</div>
     <div class="ff"><label>마감 방식</label><select id="sv-mode" onchange="updateStartVoteMode()"><option value="none" selected>마감 없음 · 관리자 수동 마감</option></select><div id="sv-deadline-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">마감시간 없이 관리자 수동 마감으로 진행됩니다.</div></div>
     <div class="ff" id="sv-deadline-wrap" style="display:none"><label>마감일시 선택</label><input type="datetime-local" id="sv-deadline" value="${localDateTimeValue(d)}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin:7px 0 5px;line-height:1.5">직접 입력도 가능: 2026-05-20 18:00 / 5월20일 18시</div><input type="text" id="sv-deadline-text" placeholder="직접 입력은 선택사항"></div>
     <div class="ff"><label>정족수</label><input type="number" inputmode="numeric" id="sv-quorum" min="1" value="${defaultQuorum}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">현재 투표권 회원 ${voterCount}명 기준 기본값 ${defaultQuorum}명</div></div>
@@ -904,9 +908,9 @@ async function submitStartVoting(){
   const rule=(v('sv-rule')==='two_thirds')?'two_thirds':'simple_majority';
   const lock='start:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  let {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
+  let {error}=await db.rpc('start_budget_voting_v4_12',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
   if(error&&isRpcFallbackable(error)){
-    console.warn('start_budget_voting rpc fallback:',error.message);
+    console.warn('start_budget_voting_v4_12 rpc fallback:',error.message);
     const fr=await safeUpdateBudgetProposal(id,{status:'voting',vote_deadline:iso,quorum_count:qn,approval_rule:rule,total_voters:voterCount,vote_yes:0,vote_no:0,finalized_at:null,final_result_text:null});
     error=fr.error;
   }
@@ -920,9 +924,9 @@ async function clearVoteDeadline(id){
   const lock='deadline-clear:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
   try{
-    let {error}=await db.rpc('clear_budget_deadline',{p_proposal_id:id});
+    let {error}=await db.rpc('clear_budget_deadline_v4_12',{p_proposal_id:id});
     if(error&&isRpcFallbackable(error)){
-      console.warn('clear_budget_deadline fallback to direct update:',error.message);
+      console.warn('clear_budget_deadline_v4_12 fallback to direct update:',error.message);
       const fr=await safeUpdateBudgetProposal(id,{vote_deadline:null,finalized_at:null,final_result_text:null});
       error=fr.error;
     }
@@ -939,9 +943,9 @@ async function finalize(id){
   if(App.role!=='admin'){toast('관리자만 마감 처리할 수 있습니다');return;}
   if(!confirm('투표를 마감 처리합니다. 결과가 확정됩니다. 진행하시겠습니까?'))return;
   const lock='finalize:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
-  load(true);let {data,error}=await db.rpc('finalize_budget_proposal',{p_proposal_id:id});
+  load(true);let {data,error}=await db.rpc('finalize_budget_proposal_v4_12',{p_proposal_id:id});
   if(error&&isRpcFallbackable(error)){
-    console.warn('finalize_budget_proposal rpc fallback:',error.message);
+    console.warn('finalize_budget_proposal_v4_12 rpc fallback:',error.message);
     const fr=await directFinalizeBudget(id);data=fr.data;error=fr.error;
   }
   load(false);_actionLocks.delete(lock);
@@ -1026,7 +1030,8 @@ function stripRiskyBudgetColumnsForCheck(payload){
 function budgetErrText(err){
   if(!err)return '알 수 없는 오류';
   const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
-  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. budget_registration_repair_v4_4.sql을 실행해야 합니다. 원문: '+detail;
+  if(err?.code==='42702')return 'DB 컬럼 모호성 오류(42702)입니다. SQL 함수 안에서 id/status/vote 같은 컬럼명과 변수명이 충돌한 상태입니다. vote_42702_repair_v4_12.sql을 먼저 실행하고 HTML도 v4.12로 교체하세요. 원문: '+detail;
+  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. v4.12 SQL을 먼저 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
   if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 예산안 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
@@ -1039,7 +1044,8 @@ function voteErrorText(err){
   if(/회원 정보를 찾을 수 없습니다|member.*not found|current_member/i.test(detail))return '회원 매칭 오류입니다. 로그인 계정과 members.email 또는 members.user_id 연결이 맞지 않습니다. vote_cast_repair_v4_8.sql을 먼저 실행하고 다시 로그인하세요. 원문: '+detail;
   if(/투표권이 없는|not.*voter|county/i.test(detail))return '투표권이 없는 계정입니다. members.is_voter=true, role=member/admin인지 확인하세요. 원문: '+detail;
   if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 예산안을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
-  if(/P0001|마감|deadline|closed/i.test(detail))return 'P0001/투표마감 잔존 오류입니다. v4.11 SQL을 실행해 예전 투표 RPC·정책·마감 트리거를 강제 삭제 후 재생성하고, HTML도 v4.11로 교체하세요. 원문: '+detail;
+  if(err?.code==='42702'||/42702|ambiguous|모호/i.test(detail))return 'DB 컬럼 모호성 오류(42702)입니다. vote_42702_repair_v4_12.sql을 실행해 RPC 반환 구조를 JSON 방식으로 재생성해야 합니다. 원문: '+detail;
+  if(/P0001|마감|deadline|closed/i.test(detail))return 'P0001/투표마감 잔존 오류입니다. v4.12 SQL을 실행해 예전 투표 RPC·정책·마감 트리거를 강제 삭제 후 JSON RPC로 재생성하세요. 원문: '+detail;
   return budgetErrText(err);
 }
 function stripUnknownBudgetColumns(payload,err){
@@ -1095,7 +1101,7 @@ async function createBudgetProposalRpc(basePayload){
     p_budget_source:basePayload.budget_source||null,
     p_approval_rule:basePayload.approval_rule||'simple_majority'
   };
-  const {data,error}=await db.rpc('create_budget_proposal',params);
+  const {data,error}=await db.rpc('create_budget_proposal_v4_12',params);
   if(error)return {data:null,error};
   const row=Array.isArray(data)?data[0]:data;
   return {data:{id:row?.id||row?.proposal_id||null,status:row?.status||'draft'},error:null};
@@ -1109,7 +1115,7 @@ async function safeInsertBudgetProposal(basePayload,hasFiles){
   }
   if(rpcResult.error){
     rpcErr=rpcResult.error;
-    console.warn('create_budget_proposal rpc failed, falling back to direct insert:',rpcErr);
+    console.warn('create_budget_proposal_v4_12 rpc failed, falling back to direct insert:',rpcErr);
   }
   const clientId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(16).slice(2));
   const attempts=[];
