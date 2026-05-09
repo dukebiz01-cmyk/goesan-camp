@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.4-20260509-budget-create-rpc-stable">
+<meta name="app-version" content="gca-v4.5-20260509-budget-amount-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.4 · 2026.05.09 · 예산안 등록 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.5 · 2026.05.09 · 예산안 금액 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.4 · 2026.05.09 · 예산안 등록 안정화';
+const APP_VERSION='GCA v4.5 · 2026.05.09 · 예산안 금액 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -236,6 +236,62 @@ function fdt(iso){if(!iso)return'';const d=new Date(iso);if(!validDate(d))return
 function todayLocalDate(){const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,10)}
 function fext(name){return((name||'').split('.').pop()||'def').toLowerCase()}
 function won(n){n=Number(n)||0;if(n>=100000000)return Math.floor(n/100000000)+'억'+(n%100000000?Math.floor((n%100000000)/10000)+'만':'')+'원';if(n>=10000){const m=Math.floor(n/10000),r=n%10000;return m+'만'+(r>0?Math.round(r/1000)+'천':'')+'원';}return n.toLocaleString()+'원'}
+
+function parseBudgetAmount(raw){
+  const input=String(raw||'').trim();
+  if(!input)return {ok:false,amount:0,message:'금액을 입력하세요. 예: 4500000, 4,500,000, 450만원'};
+  const compact=input.replace(/[,\s₩원]/g,'');
+  let total=0,matched=false;
+  const unitMap={억:100000000,만:10000,천:1000};
+  Object.keys(unitMap).forEach(function(u){
+    const re=new RegExp('([0-9]+(?:\\.[0-9]+)?)'+u,'g');
+    let m;
+    while((m=re.exec(compact))!==null){
+      total+=Number(m[1])*unitMap[u];
+      matched=true;
+    }
+  });
+  if(matched){
+    const rest=compact.replace(/([0-9]+(?:\.[0-9]+)?)(억|만|천)/g,'').replace(/[^0-9.]/g,'');
+    if(rest){
+      if((rest.match(/\./g)||[]).length>1)return {ok:false,amount:0,message:'금액 형식이 올바르지 않습니다'};
+      total+=Number(rest)||0;
+    }
+  }else{
+    const clean=compact.replace(/[^0-9.]/g,'');
+    if(!clean)return {ok:false,amount:0,message:'금액은 숫자 또는 만/억 단위로 입력하세요'};
+    if((clean.match(/\./g)||[]).length>1)return {ok:false,amount:0,message:'금액 형식이 올바르지 않습니다'};
+    total=Number(clean);
+  }
+  if(!Number.isFinite(total)||total<=0)return {ok:false,amount:0,message:'예산안 금액은 0보다 커야 합니다'};
+  if(total>999999999999)return {ok:false,amount:0,message:'금액이 너무 큽니다. 1조 원 미만으로 입력하세요'};
+  return {ok:true,amount:Math.round(total),message:''};
+}
+function updateBudgetAmountHelp(){
+  const help=g('pr-amt-help'),inp=g('pr-amt');
+  if(!help||!inp)return;
+  const raw=inp.value||'';
+  if(!raw.trim()){
+    help.textContent='숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억';
+    help.style.color='var(--mid)';
+    return;
+  }
+  const parsed=parseBudgetAmount(raw);
+  if(parsed.ok){help.textContent='인식 금액: '+won(parsed.amount)+' ('+parsed.amount.toLocaleString('ko-KR')+'원)';help.style.color='var(--g)';}
+  else{help.textContent=parsed.message;help.style.color='var(--red)';}
+}
+function bindBudgetAmountInput(){
+  const inp=g('pr-amt');
+  if(!inp||inp._moneyBound)return;
+  inp._moneyBound=1;
+  inp.addEventListener('input',updateBudgetAmountHelp);
+  inp.addEventListener('blur',function(){
+    const parsed=parseBudgetAmount(inp.value);
+    if(parsed.ok)inp.value=parsed.amount.toLocaleString('ko-KR');
+    updateBudgetAmountHelp();
+  });
+  updateBudgetAmountHelp();
+}
 function errMsg(error){return error?.message||String(error||'알 수 없는 오류')}
 function isMissingColumn(error,col){const m=(error?.message||'').toLowerCase();return error?.code==='42703'||m.includes('column')&&m.includes(String(col).toLowerCase())}
 function load(on){const el=g('lovo');if(el)el.classList.toggle('show',!!on)}
@@ -912,11 +968,14 @@ async function safeInsertBudgetProposal(basePayload,hasFiles){
   return {data:null,error:lastErr||rpcErr||{message:'예산안 등록 실패'}};
 }
 async function submitProposal(){
-  const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=Number(v('pr-amt')),desc=v('pr-desc'),rule=v('pr-rule');
+  const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),desc=v('pr-desc'),rule=v('pr-rule');
+  const amountParsed=parseBudgetAmount(g('pr-amt')?.value||'');
   if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
   if(App.role!=='admin'){toast('예산안 등록은 관리자만 가능합니다');return;}
-  if(!title||!Number.isFinite(amt)||amt<=0||!desc){toast('제목, 금액, 세부 계획을 정확히 입력하세요');return;}
-  const amount=Math.round(amt);
+  if(!title){toast('예산안 제목을 입력하세요');return;}
+  if(!amountParsed.ok){toast(amountParsed.message);const inp=g('pr-amt');if(inp)inp.focus();updateBudgetAmountHelp();return;}
+  if(!desc){toast('지출 사유 및 세부 계획을 입력하세요');return;}
+  const amount=amountParsed.amount;
   const fi=g('pr-file');
   const hasFiles=!!(fi?.files?.length);
   const payload={created_by:App.member.id,title,category:cat||null,budget_source:src||null,amount,description:desc,approval_rule:rule||'simple_majority',status:'draft'};
@@ -966,9 +1025,10 @@ function openModal(type){
     notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
     meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
-    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="number" id="pr-amt" placeholder="예: 4500000"></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
+    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
   };
   g('mo-body').innerHTML=tpls[type]||'';g('mover').classList.add('open');
+  if(type==='proposal')setTimeout(bindBudgetAmountInput,0);
 }
 
 async function loadCampsFromDB(){
