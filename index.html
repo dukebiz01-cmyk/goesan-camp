@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.3-20260509-vote-proposal-stable">
+<meta name="app-version" content="gca-v4.4-20260509-budget-create-rpc-stable">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.3 · 2026.05.09 · 투표안 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.4 · 2026.05.09 · 예산안 등록 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.3 · 2026.05.09 · 투표안 안정화';
+const APP_VERSION='GCA v4.4 · 2026.05.09 · 예산안 등록 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -800,7 +800,7 @@ function isDuplicateVoteError(err){
 function budgetErrText(err){
   if(!err)return '알 수 없는 오류';
   const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
-  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. vote_repair_v4_3.sql을 실행해야 합니다. 원문: '+detail;
+  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. budget_registration_repair_v4_4.sql을 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
   if(isRelationshipError(err))return 'DB 외래키 관계 조회 오류입니다. 화면은 우회했지만, FK 관계를 정리하는 것이 좋습니다. 원문: '+detail;
@@ -854,7 +854,31 @@ async function findInsertedBudgetId(title,amount){
   if(error){console.warn('findInsertedBudgetId error:',error.message);return null;}
   return data?.id||null;
 }
+async function createBudgetProposalRpc(basePayload){
+  const params={
+    p_title:basePayload.title,
+    p_amount:Number(basePayload.amount)||0,
+    p_description:basePayload.description||'',
+    p_category:basePayload.category||null,
+    p_budget_source:basePayload.budget_source||null,
+    p_approval_rule:basePayload.approval_rule||'simple_majority'
+  };
+  const {data,error}=await db.rpc('create_budget_proposal',params);
+  if(error)return {data:null,error};
+  const row=Array.isArray(data)?data[0]:data;
+  return {data:{id:row?.id||row?.proposal_id||null,status:row?.status||'draft'},error:null};
+}
+
 async function safeInsertBudgetProposal(basePayload,hasFiles){
+  let rpcErr=null;
+  const rpcResult=await createBudgetProposalRpc(basePayload);
+  if(!rpcResult.error&&rpcResult.data?.id){
+    return {data:rpcResult.data,error:null,usedPayload:{rpc:true}};
+  }
+  if(rpcResult.error){
+    rpcErr=rpcResult.error;
+    console.warn('create_budget_proposal rpc failed, falling back to direct insert:',rpcErr);
+  }
   const clientId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(16).slice(2));
   const attempts=[];
   attempts.push({...basePayload,id:clientId});
@@ -885,7 +909,7 @@ async function safeInsertBudgetProposal(basePayload,hasFiles){
       break;
     }
   }
-  return {data:null,error:lastErr||{message:'예산안 등록 실패'}};
+  return {data:null,error:lastErr||rpcErr||{message:'예산안 등록 실패'}};
 }
 async function submitProposal(){
   const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=Number(v('pr-amt')),desc=v('pr-desc'),rule=v('pr-rule');
