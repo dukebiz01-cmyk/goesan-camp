@@ -7,502 +7,1069 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>괴산캠핑장 활성화 프로그램</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
+  /* 브랜드 — 진한 네이비 단색 (신뢰감) */
   --brand:#0F172A;
+  --brand-2:#1E293B;
   --accent:#2563EB;
-  --ok:#059669;
-  --warn:#D97706;
-  --danger:#B91C1C;
-  --ok-bg:#ECFDF5;
-  --warn-bg:#FFFBEB;
-  --danger-bg:#FEF2F2;
-  --bg:#F8FAFC;
-  --paper:#FFFFFF;
-  --line:#E2E8F0;
-  --line-strong:#CBD5E1;
-  --ink:#0F172A;
-  --ink-2:#334155;
-  --muted:#64748B;
-  --A:#C8425A;
-  --B:#5A8C3F;
-  --C:#3D6DAD;
-  --D:#A36B1F;
-  --A-bg:#FAE8EC;
-  --B-bg:#EAF3E2;
-  --C-bg:#E3EDF8;
-  --D-bg:#F6ECD9;
-  --shadow:0 2px 8px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
-  --r:12px;
-  --r-lg:16px;
+  
+  /* 시맨틱 */
+  --ok:#059669;--warn:#D97706;--danger:#B91C1C;
+  --ok-bg:#ECFDF5;--warn-bg:#FFFBEB;--danger-bg:#FEF2F2;
+  
+  /* 중립 */
+  --bg:#F8FAFC;--paper:#FFFFFF;
+  --line:#E2E8F0;--line-strong:#CBD5E1;--border:#E2E8F0;
+  --ink:#0F172A;--ink-2:#334155;--muted:#64748B;
+  
+  /* 카테고리 (가이드라인 보존) */
+  --A:#C8425A;--B:#5A8C3F;--C:#3D6DAD;--D:#A36B1F;
+  --A-bg:#FAE8EC;--B-bg:#EAF3E2;--C-bg:#E3EDF8;--D-bg:#F6ECD9;
+  
+  /* 그룹 */
+  --g1:#9CA3AF;--g4:#EC4899;--g5:#0EA5E9;--g6:#84CC16;
+  
+  /* Shadow */
+  --shadow-sm:0 1px 2px rgba(15,23,42,0.04);
+  --shadow:0 2px 8px rgba(15,23,42,0.06),0 1px 2px rgba(15,23,42,0.04);
+  --shadow-lg:0 8px 24px rgba(15,23,42,0.08),0 2px 4px rgba(15,23,42,0.04);
+  
+  /* Radius (12~16px만 사용) */
+  --r-sm:8px;--r:12px;--r-lg:16px;
 }
 body{
   font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',-apple-system,BlinkMacSystemFont,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  font-size:16px;
-  line-height:1.6;
-  letter-spacing:-.01em;
-  padding-bottom:80px;
+  background:var(--bg);color:var(--ink);
+  font-size:16px;line-height:1.6;letter-spacing:-0.01em;
+  -webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased;
+  padding-bottom:80px
 }
 .wrap{max-width:760px;margin:0 auto;padding:14px 12px}
+
+/* 헤더 — 단색 네이비 (신뢰감) */
 header{
-  background:var(--brand);
-  color:#fff;
-  border-radius:var(--r-lg);
-  padding:20px;
+  background:var(--brand);color:#fff;
+  border-radius:var(--r-lg);padding:20px;
   margin-bottom:14px;
-  box-shadow:var(--shadow);
+  box-shadow:var(--shadow)
 }
-header h1{font-size:20px;font-weight:800;line-height:1.3}
-.h-sub{
-  font-size:13px;
-  color:#CBD5E1;
-  margin-top:10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding-top:10px;
-  border-top:1px solid rgba(255,255,255,.1);
-}
+header h1{font-size:20px;font-weight:700;letter-spacing:-0.025em;line-height:1.3}
+.h-tag{display:none}
 #btn-refresh{
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.22);
-  color:#fff;
-  padding:7px 11px;
-  border-radius:10px;
-  font-size:12px;
-  cursor:pointer;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;padding:8px 12px;border-radius:10px;
+  font-size:13px;cursor:pointer;font-family:inherit;
+  flex-shrink:0;transition:background 0.15s
 }
+#btn-refresh:active{background:rgba(255,255,255,0.2)}
+.h-sub{
+  font-size:13px;color:#CBD5E1;margin-top:10px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:10px;border-top:1px solid rgba(255,255,255,0.1)
+}
+#user-info{font-weight:500}
 .h-online{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  font-size:11px;
-  background:rgba(34,197,94,.15);
-  padding:4px 10px;
-  border-radius:12px;
-  color:#86EFAC;
-  font-weight:700;
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;background:rgba(34,197,94,0.15);
+  padding:4px 10px;border-radius:12px;color:#86EFAC;font-weight:600
 }
-.h-online:before{
-  content:"";
-  display:block;
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#22C55E;
+.h-online::before{
+  content:"";display:block;width:6px;height:6px;
+  border-radius:50%;background:#22C55E;
+  animation:pulse 2s infinite
 }
-.h-offline{background:rgba(239,68,68,.15);color:#FCA5A5}
-.h-offline:before{background:#EF4444}
-.card,.login-card{
-  background:var(--paper);
-  border:1px solid var(--line);
-  border-radius:var(--r-lg);
-  padding:20px;
-  margin-bottom:14px;
-  box-shadow:var(--shadow);
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.h-offline{background:rgba(239,68,68,0.15);color:#FCA5A5}
+.h-offline::before{background:#EF4444;animation:none}
+
+/* LOGIN — 신뢰감 있는 진입 화면 */
+.login-card{
+  background:#fff;border-radius:var(--r-lg);
+  padding:40px 28px;text-align:center;
+  box-shadow:var(--shadow);border:1px solid var(--line)
 }
-.login-card{padding:38px 26px;text-align:center}
-.login-card h2{font-size:24px;margin-bottom:8px;color:var(--brand)}
-.login-card p{font-size:14px;color:var(--muted);margin-bottom:24px}
-.card h2{font-size:17px;font-weight:800;margin-bottom:12px}
-input,select,textarea{
-  width:100%;
-  padding:13px 14px;
-  border:1px solid var(--line-strong);
-  border-radius:10px;
-  font-size:15px;
-  font-family:inherit;
-  background:#fff;
-  color:var(--ink);
+.login-card h2{
+  font-size:24px;margin-bottom:8px;font-weight:700;
+  letter-spacing:-0.025em;color:var(--brand)
 }
-input:focus,select:focus,textarea:focus{
-  outline:none;
-  border-color:var(--accent);
-  box-shadow:0 0 0 3px rgba(37,99,235,.12);
-}
+.login-card p{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.55}
 .login-card input{margin-bottom:12px}
-.btn,.btn-add{
-  width:100%;
-  border:none;
-  border-radius:var(--r);
-  padding:15px;
-  font-size:15px;
-  font-weight:800;
-  cursor:pointer;
-  font-family:inherit;
-}
-.btn-primary,.btn-add{background:var(--brand);color:#fff}
-.btn-add{background:var(--accent);font-size:16px;margin-bottom:14px;padding:17px}
-.btn-secondary{background:#fff;color:var(--ink);border:1px solid var(--line-strong)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn:disabled,.btn-add:disabled{opacity:.45;cursor:not-allowed}
+
+/* 탭 — 명확한 위계 */
 .tabs{
-  display:flex;
-  gap:4px;
-  margin-bottom:14px;
-  background:#fff;
-  padding:5px;
-  border-radius:var(--r);
-  border:1px solid var(--line);
-  overflow-x:auto;
+  display:flex;gap:4px;margin-bottom:14px;
+  background:#fff;padding:5px;border-radius:var(--r);
+  border:1px solid var(--line);overflow-x:auto;
+  box-shadow:var(--shadow-sm)
 }
 .tab{
-  flex:1;
-  min-width:78px;
-  padding:11px 8px;
-  text-align:center;
-  font-size:13px;
-  font-weight:700;
-  border-radius:9px;
-  cursor:pointer;
-  color:var(--muted);
-  white-space:nowrap;
+  flex:1;min-width:78px;padding:11px 8px;
+  text-align:center;font-size:13px;font-weight:600;
+  border-radius:9px;cursor:pointer;color:var(--muted);
+  white-space:nowrap;transition:all 0.15s
 }
-.tab.active{background:var(--brand);color:#fff}
-.notice{
-  background:#FEF3C7;
-  border:1px solid #FCD34D;
-  border-left:5px solid #F59E0B;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:14px;
-  font-size:13px;
-  color:#78350F;
+.tab.active{
+  background:var(--brand);color:#fff;font-weight:700
 }
-.notice b{color:#7C2D12}
-.notice.ok{
-  background:var(--ok-bg);
-  border-color:#86EFAC;
-  border-left-color:var(--ok);
-  color:#14532D;
+
+/* 카드 — 명확한 위계 */
+.card{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:20px;
+  margin-bottom:14px;box-shadow:var(--shadow-sm)
 }
-.notice.danger{
-  background:var(--danger-bg);
-  border-color:#FCA5A5;
-  border-left-color:var(--danger);
-  color:#7F1D1D;
+.card h2{
+  font-size:17px;font-weight:700;margin-bottom:14px;
+  letter-spacing:-0.025em;color:var(--ink)
 }
-.camp-sel-wrap{margin-bottom:14px}
+
+/* 캠프 선택 */
+.camp-sel-wrap{margin-bottom:14px;position:relative}
 .camp-sel{
-  font-size:18px;
-  font-weight:800;
-  padding:17px 15px;
+  width:100%;padding:18px 16px;font-size:18px;
+  font-weight:700;border:1.5px solid var(--line-strong);
+  border-radius:var(--r);background:#fff;
+  font-family:inherit;color:var(--ink);
+  letter-spacing:-0.02em
 }
+.camp-sel:disabled{background:#F1F5F9;color:var(--ink-2);cursor:not-allowed}
+.camp-locked{
+  position:absolute;right:14px;top:50%;
+  transform:translateY(-50%);font-size:12px;
+  color:var(--ok);background:var(--ok-bg);
+  padding:5px 11px;border-radius:8px;font-weight:600
+}
+
+/* 예산 카드 — 즉시성 강조 */
 .bud-card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:var(--r-lg);
-  padding:22px;
-  margin-bottom:14px;
-  box-shadow:var(--shadow);
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:22px;
+  margin-bottom:14px;box-shadow:var(--shadow)
 }
-.bud-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
-.bud-label{font-size:13px;color:var(--muted);font-weight:800}
+.bud-row{
+  display:flex;justify-content:space-between;
+  align-items:baseline;margin-bottom:12px
+}
+.bud-label{
+  font-size:13px;color:var(--muted);
+  font-weight:600;letter-spacing:0.01em
+}
 .bud-amount{
-  font-size:31px;
-  font-weight:900;
-  letter-spacing:-.04em;
-  color:var(--ok);
-  font-variant-numeric:tabular-nums;
+  font-size:34px;font-weight:800;
+  letter-spacing:-0.035em;color:var(--ok);
+  font-variant-numeric:tabular-nums
 }
 .bud-amount.warn{color:var(--warn)}
 .bud-amount.over{color:var(--danger)}
-.bud-bar{height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden;margin:10px 0}
-.bud-fill{height:100%;background:var(--ok);transition:width .25s}
+.bud-bar{
+  height:8px;background:#F1F5F9;border-radius:4px;
+  overflow:hidden;margin:10px 0
+}
+.bud-fill{
+  height:100%;background:var(--ok);
+  transition:width 0.4s cubic-bezier(0.4,0,0.2,1)
+}
 .bud-fill.warn{background:var(--warn)}
 .bud-fill.over{background:var(--danger)}
-.bud-stats{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-weight:700}
-.budget-breakdown{
-  margin-top:12px;
-  background:#F8FAFC;
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:12px;
-  font-size:12px;
-  color:var(--ink-2);
+.bud-stats{
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  font-variant-numeric:tabular-nums
 }
-.break-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed var(--line)}
-.break-row:last-child{border-bottom:0}
-.event-card{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:15px;
-  margin-bottom:10px;
+
+/* 일정 항목 (매수권용) */
+.my-event{
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:14px;padding:16px;background:#fff;
+  border:1px solid var(--line);border-radius:var(--r);
+  margin-bottom:8px;align-items:center
 }
-.event-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.event-title{font-size:16px;font-weight:800;flex:1}
-.event-meta{font-size:12px;color:var(--muted);line-height:1.5}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:24px;
-  height:24px;
-  padding:0 7px;
-  border-radius:7px;
-  color:#fff;
-  font-size:12px;
-  font-weight:900;
+.my-event.warn{border-color:#FBBF24;background:var(--warn-bg)}
+.me-date{
+  font-size:11px;font-weight:700;color:var(--muted);
+  text-align:center;min-width:50px
 }
-.b-A{background:var(--A)}
-.b-B{background:var(--B)}
-.b-C{background:var(--C)}
-.b-D{background:var(--D)}
-.tag{
-  display:inline-flex;
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:800;
-  background:#F1F5F9;
-  color:var(--ink-2);
+.me-date b{
+  display:block;font-size:20px;color:var(--ink);
+  font-weight:800;letter-spacing:-0.03em
 }
-.status-ok{background:var(--ok-bg);color:#166534}
-.status-warn{background:var(--warn-bg);color:#92400E}
-.status-danger{background:var(--danger-bg);color:#991B1B}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sum-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  padding:12px 4px;
-  border-bottom:1px dashed var(--line);
-  align-items:center;
+.me-info{flex:1;min-width:0}
+.me-name{
+  font-weight:700;font-size:15px;
+  display:flex;align-items:center;gap:7px
 }
-.sum-row:last-child{border-bottom:0}
-.sum-name{font-weight:800}
-.sum-mini{font-size:12px;color:var(--muted)}
-.sum-amt{text-align:right;font-size:13px;font-weight:800}
+.me-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.me-status{
+  font-size:11px;padding:5px 10px;
+  border-radius:7px;font-weight:700;white-space:nowrap
+}
+.s-ok{background:var(--ok-bg);color:#166534}
+.s-warn{background:#FED7AA;color:#9A3412}
+.s-danger{background:#FECACA;color:#991B1B}
+.s-info{background:#DBEAFE;color:#1E40AF}
+.me-actions{display:flex;gap:6px;align-items:center}
+.me-btn{
+  background:#fff;border:1px solid var(--line);
+  padding:7px 11px;border-radius:8px;font-size:13px;
+  cursor:pointer;font-family:inherit;font-weight:600;
+  color:var(--ink-2);transition:all 0.15s
+}
+.me-btn:active{background:#F1F5F9}
+.me-btn.del{color:var(--danger);border-color:#FECACA}
+.me-btn.del:active{background:var(--danger-bg)}
+.me-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* 버튼 — 단색 (절제) */
+.btn{
+  display:block;width:100%;padding:15px;
+  border:none;border-radius:var(--r);
+  font-size:15px;font-weight:700;cursor:pointer;
+  font-family:inherit;letter-spacing:-0.01em;
+  transition:all 0.15s
+}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-primary:active{transform:translateY(1px);box-shadow:none}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed}
+.btn-add{
+  background:var(--accent);color:#fff;
+  font-size:16px;padding:17px;
+  border-radius:var(--r);width:100%;border:none;
+  font-weight:700;cursor:pointer;font-family:inherit;
+  margin-bottom:14px;
+  box-shadow:0 1px 2px rgba(37,99,235,0.2);
+  letter-spacing:-0.015em
+}
+.btn-add:active{
+  background:#1D4ED8;
+  transform:translateY(1px);
+  box-shadow:none
+}
+.btn-add:disabled{
+  background:var(--line-strong);
+  cursor:not-allowed;box-shadow:none
+}
+.btn-secondary{
+  background:#fff;color:var(--ink);
+  border:1px solid var(--line-strong)
+}
+.btn-secondary:active{background:#F8FAFC}
+
+/* 폼 */
 .form-row{margin-bottom:14px}
-.form-row label{display:block;font-size:13px;font-weight:800;color:var(--ink-2);margin-bottom:7px}
+.form-row label{
+  display:block;font-size:13px;font-weight:600;
+  color:var(--ink-2);margin-bottom:7px;letter-spacing:0.01em
+}
+input,select{
+  width:100%;padding:13px 14px;
+  border:1px solid var(--line-strong);
+  border-radius:10px;font-size:15px;
+  font-family:inherit;background:#fff;
+  color:var(--ink);transition:all 0.15s
+}
+input:focus,select:focus{
+  outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(37,99,235,0.12)
+}
+
+/* 카테고리 핀 */
 .cat-pills{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .pill{
-  padding:12px 5px;
-  border:1.5px solid var(--line);
-  border-radius:11px;
-  font-size:13px;
-  font-weight:900;
-  text-align:center;
-  background:#fff;
-  cursor:pointer;
+  padding:13px 4px;border:1.5px solid var(--line);
+  border-radius:11px;font-size:13px;font-weight:700;
+  text-align:center;background:#fff;cursor:pointer;
+  transition:all 0.15s
 }
+.pill:active{background:#F8FAFC}
 .pill.active.A{background:var(--A-bg);border-color:var(--A);color:var(--A)}
 .pill.active.B{background:var(--B-bg);border-color:var(--B);color:var(--B)}
 .pill.active.C{background:var(--C-bg);border-color:var(--C);color:var(--C)}
 .pill.active.D{background:var(--D-bg);border-color:var(--D);color:var(--D)}
+
+/* 미리보기 */
 .preview{
-  background:#EFF6FF;
-  border:1px solid #BFDBFE;
-  border-radius:var(--r);
-  padding:13px;
-  margin:12px 0;
-  font-size:13px;
+  background:#EFF6FF;border:1px solid #BFDBFE;
+  border-radius:var(--r);padding:14px;
+  margin:14px 0;font-size:13px
 }
-.preview.err{background:var(--danger-bg);border-color:#FCA5A5}
 .preview.ok{background:var(--ok-bg);border-color:#86EFAC}
+.preview.warn{background:var(--warn-bg);border-color:#FBBF24}
+.preview.err{background:var(--danger-bg);border-color:#FCA5A5}
+.pv-title{
+  font-weight:700;margin-bottom:10px;
+  display:flex;align-items:center;gap:7px;font-size:14px
+}
+.pv-row{
+  padding:7px 0;border-bottom:1px dashed rgba(0,0,0,0.06);
+  font-size:13px
+}
+.pv-row:last-child{border-bottom:none}
+.pv-row b{color:#1E3A8A}
+.pv-price{
+  font-size:20px;font-weight:800;color:var(--ink);
+  margin-top:10px;letter-spacing:-0.025em;
+  font-variant-numeric:tabular-nums
+}
+
+/* 모달 — 깔끔한 시트 */
 .modal-bg{
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.58);
-  display:none;
-  align-items:flex-end;
-  z-index:100;
+  position:fixed;inset:0;background:rgba(15,23,42,0.6);
+  display:flex;align-items:flex-end;z-index:100;
+  backdrop-filter:blur(6px)
 }
 .modal{
-  background:#fff;
-  width:100%;
-  max-height:92vh;
-  overflow:auto;
-  border-radius:22px 22px 0 0;
-  padding:22px 18px;
+  background:#fff;width:100%;max-height:92vh;
+  overflow-y:auto;border-radius:20px 20px 0 0;
+  padding:24px 20px;
+  animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1)
 }
-.modal h3{font-size:19px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal h3{
+  font-size:19px;margin-bottom:18px;
+  display:flex;align-items:center;gap:8px;
+  font-weight:700;letter-spacing:-0.025em
+}
 .m-close{
-  margin-left:auto;
-  background:#F1F5F9;
-  border:none;
-  width:36px;
-  height:36px;
-  border-radius:50%;
-  font-size:22px;
-  cursor:pointer;
+  margin-left:auto;background:#F1F5F9;
+  border:none;width:36px;height:36px;
+  border-radius:50%;font-size:20px;cursor:pointer;
+  color:var(--muted);font-weight:600;transition:background 0.15s
 }
-.empty{text-align:center;padding:34px 18px;color:var(--muted);font-size:14px}
+.m-close:active{background:#E2E8F0}
+
+/* 달력 */
+.month-h{
+  display:flex;align-items:baseline;gap:12px;
+  padding:12px 4px;margin:18px 0 10px 0;
+  border-bottom:2px solid var(--ink)
+}
+.month-num{
+  font-size:30px;font-weight:900;line-height:1;
+  letter-spacing:-0.04em;color:var(--ink)
+}
+.month-info{font-size:13px;color:var(--muted);font-weight:500}
+.day{
+  background:var(--paper);border:1px solid var(--line);
+  border-radius:14px;padding:14px;margin-bottom:10px;
+  box-shadow:var(--shadow-sm)
+}
+.day-head{
+  display:flex;align-items:baseline;gap:11px;
+  margin-bottom:11px;padding-bottom:9px;
+  border-bottom:1px dashed var(--line)
+}
+.d-num{
+  font-size:23px;font-weight:800;line-height:1;
+  letter-spacing:-0.03em
+}
+.d-week{font-size:14px;font-weight:600;color:var(--muted)}
+.d-week.sat{color:#3D6DAD}.d-week.sun{color:#C8425A}
+.event{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px;border-radius:10px;margin-bottom:6px
+}
+.event.eA{background:var(--A-bg)}.event.eB{background:var(--B-bg)}
+.event.eC{background:var(--C-bg)}.event.eD{background:var(--D-bg)}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:22px;height:22px;padding:0 6px;
+  border-radius:6px;font-size:11px;font-weight:700;
+  color:#fff;flex-shrink:0;letter-spacing:0
+}
+.b-A{background:var(--A)}.b-B{background:var(--B)}
+.b-C{background:var(--C)}.b-D{background:var(--D)}
+.e-body{flex:1;min-width:0}
+.e-title{font-weight:700;font-size:14px}
+.e-camps{font-size:13px;margin-top:4px;color:var(--ink-2)}
+.gd{display:inline-block;width:8px;height:8px;border-radius:50%}
+.gd-1{background:var(--g1)}.gd-4{background:var(--g4)}
+.gd-5{background:var(--g5)}.gd-6{background:var(--g6)}
+
+/* 토스트 */
 .toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%);
-  background:var(--brand);
-  color:#fff;
-  padding:13px 22px;
-  border-radius:24px;
-  font-size:14px;
-  z-index:200;
-  box-shadow:var(--shadow);
-  font-weight:800;
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%);background:var(--brand);
+  color:#fff;padding:13px 22px;border-radius:24px;
+  font-size:14px;z-index:200;animation:fade 2.5s;
+  box-shadow:var(--shadow-lg);font-weight:600
 }
-.table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px;
+@keyframes fade{0%{opacity:0;transform:translate(-50%,10px)}10%{opacity:1;transform:translate(-50%,0)}90%{opacity:1}100%{opacity:0}}
+
+/* 보기 전환 토글 (일정/지도) */
+.btn-view-toggle{
+  flex:1;padding:10px 14px;
+  border:1px solid var(--border);background:#fff;color:var(--muted);
+  border-radius:10px;font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:inherit
 }
-.table th,.table td{
-  padding:8px 6px;
-  border-bottom:1px solid var(--line);
-  text-align:left;
+.btn-view-toggle:hover{background:#f8fafc}
+.btn-view-toggle.active{
+  background:var(--brand);color:#fff;border-color:var(--brand)
 }
-.table th{color:var(--muted);font-size:11px}
-@media(max-width:520px){
-  .wrap{padding:10px}
-  header{padding:16px}
-  header h1{font-size:18px}
-  .bud-amount{font-size:26px}
-  .grid2{grid-template-columns:1fr}
+#member-map{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif}
+.leaflet-popup-content{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;font-size:13px;line-height:1.6}
+.leaflet-popup-content b{font-size:14px;color:var(--brand)}
+
+/* 전체 캠프 */
+.sum-row{
+  display:grid;grid-template-columns:1fr auto auto;
+  gap:14px;padding:13px 6px;
+  border-bottom:1px dashed var(--line);
+  align-items:center;font-size:14px
 }
+.sum-name{
+  font-weight:600;display:flex;align-items:center;gap:8px
+}
+.sum-mini{font-size:12px;color:var(--muted);margin-top:2px}
+.sum-amt{
+  text-align:right;font-variant-numeric:tabular-nums
+}
+.sum-bar{
+  width:60px;height:6px;background:#F1F5F9;
+  border-radius:3px;overflow:hidden
+}
+.sum-bar div{height:100%}
+.sum-bar div.ok{background:var(--ok)}
+.sum-bar div.warn{background:var(--warn)}
+.sum-bar div.over{background:var(--danger)}
+
+.empty{
+  text-align:center;padding:40px;
+  color:var(--muted);font-size:15px;line-height:1.6
+}
+
+/* 검증 */
+.issue{
+  padding:14px 16px;border-radius:10px;
+  margin-bottom:8px;font-size:14px;
+  border-left:4px solid
+}
+.issue.warn{background:var(--warn-bg);border-color:var(--warn);color:#78350F}
+.issue.danger{background:var(--danger-bg);border-color:var(--danger);color:#991B1B}
+.issue-title{font-weight:700;margin-bottom:5px;font-size:15px}
+
+.match-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px;font-size:13px
+}
+
+/* 일정 카드 — 신뢰감 + 즉시성 */
+.my-event-card{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:18px;
+  margin-bottom:10px;transition:all 0.2s;
+  box-shadow:var(--shadow-sm)
+}
+/* 할인 가능 — 부드러운 노란 톤 */
+.my-event-card.discount{
+  background:#FFFBEB;
+  border:1px solid #FCD34D
+}
+/* 박제 완료 — 신뢰감 있는 파란 톤 */
+.my-event-card.ok{
+  background:#F0F9FF;
+  border:1px solid #BAE6FD
+}
+/* 미완성 (단독) */
+.my-event-card.warn{
+  background:#FFFBEB;
+  border:1px solid #FED7AA
+}
+
+.mec-header{
+  display:flex;align-items:center;gap:12px;margin-bottom:12px
+}
+.mec-date{
+  display:flex;flex-direction:column;align-items:center;
+  min-width:48px;font-size:11px;color:var(--muted);
+  font-weight:600;letter-spacing:0.02em
+}
+.mec-date b{
+  font-size:22px;color:var(--ink);line-height:1;
+  font-weight:800;letter-spacing:-0.035em
+}
+.mec-date span{margin-top:4px}
+.mec-name{
+  flex:1;display:flex;align-items:center;gap:8px;
+  min-width:0;flex-wrap:wrap
+}
+.mec-title{
+  font-weight:700;font-size:16px;letter-spacing:-0.02em
+}
+
+.mec-progress-row{margin-bottom:14px}
+.mec-progress-label{
+  display:flex;justify-content:space-between;
+  align-items:center;font-size:13px;margin-bottom:6px
+}
+.mec-progress-text{font-weight:600;color:var(--ink-2)}
+.mec-status-badge{
+  font-size:12px;padding:4px 10px;
+  border-radius:8px;font-weight:700
+}
+.mec-status-badge.s-warn{background:#FEF3C7;color:#92400E}
+.mec-status-badge.s-ok{background:#DBEAFE;color:#1E40AF}
+.mec-progress-bar{
+  height:8px;background:#F1F5F9;
+  border-radius:4px;overflow:hidden
+}
+.mec-progress-fill{
+  height:100%;
+  transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+  border-radius:4px
+}
+.mec-progress-fill.discount{background:#F59E0B}
+.mec-progress-fill.ok{background:#3B82F6}
+.mec-progress-fill.warn{background:#F59E0B}
+
+/* 가격 박스 — 단정한 카드 */
+.mec-price-row{
+  display:flex;align-items:center;gap:12px;
+  padding:14px;background:#fff;border-radius:12px;
+  margin-bottom:12px;border:1px solid var(--line)
+}
+.mec-price-current,.mec-price-target{flex:1;text-align:center}
+.mec-price-label{
+  font-size:11px;color:var(--muted);margin-bottom:4px;
+  font-weight:600;letter-spacing:0.02em;
+  text-transform:uppercase
+}
+.mec-price-now{
+  font-size:18px;font-weight:700;color:var(--ink);
+  letter-spacing:-0.025em;font-variant-numeric:tabular-nums
+}
+.mec-price-best{
+  font-size:18px;font-weight:800;color:var(--ok);
+  letter-spacing:-0.025em;font-variant-numeric:tabular-nums
+}
+.mec-savings{
+  font-size:12px;color:var(--ok);font-weight:700;
+  margin-top:4px;background:var(--ok-bg);
+  padding:3px 9px;border-radius:6px;display:inline-block
+}
+.mec-arrow{
+  font-size:20px;color:#F59E0B;font-weight:bold;
+  flex-shrink:0
+}
+
+/* 같은 묶음 캠프 */
+.mec-other-camps{
+  font-size:13px;color:var(--ink-2);
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px;
+  padding:10px 12px;background:#F8FAFC;
+  border-radius:10px;border:1px solid var(--line)
+}
+.mec-other-camps.mec-empty{
+  color:#9A3412;background:#FFFBEB;
+  border:1px dashed #FBBF24;display:block;
+  text-align:center;font-weight:600
+}
+.mec-other-label{font-weight:700;color:var(--ink)}
+.mec-camp-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#fff;padding:5px 11px;border-radius:14px;
+  border:1px solid var(--line);font-size:12px;font-weight:600
+}
+
+/* 합류 기회 카드 — 절제된 노란 카드 */
+.join-card{
+  background:#FFFBEB;border:1px solid #FCD34D;
+  border-radius:12px;padding:14px;margin-bottom:10px;
+  cursor:pointer;transition:all 0.15s
+}
+.join-card:active{
+  background:#FEF3C7;
+  border-color:#F59E0B
+}
+.join-header{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:6px;flex-wrap:wrap
+}
+.join-date{font-size:13px;color:var(--ink-2);font-weight:700}
+.join-name{
+  font-weight:700;font-size:15px;
+  letter-spacing:-0.02em;flex:1;min-width:120px
+}
+.join-camps{font-size:13px;color:var(--ink-2);margin-bottom:8px}
+.join-savings{
+  font-size:13px;font-weight:700;color:var(--ok);
+  background:var(--ok-bg);padding:6px 11px;
+  border-radius:8px;display:inline-block
+}
+
+/* 조편성 관리 */
+.ga-group-block{
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;background:#fafaf7
+}
+.ga-group-head{
+  display:flex;align-items:center;gap:6px;
+  font-weight:700;font-size:12px;margin-bottom:6px;
+  padding-bottom:5px;border-bottom:1px dashed var(--line)
+}
+.ga-group-name-input{
+  flex:1;padding:4px 8px;border:1px solid var(--line);border-radius:5px;
+  font-family:inherit;font-size:12px;font-weight:700;background:#fff
+}
+.ga-group-count{font-size:10px;color:var(--muted);font-weight:600}
+.ga-row{
+  display:grid;grid-template-columns:auto 1fr auto;gap:8px;
+  align-items:center;padding:5px 4px;font-size:12px
+}
+.ga-row + .ga-row{border-top:1px dashed rgba(0,0,0,0.05)}
+.ga-camp-name{font-weight:600}
+.ga-select{
+  padding:5px 8px;border:1px solid var(--line);border-radius:5px;
+  font-size:11px;background:#fff;font-family:inherit;min-width:90px
+}
+.ga-add-group-btn{
+  width:100%;padding:8px;background:#fff;border:1px dashed var(--line);
+  border-radius:6px;font-size:11px;color:var(--muted);font-weight:600;
+  cursor:pointer;font-family:inherit;margin-top:6px
+}
+.ga-add-group-btn:hover{background:#f4f4f0;border-color:#3b82f6;color:#3b82f6}
+
+/* 로그인 정보 */
+.login-group{
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;background:#fafaf7
+}
+.login-group-head{
+  display:flex;align-items:center;gap:6px;
+  font-weight:700;font-size:11px;margin-bottom:6px;color:var(--ink);
+  padding-bottom:5px;border-bottom:1px dashed var(--line)
+}
+.login-row{
+  display:grid;grid-template-columns:1fr auto;gap:6px;
+  align-items:center;padding:5px 4px;font-size:11px
+}
+.login-row + .login-row{border-top:1px dashed rgba(0,0,0,0.05)}
+.login-camp{font-weight:600}
+.login-email{font-family:'Courier New',monospace;font-size:11px;color:#3b82f6;font-weight:600}
+.login-pw{font-family:'Courier New',monospace;font-size:10px;color:var(--muted);margin-left:6px}
+.login-status{font-size:9px;color:var(--muted)}
+.login-copy{
+  background:#fff;border:1px solid var(--line);
+  padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;
+  font-family:inherit
+}
+.login-copy:active{background:#dbeafe}
+.login-empty{
+  color:#dc2626;font-size:10px;font-weight:600
+}
+
+/* 강사 스케줄 */
+.inst-summary{
+  background:#dbeafe;border-left:4px solid #3b82f6;
+  padding:10px;border-radius:6px;margin-bottom:10px;font-size:12px
+}
+.inst-summary b{color:#1e40af}
+.inst-day{
+  background:#fff;border:1px solid var(--line);border-radius:8px;
+  padding:10px;margin-bottom:6px
+}
+.inst-day-head{
+  display:flex;align-items:baseline;gap:8px;
+  font-weight:700;font-size:13px;margin-bottom:5px;
+  padding-bottom:4px;border-bottom:1px dashed var(--line)
+}
+.inst-day-num{font-size:18px;font-weight:800;color:var(--ink)}
+.inst-day-week{font-size:11px;color:var(--muted)}
+.inst-day-week.sat{color:#3d6dad}
+.inst-day-week.sun{color:#c8425a}
+.inst-day-warn{margin-left:auto;font-size:9px;color:#dc2626;font-weight:700}
+.inst-event{
+  display:grid;grid-template-columns:auto 1fr;gap:6px;
+  padding:4px 4px;font-size:11px;align-items:center
+}
+.inst-event + .inst-event{border-top:1px dashed rgba(0,0,0,0.05)}
+.inst-event-name{font-weight:600;color:var(--ink)}
+.inst-event-camps{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* 공지 배너 */
+#announcement-banner{
+  background:linear-gradient(135deg,#fef3c7,#fde68a);
+  border-left:5px solid #f59e0b;border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;
+  position:relative;animation:slideDown 0.4s ease
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+#announcement-banner.urgent{
+  background:linear-gradient(135deg,#fee2e2,#fecaca);
+  border-color:#dc2626
+}
+#announcement-banner.menu_add{
+  background:linear-gradient(135deg,#dbeafe,#bfdbfe);
+  border-color:#3b82f6
+}
+.ann-banner-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ann-banner-content{font-size:11px;color:var(--ink);line-height:1.5;white-space:pre-wrap}
+.ann-banner-meta{font-size:9px;color:var(--muted);margin-top:6px}
+.ann-banner-close{
+  position:absolute;top:8px;right:10px;
+  background:transparent;border:none;font-size:16px;cursor:pointer;
+  color:var(--muted);font-family:inherit
+}
+
+/* 공지 목록 */
+.ann-list-item{
+  background:#fafaf7;border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;margin-bottom:6px;font-size:11px
+}
+.ann-list-item.urgent{background:#fef2f2;border-color:#fca5a5}
+.ann-list-item.menu_add{background:#eff6ff;border-color:#93c5fd}
+.ann-list-head{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.ann-list-title{font-weight:700;flex:1;font-size:12px}
+.ann-list-meta{font-size:9px;color:var(--muted)}
+.ann-list-content{font-size:10px;color:var(--muted);white-space:pre-wrap;margin-top:3px;line-height:1.5}
+.ann-delete-btn{
+  background:#fff;border:1px solid #fca5a5;color:#dc2626;
+  padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;
+  font-family:inherit
+}
+
+/* 모집 알림 배너 — 절제된 강조 (가이드: 화려함 X, 즉시성 O) */
+#recruitment-banner{
+  background:#fff;color:var(--ink);
+  border:1px solid #FCD34D;
+  border-left:4px solid #F59E0B;
+  border-radius:var(--r-lg);
+  padding:18px;margin-bottom:14px;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:all 0.2s
+}
+#recruitment-banner:active{
+  background:#FFFBEB;
+  transform:scale(0.99)
+}
+.rb-title{
+  font-size:16px;font-weight:800;
+  margin-bottom:6px;display:flex;
+  align-items:center;gap:8px;
+  letter-spacing:-0.02em;color:var(--ink)
+}
+.rb-content{
+  font-size:13px;line-height:1.55;color:var(--ink-2)
+}
+.rb-savings{
+  font-size:18px;font-weight:800;
+  margin-top:10px;color:var(--ok);
+  letter-spacing:-0.025em;
+  font-variant-numeric:tabular-nums
+}
+.rb-action{
+  display:inline-block;background:var(--brand);
+  color:#fff;padding:8px 14px;border-radius:8px;
+  font-size:12px;font-weight:700;margin-top:12px
+}
+
+/* 관리자 모집 중 카드 */
+.recruit-item{
+  background:#fff;border:1px solid var(--line);
+  border-left:3px solid #F59E0B;
+  border-radius:10px;padding:14px;
+  margin-bottom:8px;font-size:14px
+}
+.recruit-item.urgent{
+  border-left-color:var(--danger);
+  background:var(--danger-bg)
+}
+.recruit-head{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:6px;flex-wrap:wrap
+}
+.recruit-date{
+  font-weight:800;font-size:16px;color:var(--ink);
+  letter-spacing:-0.025em
+}
+.recruit-program{font-weight:700;flex:1;font-size:15px}
+.recruit-urgent-badge{
+  font-size:11px;background:var(--danger);
+  color:#fff;padding:3px 8px;
+  border-radius:6px;font-weight:700
+}
+.recruit-meta{font-size:13px;color:var(--ink-2);margin-bottom:5px}
+.recruit-savings{
+  font-size:13px;font-weight:700;color:var(--ok);
+  background:var(--ok-bg);padding:5px 11px;
+  border-radius:7px;display:inline-block;margin-top:6px
+}
+.recruit-need{
+  font-size:13px;font-weight:700;
+  color:var(--danger);margin-top:5px
+}
+.role-badge{
+  display:inline-block;font-size:11px;
+  padding:4px 9px;border-radius:8px;
+  background:rgba(255,255,255,0.15);
+  margin-left:8px;font-weight:600
+}
+.role-badge.admin{background:#FBBF24;color:#78350F}
+
+.loading{text-align:center;padding:40px 20px;color:var(--muted)}
+.loading::after{content:"...";animation:dots 1.5s steps(4) infinite}
+@keyframes dots{0%{content:""}33%{content:"."}66%{content:".."}100%{content:"..."}}
 </style>
 </head>
-
 <body>
+
 <div class="wrap">
 
 <header>
-  <div style="display:flex;align-items:center;gap:8px">
-    <h1 style="flex:1">🏕 괴산캠핑장 활성화 프로그램</h1>
-    <button id="btn-refresh">🔄</button>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+    <h1 style="flex:1;margin:0">🏕 괴산캠핑장 활성화 프로그램</h1>
+    <button id="btn-refresh" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-family:inherit;flex-shrink:0">🔄</button>
   </div>
   <div class="h-sub">
     <span id="user-info">로그인 필요</span>
-    <span id="online-status" class="h-online">온라인</span>
+    <span class="h-online" id="online-status">온라인</span>
   </div>
 </header>
 
+<!-- LOGIN -->
 <div id="screen-login">
+  <noscript><div style="background:#fef2f2;border:2px solid #dc2626;color:#dc2626;padding:16px;border-radius:12px;margin-bottom:12px;text-align:center;font-weight:700">⚠️ JavaScript가 비활성화되어 있습니다.<br>브라우저 설정에서 JavaScript를 활성화해주세요.</div></noscript>
   <div class="login-card">
-    <h2>협회 로그인</h2>
+    <h2>🏕 협회 로그인</h2>
     <p>등록된 협회 회원만 사용 가능</p>
     <input type="email" id="login-email" placeholder="이메일">
     <input type="password" id="login-pw" placeholder="비밀번호">
-    <button class="btn btn-primary" id="btn-login">로그인</button>
-    <div id="login-msg" style="margin-top:10px;font-size:13px;color:var(--danger)"></div>
+    <button class="btn btn-primary" id="btn-login" onclick="window.doLogin&&window.doLogin()" style="margin-top:8px">로그인</button>
+    <div id="login-msg" style="margin-top:10px;font-size:12px;color:var(--danger)"></div>
   </div>
 </div>
 
+<!-- MAIN APP -->
 <div id="screen-app" style="display:none">
-
-  <div class="notice ok">
-    <b>현재 회원 예산신청 활성화 상태</b><br>
-    마감시간 차단 로직을 제거했습니다. 포기 업체를 제외한 캠핑장은 신청 가능합니다.
-  </div>
-
-  <div class="notice">
-    <b>표기 마감: 2026년 5월 9일 저녁 9시(21:00)</b><br>
-    현재 파일에서는 시간으로 신청을 막지 않습니다.
-  </div>
-
-  <div class="notice ok">
-    <b>최종 예산 한도: 1곳당 5,429,726원</b><br>
-    기본 4,761,905원 + 포기분 추가금 453,515원 + 해밀터 차액 추가금 214,306원
-  </div>
-
+  <div id="announcement-banner" style="display:none"></div>
+  <div id="deadline-budget-banner" style="display:none"></div>
+  
   <div class="tabs">
-    <div class="tab active" data-tab="my">내 캠프</div>
-    <div class="tab" data-tab="cal">달력</div>
-    <div class="tab" data-tab="check">검증</div>
-    <div class="tab" data-tab="all">전체</div>
-    <div class="tab admin-only" data-tab="admin" style="display:none">관리자</div>
+    <div class="tab active" data-tab="my">🏕 내 캠프</div>
+    <div class="tab" data-tab="cal">📅 달력</div>
+    <div class="tab" data-tab="check">⚠️ 검증</div>
+    <div class="tab" data-tab="all">📊 전체</div>
+    <div class="tab admin-only" data-tab="admin" style="display:none">👑 관리자</div>
   </div>
 
   <div id="tab-my" class="tab-content">
     <div class="camp-sel-wrap">
       <select class="camp-sel" id="camp-picker"></select>
+      <span class="camp-locked" id="camp-locked-label" style="display:none">🔒 본인 캠프</span>
     </div>
-
-    <div id="forfeit-warning"></div>
-
+    
+    <div id="recruitment-banner" style="display:none"></div>
+    
     <div class="bud-card" id="bud-display"></div>
-
-    <button class="btn-add" id="btn-add-event">＋ 회원 예산신청 추가</button>
-
+    <button class="btn-add" id="btn-add-event">＋ 새 행사 추가</button>
+    
+    <div class="card" id="join-opportunities-card" style="display:none">
+      <h2 style="font-size:14px;display:flex;align-items:center;gap:6px">
+        🎁 합류하면 모두 할인!
+      </h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">다른 캠프가 추가한 행사에 합류하면 본인+상대 모두 묶음 단가 적용</div>
+      <div id="join-opportunities"></div>
+    </div>
+    
     <div class="card">
-      <h2>내 캠프 신청 내역</h2>
-      <div id="my-events"><div class="empty">불러오는 중</div></div>
+      <h2>📋 내 캠프 일정</h2>
+      <div id="my-events"><div class="loading">불러오는 중</div></div>
     </div>
   </div>
 
   <div id="tab-cal" class="tab-content" style="display:none">
     <div class="card">
-      <h2>전체 일정</h2>
-      <div id="calendar"><div class="empty">불러오는 중</div></div>
+      <h2>📅 전체 달력</h2>
+      <div style="font-size:11px;color:var(--muted)">묶음 자동 감지 · 다른 캠프 일정도 표시됨</div>
     </div>
+    <div id="calendar"><div class="loading">불러오는 중</div></div>
   </div>
 
   <div id="tab-check" class="tab-content" style="display:none">
     <div class="card">
-      <h2>예산 / 묶음 / 충돌 검증</h2>
-      <div id="issues"><div class="empty">분석 중</div></div>
+      <h2>⚠️ 충돌 / 묶음 부족 점검</h2>
+      <div id="issues"><div class="loading">분석 중</div></div>
     </div>
   </div>
 
   <div id="tab-all" class="tab-content" style="display:none">
     <div class="card">
-      <h2>전체 캠프 현황</h2>
-      <div class="notice">
-        아빠의나무·강변캠핑장이 예산권을 포기했습니다.<br>
-        포기 2곳 금액과 해밀터 사용액 715,000원 차액을 21곳에 균등 재분배했습니다.
+      <h2>📊 전체 캠프 현황</h2>
+      <div id="budget-policy-notice" style="background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#92400e;line-height:1.6">
+        예산 재분배 계산 중...
       </div>
-      <div id="all-camps"><div class="empty">불러오는 중</div></div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px">
+        <button class="btn-view-toggle active" id="view-list-btn" type="button">📋 일정 보기</button>
+        <button class="btn-view-toggle" id="view-map-btn" type="button">🗺 지도 보기</button>
+      </div>
+      
+      <div id="all-list-view">
+        <div id="budget-base-label" style="font-size:11px;color:var(--muted);margin-bottom:8px">기준 예산 계산 중...</div>
+        <div id="all-camps"><div class="loading">불러오는 중</div></div>
+      </div>
+      
+      <div id="all-map-view" style="display:none">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">📍 협회 회원 캠프 — 마커 클릭 시 상세 정보</div>
+        <div id="member-map" style="height:480px;border-radius:12px;overflow:hidden;border:1px solid var(--border)"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">
+          🔵 청천면 · 화양구곡 클러스터 (6곳)<br>
+          🟢 칠성면 · 쌍곡 클러스터 (4곳)<br>
+          🟡 감물·괴산읍·사리·장연 (분산 9곳)
+        </div>
+      </div>
     </div>
   </div>
 
   <div id="tab-admin" class="tab-content" style="display:none">
     <div class="card">
-      <h2>관리자 대시보드</h2>
+      <h2>👑 관리자 대시보드</h2>
+      <div style="font-size:11px;color:var(--muted)">실시간 활동 모니터링 · 통계 · 내보내기</div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📊 통계 요약</h2>
       <div id="admin-stats"></div>
     </div>
 
     <div class="card">
-      <h2>데이터 내보내기</h2>
-      <div class="grid2">
-        <button class="btn btn-secondary" id="btn-export-csv">CSV 다운로드</button>
-        <button class="btn btn-secondary" id="btn-copy-summary">요약 복사</button>
+      <h2 style="font-size:13px">🔧 조편성 관리</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">캠프의 조를 자유롭게 재배치 · 같은 조 이름끼리 자동으로 묶임</div>
+      <div id="admin-group-assignment"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🔑 캠프별 로그인 정보</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">협회원에게 카톡으로 안내할 때 사용 · 비밀번호 공통 1234</div>
+      <div id="admin-login-info"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+        <button class="btn btn-secondary" id="btn-copy-login-kakao" style="font-size:12px;padding:10px">📋 카톡 발송용 복사</button>
+        <button class="btn btn-secondary" id="btn-copy-login-csv" style="font-size:12px;padding:10px">📊 표 형식 복사</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>전체 신청 목록</h2>
-      <div id="admin-events"></div>
+      <h2 style="font-size:13px">👥 강사별 스케줄 발송</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">강사를 선택하면 출장 일정이 자동 정리됨 · 카톡/메일로 발송 가능</div>
+      
+      <div class="form-row">
+        <label style="font-size:10px">강사 선택</label>
+        <select id="inst-picker" style="font-size:13px">
+          <option value="">강사를 선택하세요</option>
+        </select>
+      </div>
+      
+      <div id="inst-schedule"></div>
+      
+      <div id="inst-actions" style="display:none;margin-top:10px">
+        <div class="form-row">
+          <label style="font-size:10px">강사 연락처 (선택)</label>
+          <input type="text" id="inst-phone" placeholder="010-XXXX-XXXX 또는 이메일" style="font-size:12px">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+          <button class="btn btn-secondary" id="btn-inst-copy" style="font-size:12px;padding:10px">📋 텍스트 복사</button>
+          <button class="btn btn-secondary" id="btn-inst-csv" style="font-size:12px;padding:10px">📊 표 형식</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <button class="btn btn-primary" id="btn-inst-sms" style="font-size:12px;padding:10px;background:#3b82f6;color:#fff">📲 문자 보내기</button>
+          <button class="btn btn-primary" id="btn-inst-mail" style="font-size:12px;padding:10px;background:#1f2937;color:#fff">📧 메일 보내기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🎨 카테고리별 분포</h2>
+      <div id="admin-categories"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🏆 캠프별 활성도</h2>
+      <div id="admin-camp-activity"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">👥 강사별 출장 빈도</h2>
+      <div id="admin-instructor-stats"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🕐 최근 활동 (실시간)</h2>
+      <div id="admin-recent-activity"><div class="loading">불러오는 중</div></div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">🔔 모집 중 묶음 — 카톡 알림 발송</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">참가자 모집 중인 행사 목록 · 협회 단톡방에 발송용</div>
+      <div id="admin-recruitment"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px">
+        <button class="btn btn-secondary" id="btn-recruitment-kakao" style="font-size:12px;padding:10px;background:#f59e0b;color:#fff">📲 카톡 발송용 복사</button>
+        <button class="btn btn-secondary" id="btn-recruitment-csv" style="font-size:12px;padding:10px">📊 표 형식 복사</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📢 공지사항 관리</h2>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px">새 메뉴 추가·중요 공지 발송 · 실시간 모든 사용자에게 표시됨</div>
+      
+      <div class="form-row">
+        <label style="font-size:10px">공지 유형</label>
+        <select id="ann-type" style="font-size:13px">
+          <option value="menu_add">🆕 새 메뉴 추가</option>
+          <option value="general">📢 일반 공지</option>
+          <option value="urgent">🚨 긴급 공지</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label style="font-size:10px">제목</label>
+        <input type="text" id="ann-title" placeholder="예: 모터보트 매수권 추가">
+      </div>
+      <div class="form-row">
+        <label style="font-size:10px">내용 (선택)</label>
+        <textarea id="ann-content" placeholder="상세 내용..." style="width:100%;min-height:80px;padding:8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:12px;resize:vertical"></textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-ann-create" style="background:#3b82f6;color:#fff">📤 공지 발송</button>
+      
+      <div style="margin-top:12px">
+        <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted)">📋 활성 공지 목록</div>
+        <div id="ann-list"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="font-size:13px">📥 데이터 내보내기</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <button class="btn btn-secondary" id="btn-export-csv" style="font-size:12px;padding:10px">📋 CSV 다운로드</button>
+        <button class="btn btn-secondary" id="btn-export-summary" style="font-size:12px;padding:10px">📄 요약 텍스트</button>
+      </div>
+      <button class="btn btn-primary" id="btn-report" style="font-size:13px;padding:12px;width:100%;background:#1f2937;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer">📧 관공서 보고서 작성/발송</button>
     </div>
   </div>
 
-  <button class="btn btn-secondary" id="btn-logout" style="margin-top:14px">로그아웃</button>
+  <button class="btn" style="background:#fff;color:var(--muted);border:1px solid var(--line);margin-top:14px" id="btn-logout">로그아웃</button>
 </div>
 
 </div>
 
-<div class="modal-bg" id="modal">
+<!-- ADD EVENT MODAL -->
+<div class="modal-bg" id="modal" style="display:none">
   <div class="modal">
-    <h3>회원 예산신청 추가 <button class="m-close" id="m-close">×</button></h3>
-
+    <h3>＋ 새 행사 추가 <button class="m-close" id="m-close">×</button></h3>
     <div class="form-row">
       <label>대상 캠프</label>
-      <div id="m-camp-display" style="background:#F8FAFC;border:1px solid var(--line);padding:12px;border-radius:10px;font-weight:800"></div>
+      <div style="background:#f4f4f0;padding:10px;border-radius:8px;font-weight:700" id="m-camp-display"></div>
     </div>
-
     <div class="form-row">
-      <label>날짜</label>
+      <label>📅 날짜</label>
       <input type="date" id="m-date" min="2026-04-01" max="2026-12-31">
     </div>
-
     <div class="form-row">
-      <label>카테고리</label>
+      <label>🎨 카테고리</label>
       <div class="cat-pills" id="m-cat-pills">
         <div class="pill A" data-cat="A">A 공연</div>
         <div class="pill B" data-cat="B">B 먹거리</div>
@@ -510,87 +1077,142 @@ input:focus,select:focus,textarea:focus{
         <div class="pill D" data-cat="D">D 활동</div>
       </div>
     </div>
-
     <div class="form-row">
-      <label>프로그램</label>
+      <label>🎯 프로그램</label>
       <select id="m-program"><option value="">먼저 카테고리 선택</option></select>
     </div>
-
     <div class="form-row" id="m-qty-row" style="display:none">
-      <label>수량</label>
+      <label>수량 (매)</label>
       <input type="number" id="m-qty" value="1" min="1">
     </div>
-
     <div id="m-preview"></div>
+    <button class="btn btn-primary" id="m-save" style="margin-top:8px" disabled>행사 추가</button>
+  </div>
+</div>
 
-    <button class="btn btn-primary" id="m-save" disabled>신청 저장</button>
+<!-- REPORT MODAL -->
+<div class="modal-bg" id="report-modal" style="display:none">
+  <div class="modal">
+    <h3>📧 관공서 보고서 작성 <button class="m-close" id="report-close">×</button></h3>
+    
+    <div style="background:#dbeafe;border-left:4px solid #3b82f6;padding:10px;border-radius:6px;font-size:11px;margin-bottom:12px;line-height:1.5">
+      <b>📌 사용 방법</b><br>
+      1. 받는 사람 이메일 입력<br>
+      2. 보고서 미리보기 확인 (필요시 수정)<br>
+      3. CSV 다운로드 (첨부용)<br>
+      4. "메일 열기" → 메일 앱이 자동 실행되면 첨부파일 추가 후 발송
+    </div>
+
+    <div class="form-row">
+      <label>📨 받는 사람 (이메일)</label>
+      <input type="email" id="report-email" placeholder="goesan@korea.kr">
+    </div>
+
+    <div class="form-row">
+      <label>📝 제목</label>
+      <input type="text" id="report-subject" value="2026년 괴산캠핑장협회 활성화 프로그램 운영계획">
+    </div>
+
+    <div class="form-row">
+      <label>📋 보고서 본문 (수정 가능)</label>
+      <textarea id="report-body" style="width:100%;min-height:280px;font-family:'Courier New',monospace;font-size:11px;padding:10px;border:1px solid var(--line);border-radius:8px;resize:vertical;background:#fafaf7"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+      <button class="btn btn-secondary" id="report-copy" style="font-size:12px;padding:10px">📋 본문 복사</button>
+      <button class="btn btn-secondary" id="report-csv" style="font-size:12px;padding:10px">💾 CSV 첨부파일</button>
+    </div>
+    <button class="btn btn-primary" id="report-mail" style="background:#3b82f6;color:#fff">📧 메일 앱 열기</button>
+    
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.5">
+      💡 메일 앱이 안 열리면 "본문 복사" 후 직접 붙여넣기<br>
+      💡 CSV 파일은 별도 첨부 (메일 본문에 자동 첨부 안 됨)
+    </div>
   </div>
 </div>
 
 <script>
+// ============================================================
+// 설정 (Supabase 키 입력 필요)
+// ============================================================
 const SUPA_URL = 'https://zzglzlbxslgojntcofez.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ';
 
+// Supabase CDN 로드 확인
 if(typeof supabase === 'undefined'){
-  document.body.innerHTML = '<div style="padding:30px;font-family:system-ui;text-align:center"><h2 style="color:#dc2626">Supabase 로드 실패</h2><p>인터넷 또는 광고차단 설정을 확인하세요.</p><button onclick="location.reload()" style="padding:12px 20px;background:#0f172a;color:#fff;border:0;border-radius:10px">새로고침</button></div>';
+  document.body.innerHTML = '<div style="padding:30px;font-family:system-ui;text-align:center"><h2 style="color:#dc2626">네트워크 오류</h2><p style="margin-top:14px;color:#64748b">Supabase 라이브러리 로드 실패<br>네트워크 또는 광고 차단 앱 확인</p><button onclick="location.reload()" style="margin-top:18px;padding:12px 24px;background:#0f172a;color:#fff;border:0;border-radius:10px;font-size:14px;cursor:pointer">다시 시도</button></div>';
   throw new Error('Supabase not loaded');
 }
 
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-const TOTAL_BUDGET = 100000000;
-const TOTAL_TARGET_COUNT = 21;
-const SELF_APPLY_COUNT = 4;
-const SYSTEM_APPLY_COUNT = 17;
-const FORFEITED_COUNT = 2;
-const HAMILTON_USED = 715000;
-const APPLICATION_DEADLINE_KST = "2026-05-09T21:00:00+09:00";
+// ============================================================
+// 데이터 정의
+// ============================================================
+// 총사업비 1억원을 21곳 기준으로 나눈 기본예산 + 아빠의나무 포기분 재분배 추가금
+const PROJECT_TOTAL_BUDGET = 100000000;
+const TOTAL_PROJECT_CAMPS = 21;
+const BUDGET = Math.round(PROJECT_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS); // 기본 배정액: 4,761,905원
+const FORFEITED_CAMP_NAME = "아빠의나무";
+const REDISTRIBUTION_TARGET_COUNT = 21; // 아빠의나무 포기분을 21곳 기준으로 재분배
+const EXTRA_BUDGET_PER_CAMP = Math.round(BUDGET / REDISTRIBUTION_TARGET_COUNT); // 추가금: 226,757원
+const ACTIVE_CAMP_BUDGET = BUDGET + EXTRA_BUDGET_PER_CAMP;
+const APPLICATION_DEADLINE_KST = "2026-05-09T14:00:00+09:00"; // 신청 마감: 2026-05-09 오후 2시(KST)
 
-const BASE_BUDGET = Math.round(TOTAL_BUDGET / TOTAL_TARGET_COUNT);
-const FORFEITED_TOTAL = BASE_BUDGET * FORFEITED_COUNT;
-const FORFEITED_EXTRA_PER_CAMP = Math.round(FORFEITED_TOTAL / TOTAL_TARGET_COUNT);
-const AFTER_FORFEIT_BUDGET = BASE_BUDGET + FORFEITED_EXTRA_PER_CAMP;
-const HAMILTON_DIFF = AFTER_FORFEIT_BUDGET - HAMILTON_USED;
-const HAMILTON_EXTRA_PER_CAMP = Math.round(HAMILTON_DIFF / TOTAL_TARGET_COUNT);
-const FINAL_CAMP_BUDGET = AFTER_FORFEIT_BUDGET + HAMILTON_EXTRA_PER_CAMP;
-
-const FORFEITED_CAMP_NAMES = [
-  "아빠의나무",
-  "아빠의나무캠핑장",
-  "아빠의나무 야영장",
-  "강변",
-  "강변캠핑장",
-  "강변 캠핑장"
-];
-
-const HAMILTON_NAMES = [
-  "해밀터",
-  "해밀턴",
-  "해밀터캠핑장",
-  "해밀턴캠핑장"
-];
+function normalizeCampName(name){
+  return String(name || '')
+    .replace(/\s+/g, '')
+    .replace(/캠핑장|야영장/g, '')
+    .trim();
+}
+function isForfeitedCamp(name){
+  return normalizeCampName(name) === normalizeCampName(FORFEITED_CAMP_NAME);
+}
+function campExtraBudget(name){
+  return isForfeitedCamp(name) ? 0 : EXTRA_BUDGET_PER_CAMP;
+}
+function campBudget(name){
+  return isForfeitedCamp(name) ? 0 : ACTIVE_CAMP_BUDGET;
+}
+function budgetEligibleCamps(){
+  return state.camps.filter(c => !isForfeitedCamp(c.name));
+}
+function totalBudgetLimit(){
+  return state.camps.reduce((sum,c) => sum + campBudget(c.name), 0);
+}
+function isApplicationClosed(){
+  const deadline = new Date(APPLICATION_DEADLINE_KST).getTime();
+  return Number.isFinite(deadline) && Date.now() >= deadline;
+}
+function applicationDeadlineText(){
+  return "2026년 5월 9일 14:00";
+}
+function budgetBreakdownText(name){
+  if(isForfeitedCamp(name)) return "예산권 포기 · 신청 불가";
+  return `기본 ${won(BUDGET)}(총 1억 ÷ 21곳) + 추가금 ${won(campExtraBudget(name))}`;
+}
 
 const ALL_CAMPS_DEFAULT = [
-  {name:"가자우리집",group_name:"1조 표준A"},
-  {name:"솔베이",group_name:"1조 표준A"},
-  {name:"도명산",group_name:"1조 표준A"},
-  {name:"아빠의나무",group_name:"2조 표준B"},
-  {name:"시냇가",group_name:"2조 표준B"},
-  {name:"후평숲",group_name:"2조 표준B"},
-  {name:"해밀터",group_name:"3조 표준C"},
-  {name:"원탑",group_name:"3조 표준C"},
-  {name:"즐거운녀석들",group_name:"3조 표준C"},
-  {name:"따봄스테이",group_name:"4조 따봄형"},
-  {name:"모래재캠핑장",group_name:"4조 따봄형"},
-  {name:"자연애캠핑장",group_name:"4조 따봄형"},
-  {name:"루파니캠핑장",group_name:"5조 C지원"},
-  {name:"숲속의하모니",group_name:"5조 C지원"},
-  {name:"아이뜰캠핑장",group_name:"5조 C지원"},
-  {name:"운교랜드캠핑장",group_name:"6조 AC형"},
-  {name:"화양숲노리",group_name:"6조 AC형"},
-  {name:"그린비",group_name:"6조 AC형"},
-  {name:"강변캠핑장",group_name:"포기"}
+  {name:"가자우리집",group:"1조 표준A"},
+  {name:"솔베이",group:"1조 표준A"},
+  {name:"도명산",group:"1조 표준A"},
+  {name:"아빠의나무",group:"2조 표준B"},
+  {name:"시냇가",group:"2조 표준B"},
+  {name:"후평숲",group:"2조 표준B"},
+  {name:"해밀터",group:"3조 표준C"},
+  {name:"원탑",group:"3조 표준C"},
+  {name:"즐거운녀석들",group:"3조 표준C"},
+  {name:"따봄스테이",group:"4조 따봄형"},
+  {name:"모래재캠핑장",group:"4조 따봄형"},
+  {name:"자연애캠핑장",group:"4조 따봄형"},
+  {name:"루파니캠핑장",group:"5조 C지원"},
+  {name:"숲속의하모니",group:"5조 C지원"},
+  {name:"아이뜰캠핑장",group:"5조 C지원"},
+  {name:"운교랜드캠핑장",group:"6조 AC형"},
+  {name:"화양숲노리",group:"6조 AC형"},
+  {name:"그린비",group:"6조 AC형"}
 ];
+const groupColor = (g)=>g?.startsWith("4")?"gd-4":g?.startsWith("5")?"gd-5":g?.startsWith("6")?"gd-6":"gd-1";
 
 const programs = {
   A:[
@@ -604,16 +1226,9 @@ const programs = {
     {n:"마술쇼 조동희(40분)",i:"A_조동희",p:{single:550000}},
     {n:"반려견 행동 토크쇼",i:"A_반려견",p:{single:400000}}
   ],
-  B:[
-    "사과오이소박이","꽃떡퐁듀","감자핫도그만들기","과일꼬치화채","시원한 허브꽃 모히또","허브솔트",
-    "보들꽃 증편","건강 강정 만들기","추석 꽃송편","단호박 꽃단자","깍두기 만들기","꽃장식 딸기 모찌",
-    "딸기청 만들기","꽃 코디얼 빙수","호두정과","딸기 고추장","카네이션 바람떡","수레국화 양갱",
-    "캐릭터김밥","연잎밥 만들기","오이 모듬피클","얼굴 카나페","모기퇴치 꽃스머지스틱","인절미",
-    "K도넛 개성주악","발효초콜릿","곳감단자","봄향기 화전","봄꽃 코디얼","고기도둑 달래쌈장",
-    "쑥버무리","꽃식초","고기 마리네이드","과일젤리"
-  ].map(n=>({n,i:"B_정미화",p:{bundle3:165000,single:220000}})).concat([
+  B:[...["사과오이소박이","꽃떡퐁듀","감자핫도그만들기","과일꼬치화채","시원한 허브꽃 모히또","허브솔트","보들꽃 증편","건강 강정 만들기","추석 꽃송편","단호박 꽃단자","깍두기 만들기","꽃장식 딸기 모찌","딸기청 만들기","꽃 코디얼 빙수","호두정과","딸기 고추장","카네이션 바람떡","수레국화 양갱","캐릭터김밥","연잎밥 만들기","오이 모듬피클","얼굴 카나페","모기퇴치 꽃스머지스틱","인절미","K도넛 개성주악","발효초콜릿","곳감단자","봄향기 화전","봄꽃 코디얼","고기도둑 달래쌈장","쑥버무리","꽃식초","고기 마리네이드","과일젤리"].map(n=>({n,i:"B_정미화",p:{bundle3:165000,single:220000}})),
     {n:"4인 재료비 1매",i:"B_재료비",p:{ticket:10000}}
-  ]),
+  ],
   C:[
     {n:"페이스페인팅",i:"C_이은희",p:{bundle3:143000,bundle2:165000,single:220000}},
     {n:"헤나",i:"C_이은희",p:{bundle3:143000,bundle2:165000,single:220000}},
@@ -634,61 +1249,47 @@ const programs = {
     {n:"자체행사비",i:"D_자체",p:{single:1000000}}
   ]
 };
+function findProgram(name){for(const c of"ABCD")for(const p of programs[c])if(p.n===name)return{...p,cat:c};return null}
+
+// ============================================================
+// 앱 상태
+// ============================================================
+// localStorage 안전 로드 (손상된 데이터 대비)
+function safeLoadDismissedAnn(){
+  try{
+    const raw = localStorage.getItem('dismissedAnn');
+    if(!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return new Set();
+    return new Set(parsed);
+  } catch(e){
+    console.warn('dismissedAnn 손상, 초기화:', e);
+    try{ localStorage.removeItem('dismissedAnn'); } catch(e2){}
+    return new Set();
+  }
+}
 
 const state = {
-  user:null,
-  member:null,
-  isAdmin:false,
-  myCamp:null,
-  selectedCamp:null,
-  camps:[],
-  events:[]
+  user: null,
+  member: null,
+  isAdmin: false,
+  myCamp: null,
+  selectedCamp: null,
+  camps: [],
+  events: [],
+  announcements: [],
+  dismissedAnnIds: safeLoadDismissedAnn()
 };
-
 let formState = {cat:""};
 
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const won = n => (Math.round(Number(n)||0)).toLocaleString() + "원";
-const norm = s => String(s||"").replace(/\s+/g,"").replace(/캠핑장|야영장/g,"").trim();
+const $ = s=>document.querySelector(s);
+const won = n=>Number(n || 0).toLocaleString()+"원";
 
-function isForfeitedCamp(name){
-  const n = norm(name);
-  return FORFEITED_CAMP_NAMES.some(x => norm(x) === n);
-}
+// ============================================================
+// 핵심 비즈니스 로직 (선착순 묶음 박제 시스템)
+// ============================================================
 
-function isHamiltonCamp(name){
-  const n = norm(name);
-  return HAMILTON_NAMES.some(x => norm(x) === n);
-}
-
-function campBudget(name){
-  if(isForfeitedCamp(name)) return 0;
-  return FINAL_CAMP_BUDGET;
-}
-
-function isDeadlinePassed(){
-  return false;
-}
-
-function canApplyNow(){
-  return true;
-}
-
-function findProgram(name){
-  for(const cat of ["A","B","C","D"]){
-    for(const p of programs[cat]){
-      if(p.n === name) return {...p,cat};
-    }
-  }
-  return null;
-}
-
-function ticketPrice(name, qty){
-  const p = findProgram(name);
-  return ((p && p.p.ticket) || 0) * (Number(qty)||1);
-}
-
+// 프로그램의 묶음 정원 (capacity) — bundle3 우선, 없으면 bundle2, 없으면 1(단독)
 function bundleCapacity(programName){
   const p = findProgram(programName);
   if(!p) return 1;
@@ -697,170 +1298,225 @@ function bundleCapacity(programName){
   return 1;
 }
 
-function autoPrice(name,count){
-  const p = findProgram(name);
-  if(!p) return {price:0,bundle:"none"};
-  const pr = p.p;
-  if(count >= 3 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3"};
-  if(count === 2 && pr.bundle2) return {price:pr.bundle2,bundle:"bundle2"};
-  if(count === 2 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3-partial",warn:"3곳 묶음 단가. 1곳 더 필요"};
-  if(pr.single) return {price:pr.single,bundle:"single"};
-  if(pr.bundle3) return {price:pr.bundle3,bundle:"single-as-bundle3",warn:"단독 단가 협의 필요"};
-  return {price:0,bundle:"none"};
-}
-
-function activeEvents(){
-  return state.events.filter(e => !isForfeitedCamp(e.camp_name));
-}
-
+// 같은 날·행사 일정을 신청 순서대로 정렬해서 묶음 단위로 분할
+// 반환: [{seq, events:[...], capacity, count, complete, locked_price}, ...]
 function getBundles(date, programName){
-  const evs = activeEvents()
+  const events = state.events
     .filter(e => e.event_date === date && e.program_name === programName && e.bundle_type !== 'ticket')
-    .sort((a,b)=>{
+    .sort((a, b) => {
+      // bundle_seq 우선, 없으면 created_at, 그래도 없으면 id
       if(a.bundle_seq != null && b.bundle_seq != null) return a.bundle_seq - b.bundle_seq;
       if(a.bundle_seq != null) return -1;
       if(b.bundle_seq != null) return 1;
-      const ca = a.created_at || "";
-      const cb = b.created_at || "";
+      const ca = a.created_at || '';
+      const cb = b.created_at || '';
       if(ca !== cb) return ca.localeCompare(cb);
       return (a.id||0) - (b.id||0);
     });
-
+  
+  if(events.length === 0) return [];
+  
   const cap = bundleCapacity(programName);
   const bundles = [];
-  for(let i=0;i<evs.length;i+=cap){
-    const chunk = evs.slice(i,i+cap);
+  for(let i = 0; i < events.length; i += cap){
+    const chunk = events.slice(i, i + cap);
+    const lockedFromChunk = chunk.find(e => e.locked_price)?.locked_price;
     bundles.push({
-      seq:bundles.length+1,
-      events:chunk,
-      capacity:cap,
-      count:chunk.length,
-      complete:chunk.length === cap
+      seq: bundles.length + 1,
+      events: chunk,
+      capacity: cap,
+      count: chunk.length,
+      complete: chunk.length === cap,
+      finalized: chunk.some(e => e.finalized),
+      lockedPrice: lockedFromChunk
     });
   }
   return bundles;
 }
 
+// 특정 일정이 속한 묶음 정보 반환
 function findBundleForEvent(event){
   if(event.bundle_type === 'ticket') return null;
   const bundles = getBundles(event.event_date, event.program_name);
-  return bundles.find(b => b.events.some(e => e.id === event.id)) || null;
+  for(const b of bundles){
+    if(b.events.some(e => e.id === event.id)) return b;
+  }
+  return null;
 }
 
+// 일정의 실제 가격 (박제됐으면 locked_price, 아니면 현재 묶음 상태로 동적 계산)
 function getEventPrice(event){
-  if(isForfeitedCamp(event.camp_name)) return 0;
-
-  if(isHamiltonCamp(event.camp_name)){
-    const hEvents = activeEvents().filter(e => isHamiltonCamp(e.camp_name));
-    const first = hEvents[0];
-    return first && first.id === event.id ? HAMILTON_USED : 0;
+  if(event.bundle_type === 'ticket'){
+    return ticketPrice(event.program_name, event.qty);
   }
-
-  if(event.bundle_type === 'ticket') return ticketPrice(event.program_name, event.qty);
-  if(event.locked_price) return Number(event.locked_price)||0;
-
+  // 박제된 가격 우선
+  if(event.locked_price) return event.locked_price;
+  // 박제 전이면 현재 묶음 상태로 계산
   const b = findBundleForEvent(event);
-  if(!b) return autoPrice(event.program_name,1).price;
-  return autoPrice(event.program_name,b.count).price;
+  if(!b) return autoPrice(event.program_name, 1).price;
+  return autoPrice(event.program_name, b.count).price;
 }
 
+// 호환성: 기존 bundleStatus() 유지하되 묶음 단위로 반환
+function bundleStatus(date, name){
+  const bundles = getBundles(date, name);
+  // 미완성(아직 모집 중) 묶음 우선, 없으면 마지막 묶음
+  const open = bundles.find(b => !b.complete) || bundles[bundles.length-1];
+  if(!open) return {count: 0, camps: []};
+  return {count: open.count, camps: open.events.map(e => e.camp_name)};
+}
+
+function autoPrice(name,count){
+  const p = findProgram(name); if(!p) return {price:0,bundle:"none"};
+  const pr = p.p;
+  if(count>=3 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3"};
+  if(count===2 && pr.bundle2) return {price:pr.bundle2,bundle:"bundle2"};
+  if(count===2 && pr.bundle3) return {price:pr.bundle3,bundle:"bundle3-partial",warn:"3업체묶음 단가 받으려면 1곳 더 필요"};
+  if(pr.single) return {price:pr.single,bundle:"single"};
+  if(pr.bundle3) return {price:pr.bundle3,bundle:"single-as-bundle3",warn:"단독은 단가 협상 필요"};
+  return {price:0,bundle:"none"};
+}
+function ticketPrice(name,qty){
+  const p = findProgram(name);
+  return (p && p.p.ticket || 0) * (qty||1);
+}
 function campSpent(camp){
-  if(isForfeitedCamp(camp)) return 0;
-  if(isHamiltonCamp(camp)) return HAMILTON_USED;
-  return activeEvents().filter(e => e.camp_name === camp).reduce((s,e)=>s+getEventPrice(e),0);
-}
-
-function getCampGroup(name){
-  const c = state.camps.find(x=>x.name === name);
-  return c ? (c.group_name || c.group || "") : "";
-}
-
-function canEdit(camp){
-  return true;
-}
-
-function canEditSelected(){
-  return true;
-}
-
-function toast(msg){
-  const old = $(".toast");
-  if(old) old.remove();
-  const t = document.createElement("div");
-  t.className = "toast";
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(),2500);
-}
-
-function showLogin(){
-  $("#screen-login").style.display = "block";
-  $("#screen-app").style.display = "none";
-}
-
-function showApp(){
-  $("#screen-login").style.display = "none";
-  $("#screen-app").style.display = "block";
-  const role = state.isAdmin ? "관리자" : "회원";
-  $("#user-info").textContent = `${state.user?.email || ""} · ${role}`;
-  $$(".admin-only").forEach(el => el.style.display = state.isAdmin ? "" : "none");
-}
-
-async function login(email,pw){
-  const msg = $("#login-msg");
-  msg.style.color = "var(--muted)";
-  msg.textContent = "로그인 중...";
-
-  try{
-    const {data,error} = await sb.auth.signInWithPassword({email,password:pw});
-    if(error){
-      msg.style.color = "var(--danger)";
-      msg.textContent = error.message.includes("Invalid") ? "이메일 또는 비밀번호가 틀렸습니다." : error.message;
-      return;
-    }
-    state.user = data.user;
-    msg.style.color = "var(--ok)";
-    msg.textContent = "로그인 성공. 화면을 여는 중...";
-    showApp();
-    await checkAuth();
-    await loadAll();
-    setupRealtimeOnce();
-  }catch(e){
-    console.error(e);
-    msg.style.color = "var(--danger)";
-    msg.textContent = "로그인 오류: " + (e.message || "알 수 없음");
+  let total = 0;
+  for(const e of state.events){
+    if(e.camp_name !== camp) continue;
+    total += getEventPrice(e);
   }
+  return total;
+}
+function getIssues(){
+  const issues = [];
+  const groups = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket")continue;
+    const k = `${e.event_date}|${e.program_name}`;
+    if(!groups[k])groups[k]={date:e.event_date,name:e.program_name,cat:e.category,camps:[]};
+    groups[k].camps.push(e.camp_name);
+  }
+  for(const g of Object.values(groups)){
+    const n = g.camps.length;
+    const p = findProgram(g.name);
+    if(!p)continue;
+    if(n===1 && p.p.bundle3){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - 1곳만 신청 (단독)`,detail:`bundle3 단가(${p.p.bundle3.toLocaleString()}원) 받으려면 2곳 더 필요`,camps:g.camps});
+    }
+    if(n===2 && !p.p.bundle2 && p.p.bundle3){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - 2곳 신청`,detail:`bundle3 단가 받으려면 1곳 더 필요`,camps:g.camps});
+    }
+    if(n===4||n===5){
+      issues.push({type:"warn",date:g.date,title:`${g.date} ${g.name} - ${n}곳 (애매)`,detail:`bundle3는 3곳 단위. 1곳 빼거나 ${6-n}곳 더 추가 권장`,camps:g.camps});
+    }
+  }
+  // 강사 충돌
+  const slots = {};
+  for(const e of state.events){
+    if(e.bundle_type==="ticket")continue;
+    const p = findProgram(e.program_name);
+    if(!p || p.i.startsWith("D_보트")||p.i.startsWith("D_유람선")||p.i.startsWith("D_자체"))continue;
+    const k = `${e.event_date}|${p.i}`;
+    if(!slots[k])slots[k]={date:e.event_date,inst:p.i,events:{}};
+    if(!slots[k].events[e.program_name])slots[k].events[e.program_name]=[];
+    slots[k].events[e.program_name].push(e.camp_name);
+  }
+  for(const s of Object.values(slots)){
+    const total = Object.values(s.events).reduce((a,b)=>a+b.length,0);
+    if(total>3){
+      const detail = Object.entries(s.events).map(([n,cs])=>`${n}: ${cs.length}곳`).join(", ");
+      issues.push({type:total>=6?"danger":"warn",date:s.date,title:`${s.date} ${s.inst.split("_")[1]||s.inst} 강사 ${total}곳 출장 ${total>=6?"불가능":"과부하"}`,detail});
+    }
+  }
+  for(const c of state.camps.map(x=>x.name)){
+    const t = campSpent(c);
+    const limit = campBudget(c);
+    if(isForfeitedCamp(c) && t > 0){
+      issues.push({type:"danger",date:"",title:`${c} 예산권 포기 캠프에 일정 존재`,detail:`아빠의나무는 적용 예산 0원입니다. 기존 일정은 삭제하거나 제외해야 합니다.`});
+      continue;
+    }
+    if(t>limit){
+      issues.push({type:"danger",date:"",title:`${c} 예산 초과`,detail:`사용 ${t.toLocaleString()}원 / 적용 예산 ${limit.toLocaleString()}원 (${(t-limit).toLocaleString()}원 초과)`});
+    }
+  }
+  issues.sort((a,b)=>(a.date||"zzz").localeCompare(b.date||"zzz"));
+  return issues;
 }
 
+// ============================================================
+// 인증
+// ============================================================
 async function checkAuth(){
   const {data:{session}} = await sb.auth.getSession();
-  if(!session){
-    showLogin();
-    return false;
-  }
-
+  if(!session){showLogin();return false}
   state.user = session.user;
 
-  try{
-    const {data:m} = await sb.from("members").select("*").eq("user_id",session.user.id).maybeSingle();
-    state.member = m || null;
-    state.isAdmin = !!(m && m.role === "admin");
-  }catch(e){
-    console.warn("members 조회 실패",e);
-    state.member = null;
-    state.isAdmin = false;
-  }
+  // members 테이블에서 역할 조회
+  const {data:m, error} = await sb.from('members').select('*').eq('user_id',session.user.id).maybeSingle();
+  if(error){console.warn('members lookup',error)}
+  state.member = m;
+  state.isAdmin = m && m.role === 'admin';
 
-  try{
-    const {data:c} = await sb.from("camps").select("*").eq("member_id",session.user.id).maybeSingle();
-    state.myCamp = c ? c.name : null;
-  }catch(e){
-    console.warn("내 캠프 조회 실패",e);
-    state.myCamp = null;
-  }
+  // 본인이 owner인 캠프 찾기
+  const {data:myCampRow} = await sb.from('camps').select('*').eq('member_id',session.user.id).maybeSingle();
+  state.myCamp = myCampRow ? myCampRow.name : null;
 
   showApp();
   return true;
+}
+
+async function login(email,pw){
+  const msgEl = $("#login-msg");
+  msgEl.textContent = "⏳ 로그인 중...";
+  msgEl.style.color = "var(--muted)";
+  
+  try{
+    const {data, error} = await sb.auth.signInWithPassword({email, password: pw});
+    if(error){
+      console.error('로그인 에러:', error);
+      msgEl.style.color = "var(--danger)";
+      // 에러 메시지 한글화
+      let msg = error.message;
+      if(msg.includes('Invalid')) msg = "❌ 이메일 또는 비밀번호가 틀렸습니다";
+      else if(msg.includes('network')) msg = "❌ 네트워크 오류 — 인터넷 확인";
+      else msg = "❌ " + msg;
+      msgEl.textContent = msg;
+      return false;
+    }
+    if(!data || !data.session){
+      msgEl.style.color = "var(--danger)";
+      msgEl.textContent = "❌ 세션 생성 실패";
+      return false;
+    }
+    
+    msgEl.textContent = "✅ 로그인 성공, 데이터 로드 중...";
+    msgEl.style.color = "var(--ok)";
+    
+    await checkAuth();
+    
+    try{
+      await loadAll();
+    } catch(err){
+      console.error('데이터 로드 에러:', err);
+      msgEl.style.color = "var(--warn)";
+      msgEl.textContent = "⚠️ 일부 데이터 로드 실패 — 새로고침 시도";
+      // 데이터 로드 실패해도 로그인은 성공한 것으로 처리
+    }
+    
+    try{
+      setupRealtime();
+    } catch(err){
+      console.warn('실시간 동기화 실패 (무시):', err);
+    }
+    
+    return true;
+  } catch(err){
+    console.error('로그인 예외:', err);
+    msgEl.style.color = "var(--danger)";
+    msgEl.textContent = "❌ 예상치 못한 오류: " + (err.message || '알 수 없음');
+    return false;
+  }
 }
 
 async function logout(){
@@ -868,667 +1524,2191 @@ async function logout(){
   location.reload();
 }
 
-async function loadCamps(){
-  try{
-    const {data,error} = await sb.from("camps").select("*").order("group_name").order("id");
-    if(error) throw error;
-    state.camps = (data && data.length ? data : ALL_CAMPS_DEFAULT).map((c,i)=>({
-      id:c.id || i+1,
-      name:c.name,
-      group_name:c.group_name || c.group || "",
-      member_id:c.member_id || null
-    }));
-  }catch(e){
-    console.warn("camps 로드 실패, 기본값 사용",e);
-    state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1}));
-  }
+function showLogin(){
+  $("#screen-login").style.display = "block";
+  $("#screen-app").style.display = "none";
+}
+function showApp(){
+  $("#screen-login").style.display = "none";
+  $("#screen-app").style.display = "block";
+  const role = state.isAdmin ? '<span class="role-badge admin">관리자</span>' : (state.myCamp ? '<span class="role-badge">캠프 owner</span>' : '<span class="role-badge">회원</span>');
+  $("#user-info").innerHTML = `${state.user.email}${role}`;
+  // 관리자 탭 표시
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.display = state.isAdmin ? '' : 'none';
+  });
+}
 
-  for(const fc of ["아빠의나무","강변캠핑장"]){
-    const exists = state.camps.some(c => norm(c.name) === norm(fc));
-    if(!exists){
-      state.camps.push({id:1000+state.camps.length,name:fc,group_name:"포기"});
+// ============================================================
+// 데이터 로드
+// ============================================================
+async function loadCamps(){
+  const {data, error} = await sb.from('camps').select('*').order('group_name').order('id');
+  if(error){console.error(error); state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1,group_name:c.group,budget:campBudget(c.name)}));return}
+  
+  // 각 캠프 owner의 이메일 매핑
+  const userIds = data.filter(c=>c.member_id).map(c=>c.member_id);
+  if(userIds.length > 0){
+    const {data: members} = await sb.from('members').select('user_id, email, name').in('user_id', userIds);
+    if(members){
+      const map = {};
+      members.forEach(m=>{map[m.user_id] = m});
+      data.forEach(c=>{
+        const m = map[c.member_id];
+        c.member_email = m?.email || null;
+        c.member_name = m?.name || null;
+      });
     }
   }
+  state.camps = data;
 }
-
 async function loadEvents(){
-  try{
-    const {data,error} = await sb.from("camp_events").select("*").order("event_date",{ascending:true,nullsFirst:false});
-    if(error) throw error;
-    state.events = data || [];
-  }catch(e){
-    console.warn("events 로드 실패",e);
-    state.events = [];
-  }
+  const {data, error} = await sb.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
+  if(error){console.error(error); state.events = [];return}
+  // 아빠의나무는 예산권 포기 처리: 기존 DB에 남아있는 일정도 화면/예산/묶음 계산에서 제외
+  state.events = (data || []).filter(e => !isForfeitedCamp(e.camp_name));
 }
-
 async function loadAll(){
-  await loadCamps();
-  await loadEvents();
-
+  // 각 단계 실패해도 다른 데이터 로드는 계속
+  try{ await loadCamps(); } catch(e){ console.error('loadCamps:', e); state.camps = ALL_CAMPS_DEFAULT.map((c,i)=>({...c,id:i+1,group_name:c.group,budget:campBudget(c.name)})); }
+  try{ await loadEvents(); } catch(e){ console.error('loadEvents:', e); state.events = []; }
+  try{ await loadAnnouncements(); } catch(e){ console.warn('loadAnnouncements (무시):', e); state.announcements = []; }
+  
   if(!state.selectedCamp){
-    state.selectedCamp = state.myCamp || state.camps.find(c=>!isForfeitedCamp(c.name))?.name || state.camps[0]?.name;
+    state.selectedCamp = state.myCamp || (state.camps[0]?.name);
   }
-
-  renderAll();
+  
+  try{ renderAll(); } catch(e){ 
+    console.error('renderAll 에러:', e);
+    toast('⚠️ 화면 렌더링 일부 실패 — 새로고침 권장');
+  }
 }
 
-let realtimeStarted = false;
-function setupRealtimeOnce(){
-  if(realtimeStarted) return;
-  realtimeStarted = true;
-  sb.channel("events-changes")
-    .on("postgres_changes",{event:"*",schema:"public",table:"camp_events"},()=>{
-      loadEvents().then(()=>{renderAll();toast("일정이 업데이트되었습니다.");});
-    })
-    .subscribe();
+async function loadAnnouncements(){
+  const {data, error} = await sb.from('announcements')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', {ascending:false});
+  if(error){
+    console.error('announcements load:', error);
+    state.announcements = [];
+    return;
+  }
+  // 만료 필터
+  const now = new Date();
+  state.announcements = (data||[]).filter(a => !a.expires_at || new Date(a.expires_at) > now);
+}
+
+// ============================================================
+// 실시간 동기화
+// ============================================================
+function setupRealtime(){
+  sb.channel('events-changes').on('postgres_changes',
+    {event:'*', schema:'public', table:'camp_events'},
+    (payload)=>{
+      console.log('실시간 변경',payload);
+      loadEvents().then(()=>{renderAll(); toast('🔄 다른 캠프가 일정을 업데이트했습니다')});
+    }
+  ).subscribe();
+  
+  // 공지사항 실시간 구독
+  sb.channel('ann-changes').on('postgres_changes',
+    {event:'*', schema:'public', table:'announcements'},
+    (payload)=>{
+      console.log('공지 변경',payload);
+      loadAnnouncements().then(()=>{
+        renderAnnouncementBanner();
+        if(state.isAdmin) renderAnnouncementList();
+        // 새 공지면 토스트
+        if(payload.eventType === 'INSERT' && payload.new){
+          const a = payload.new;
+          const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+          toast(`${icon} 새 공지: ${a.title}`);
+        }
+      });
+    }
+  ).subscribe();
+}
+
+// ============================================================
+// 렌더
+// ============================================================
+function getCampGroup(name){
+  const c = state.camps.find(x=>x.name===name);
+  return c ? c.group_name || c.group : "";
 }
 
 function renderCampPicker(){
   const sel = $("#camp-picker");
-  if(!sel) return;
-
+  // 그룹별 그룹화
   const grouped = {};
   for(const c of state.camps){
-    const g = c.group_name || "기타";
-    if(!grouped[g]) grouped[g] = [];
+    const g = c.group_name || c.group || "기타";
+    if(!grouped[g])grouped[g]=[];
     grouped[g].push(c);
   }
+  sel.innerHTML = Object.entries(grouped).map(([g,cs])=>
+    `<optgroup label="${g}">${cs.map(c=>{
+      const forfeited = isForfeitedCamp(c.name);
+      return `<option value="${c.name}" ${c.name===state.selectedCamp?"selected":""} ${forfeited?"disabled":""}>${c.name}${forfeited?" (예산권 포기)":""}</option>`;
+    }).join("")}</optgroup>`
+  ).join("");
 
-  sel.innerHTML = Object.entries(grouped).map(([g,cs])=>`
-    <optgroup label="${g}">
-      ${cs.map(c=>`<option value="${escapeHtml(c.name)}" ${c.name===state.selectedCamp?"selected":""}>${escapeHtml(c.name)}${isForfeitedCamp(c.name)?" · 포기":""}</option>`).join("")}
-    </optgroup>
-  `).join("");
-
-  sel.disabled = false;
-}
-
-function renderForfeitWarning(){
-  const box = $("#forfeit-warning");
-  if(!box) return;
-  if(isForfeitedCamp(state.selectedCamp)){
-    box.innerHTML = `<div class="notice danger"><b>${state.selectedCamp}</b>은 예산권 포기 업체입니다.<br>신규 신청 불가 · 예산 0원 처리</div>`;
+  // owner인 경우 캠프 변경 제한 (admin 제외)
+  if(state.myCamp && !state.isAdmin){
+    sel.value = state.myCamp;
+    sel.disabled = true;
+    $("#camp-locked-label").style.display = "block";
   }else{
-    box.innerHTML = "";
+    sel.disabled = false;
+    $("#camp-locked-label").style.display = "none";
   }
 }
 
 function renderBudget(){
   const c = state.selectedCamp;
-  const target = $("#bud-display");
-  if(!c){
-    target.innerHTML = `<div class="empty">캠프를 선택하세요</div>`;
+  if(!c){$("#bud-display").innerHTML='<div class="empty">캠프를 선택하세요</div>';return}
+  const spent = campSpent(c);
+  const limit = campBudget(c);
+  const extra = campExtraBudget(c);
+  const remain = limit - spent;
+  const pct = limit > 0 ? Math.min(100,Math.round(spent/limit*100)) : (spent > 0 ? 100 : 0);
+  const cls = isForfeitedCamp(c) || remain<0 ? "over" : pct>=90 ? "warn" : "ok";
+
+  if(isForfeitedCamp(c)){
+    $("#bud-display").innerHTML = `
+      <div class="bud-row">
+        <div class="bud-label">${c} (${getCampGroup(c)})</div>
+        <div class="bud-amount over">예산권 포기</div>
+      </div>
+      <div style="background:var(--danger-bg);border:1px solid #FCA5A5;border-radius:10px;padding:12px;font-size:13px;color:#991B1B;line-height:1.6">
+        이 캠핑장은 신청 대상에서 제외되었습니다.<br>
+        기본 배정액 ${won(BUDGET)}은 0원 처리되고, 포기분은 21곳 기준으로 나눠 다른 캠핑장에 추가금으로 반영됩니다.
+      </div>
+      <div class="bud-stats" style="margin-top:10px"><span>사용 ${won(spent)}</span><span>적용 예산 ${won(limit)}</span></div>
+    `;
     return;
   }
 
-  const budget = campBudget(c);
-  const spent = campSpent(c);
-  const remain = budget - spent;
-  const pct = budget > 0 ? Math.min(100,Math.round(spent/budget*100)) : 0;
-  const cls = remain < 0 ? "over" : pct >= 90 ? "warn" : "";
-
-  target.innerHTML = `
+  $("#bud-display").innerHTML = `
     <div class="bud-row">
-      <div>
-        <div class="bud-label">${escapeHtml(c)} · ${escapeHtml(getCampGroup(c))}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${isForfeitedCamp(c) ? "예산권 포기" : "최종 배정 한도 적용"}</div>
-      </div>
+      <div class="bud-label">${c} (${getCampGroup(c)})</div>
       <div class="bud-amount ${cls}">${won(remain)}</div>
     </div>
     <div class="bud-bar"><div class="bud-fill ${cls}" style="width:${pct}%"></div></div>
-    <div class="bud-stats">
-      <span>사용 ${won(spent)}</span>
-      <span>한도 ${won(budget)}</span>
-    </div>
-    <div class="budget-breakdown">
-      <div class="break-row"><span>기본 배정액</span><b>${won(isForfeitedCamp(c)?0:BASE_BUDGET)}</b></div>
-      <div class="break-row"><span>포기 2곳 추가금</span><b>${won(isForfeitedCamp(c)?0:FORFEITED_EXTRA_PER_CAMP)}</b></div>
-      <div class="break-row"><span>해밀터 차액 추가금</span><b>${won(isForfeitedCamp(c)?0:HAMILTON_EXTRA_PER_CAMP)}</b></div>
-      <div class="break-row"><span>최종 한도</span><b>${won(budget)}</b></div>
+    <div class="bud-stats"><span>사용 ${won(spent)}</span><span>적용 예산 ${won(limit)}</span></div>
+    <div style="margin-top:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:10px;padding:10px 12px;font-size:12px;color:#1E40AF;line-height:1.6">
+      💰 <b>추가금 적용</b>: ${budgetBreakdownText(c)}<br>
+      아빠의나무 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = <b>${won(extra)}</b> 추가 배정
     </div>
   `;
+}
 
-  const btn = $("#btn-add-event");
-  if(btn){
-    const disabled = isForfeitedCamp(c);
-    btn.disabled = disabled;
-
-    if(isForfeitedCamp(c)){
-      btn.textContent = "예산권 포기 업체는 신청 불가";
-    }else{
-      btn.textContent = "＋ 회원 예산신청 추가 · 현재 신청 가능";
-    }
-  }
+function canEdit(camp){
+  if(!camp) return false;
+  if(isForfeitedCamp(camp)) return false;
+  if(isApplicationClosed() && !state.isAdmin) return false;
+  return state.isAdmin || state.myCamp === camp;
 }
 
 function renderMyEvents(){
   const c = state.selectedCamp;
-  const list = state.events.filter(e=>e.camp_name === c).sort((a,b)=>(a.event_date||"9999").localeCompare(b.event_date||"9999"));
-
-  if(list.length === 0){
-    $("#my-events").innerHTML = `<div class="empty">신청 내역이 없습니다.</div>`;
+  const myEvents = state.events.filter(e=>e.camp_name===c).sort((a,b)=>(a.event_date||"z").localeCompare(b.event_date||"z"));
+  if(myEvents.length===0){
+    $("#my-events").innerHTML = '<div class="empty">아직 일정이 없습니다<br>위의 "+ 새 행사 추가"로 시작하세요</div>';
     return;
   }
+  const editable = canEdit(c);
+  $("#my-events").innerHTML = myEvents.map(e=>{
+    if(e.bundle_type==="ticket"){
+      const price = ticketPrice(e.program_name,e.qty);
+      const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
+      return `
+        <div class="my-event">
+          <div class="me-date">📦 수시</div>
+          <div class="me-info">
+            <div class="me-name"><span class="badge b-${e.category}">${e.category}</span>${e.program_name}</div>
+            <div class="me-meta">${e.qty}매 · ${won(price)}</div>
+          </div>
+          <div class="me-actions">
+            <span class="me-status s-info">매수권</span>
+            ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
+          </div>
+        </div>`;
+    }
 
-  $("#my-events").innerHTML = list.map(e=>renderEventCard(e,true)).join("");
-}
+    // 묶음 정보
+    const bundle = findBundleForEvent(e);
+    const p = findProgram(e.program_name);
+    const cap = bundleCapacity(e.program_name);
+    const currentPrice = getEventPrice(e);
+    const isLocked = !!e.locked_price;
+    
+    // 같은 묶음 내 다른 캠프
+    const otherInBundle = bundle ? bundle.events.filter(ev => ev.camp_name !== c).map(ev => ev.camp_name) : [];
+    
+    // 할인 계산 (박제 안 됐을 때만)
+    let bestPrice = currentPrice;
+    let needCamps = 0;
+    let progressTarget = bundle ? bundle.capacity : 1;
+    let progressNow = bundle ? bundle.count : 1;
+    let savings = 0;
 
-function renderEventCard(e, showDelete){
-  const p = findProgram(e.program_name);
-  const price = getEventPrice(e);
-  const bundle = findBundleForEvent(e);
-  const d = e.event_date ? e.event_date : "수시";
-  const countText = e.bundle_type === "ticket" ? `${e.qty||1}매` : (bundle ? `묶음 ${bundle.count}/${bundle.capacity}곳` : "단독");
-  const statusClass = isForfeitedCamp(e.camp_name) ? "status-danger" : (bundle && bundle.complete ? "status-ok" : "status-warn");
+    if(!isLocked && bundle && !bundle.complete){
+      // 묶음 완성시 가격
+      bestPrice = autoPrice(e.program_name, cap).price;
+      needCamps = cap - bundle.count;
+      savings = currentPrice - bestPrice;
+    }
 
-  return `
-    <div class="event-card">
-      <div class="event-head">
-        <span class="badge b-${e.category || p?.cat || "A"}">${e.category || p?.cat || "?"}</span>
-        <div class="event-title">${escapeHtml(e.program_name)}</div>
-        <span class="tag ${statusClass}">${escapeHtml(countText)}</span>
+    const dStr = e.event_date ? `${parseInt(e.event_date.slice(5,7))}/${parseInt(e.event_date.slice(8,10))}` : "수시";
+    const wkStr = e.event_date ? ["일","월","화","수","목","금","토"][new Date(e.event_date).getDay()] : "";
+    const pctProgress = Math.min(100, Math.round(progressNow/progressTarget*100));
+
+    // 상태 결정
+    let status, statusText, bgCls;
+    if(isLocked){
+      status = "ok"; bgCls = "ok";
+      statusText = `🔒 ${progressNow}곳 묶음 박제`;
+    } else if(savings > 0){
+      status = "warn"; bgCls = "discount";
+      statusText = `🔍 ${needCamps}곳 모집중`;
+    } else if(bundle && bundle.complete){
+      status = "ok"; bgCls = "ok";
+      statusText = `✅ ${bundle.count}곳 묶음 완성`;
+    } else {
+      status = "warn"; bgCls = "warn";
+      statusText = `${progressNow}곳`;
+    }
+
+    // 박제된 단가 vs 현재 카탈로그 단가 비교 (정보용)
+    let priceNote = '';
+    if(isLocked){
+      priceNote = `<div style="font-size:9px;color:#16a34a;margin-top:2px">🔒 박제됨 — 카탈로그 변경에 영향 없음</div>`;
+    }
+
+    return `
+      <div class="my-event-card ${bgCls}">
+        <div class="mec-header">
+          <div class="mec-date">
+            ${e.event_date ? `<b>${dStr}</b><span>${wkStr}</span>` : `<span>📦 수시</span>`}
+          </div>
+          <div class="mec-name">
+            <span class="badge b-${e.category}">${e.category}</span>
+            <span class="mec-title">${e.program_name}</span>
+            ${bundle && bundle.seq > 1 ? `<span style="font-size:9px;background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:4px">묶음#${bundle.seq}</span>` : ''}
+          </div>
+          ${editable?`<button class="me-btn del" data-id="${e.id}">×</button>`:''}
+        </div>
+        
+        <div class="mec-progress-row">
+          <div class="mec-progress-label">
+            <span class="mec-progress-text">묶음 ${progressNow}/${progressTarget}곳 (신청순 #${e.bundle_seq||'?'})</span>
+            <span class="mec-status-badge s-${status}">${statusText}</span>
+          </div>
+          <div class="mec-progress-bar">
+            <div class="mec-progress-fill ${bgCls}" style="width:${pctProgress}%"></div>
+          </div>
+        </div>
+
+        <div class="mec-price-row">
+          <div class="mec-price-current">
+            <div class="mec-price-label">${isLocked?'박제 단가':'현재 단가'}</div>
+            <div class="mec-price-now">${won(currentPrice)}</div>
+            ${priceNote}
+          </div>
+          ${savings > 0 ? `
+            <div class="mec-arrow">→</div>
+            <div class="mec-price-target">
+              <div class="mec-price-label" style="color:#059669">${needCamps}곳 더 모이면</div>
+              <div class="mec-price-best">${won(bestPrice)}</div>
+              <div class="mec-savings">-${won(savings)} 절감!</div>
+            </div>
+          ` : ''}
+        </div>
+
+        ${otherInBundle.length > 0 ? `
+          <div class="mec-other-camps">
+            <span class="mec-other-label">같은 묶음 캠프:</span>
+            ${otherInBundle.map(cn=>`<span class="mec-camp-tag"><span class="gd ${groupColor(getCampGroup(cn))}"></span>${cn}</span>`).join('')}
+          </div>
+        ` : `
+          <div class="mec-other-camps mec-empty">
+            ⚠️ 묶음 내 다른 캠프 없음 — 다른 캠프가 같은 행사 신청하면 자동 합류
+          </div>
+        `}
       </div>
-      <div class="event-meta">
-        캠프: <b>${escapeHtml(e.camp_name)}</b><br>
-        날짜: ${escapeHtml(d)} · 금액: <b>${won(price)}</b><br>
-        ${p ? `강사/구분: ${escapeHtml(p.i)}` : ""}
-        ${isHamiltonCamp(e.camp_name) ? `<br><b style="color:var(--warn)">해밀터 실제 사용액 715,000원 고정 반영</b>` : ""}
-        ${isForfeitedCamp(e.camp_name) ? `<br><b style="color:var(--danger)">예산권 포기 업체 · 예산 계산 제외</b>` : ""}
-      </div>
-      ${showDelete ? `<button class="btn btn-danger btn-del" data-id="${e.id}" style="margin-top:10px;padding:9px;font-size:13px">삭제</button>` : ""}
-    </div>
-  `;
+    `;
+  }).join("");
 }
 
 function renderCalendar(){
-  const evs = activeEvents().sort((a,b)=>(a.event_date||"9999").localeCompare(b.event_date||"9999"));
-  if(evs.length === 0){
-    $("#calendar").innerHTML = `<div class="empty">등록된 일정이 없습니다.</div>`;
-    return;
+  const byMonth = {};
+  const noDate = [];
+  for(const e of state.events){
+    if(!e.event_date){noDate.push(e);continue}
+    const m = e.event_date.slice(0,7);
+    if(!byMonth[m])byMonth[m]={};
+    if(!byMonth[m][e.event_date])byMonth[m][e.event_date]=[];
+    byMonth[m][e.event_date].push(e);
   }
-
-  const byDate = {};
-  for(const e of evs){
-    const d = e.event_date || "수시";
-    if(!byDate[d]) byDate[d] = [];
-    byDate[d].push(e);
-  }
-
-  $("#calendar").innerHTML = Object.entries(byDate).map(([d,list])=>`
-    <div style="margin-bottom:18px">
-      <div style="font-size:20px;font-weight:900;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:8px">${escapeHtml(d)}</div>
-      ${list.map(e=>renderEventCard(e,false)).join("")}
-    </div>
-  `).join("");
-}
-
-function getIssues(){
-  const issues = [];
-
-  for(const c of state.camps){
-    const spent = campSpent(c.name);
-    const budget = campBudget(c.name);
-    if(spent > budget){
-      issues.push({
-        type:"danger",
-        title:`${c.name} 예산 초과`,
-        detail:`사용 ${won(spent)} / 한도 ${won(budget)} / 초과 ${won(spent-budget)}`
-      });
+  const months = Object.keys(byMonth).sort();
+  if(months.length===0 && noDate.length===0){$("#calendar").innerHTML='<div class="empty">일정 없음</div>';return}
+  let ndHTML = "";
+  if(noDate.length>0){
+    const grouped = {};
+    for(const e of noDate){
+      const k = `${e.program_name}|${e.category}`;
+      if(!grouped[k])grouped[k]={...e,camps:[],qtyTotal:0};
+      grouped[k].camps.push(e.camp_name);
+      grouped[k].qtyTotal += (e.qty||1);
     }
+    ndHTML = `
+      <div class="month-h"><div style="font-size:16px;font-weight:800">📦 수시 / 연간</div></div>
+      <div class="day">
+        ${Object.values(grouped).map(g=>`
+          <div class="event e${g.category}">
+            <span class="badge b-${g.category}">${g.category}</span>
+            <div class="e-body">
+              <div class="e-title">${g.program_name}</div>
+              <div class="e-camps">${g.camps.length}곳 · ${g.qtyTotal}매</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
   }
-
-  const group = {};
-  for(const e of activeEvents()){
-    if(e.bundle_type === "ticket") continue;
-    const k = `${e.event_date}|${e.program_name}`;
-    if(!group[k]) group[k] = [];
-    group[k].push(e);
-  }
-
-  for(const [k,list] of Object.entries(group)){
-    const [date,name] = k.split("|");
-    const p = findProgram(name);
-    if(!p) continue;
-    const cap = bundleCapacity(name);
-    const remainder = list.length % cap;
-    if(cap > 1 && remainder > 0){
-      issues.push({
-        type:"warn",
-        title:`${date} ${name} 묶음 미완성`,
-        detail:`현재 ${list.length}곳 신청. ${cap}곳 단위라 ${cap-remainder}곳 추가 합류 시 효율 개선`
-      });
-    }
-  }
-
-  return issues;
+  $("#calendar").innerHTML = ndHTML + months.map(m=>{
+    const mn = parseInt(m.slice(5,7));
+    const dates = Object.keys(byMonth[m]).sort();
+    return `
+      <div class="month-h"><div class="month-num">${String(mn).padStart(2,"0")}</div><div class="month-info">${m}</div></div>
+      ${dates.map(d=>{
+        const evs = byMonth[m][d];
+        const dt = new Date(d);
+        const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+        const wkCls = dt.getDay()===0?"sun":dt.getDay()===6?"sat":"";
+        const grouped = {};
+        for(const e of evs){
+          const k = e.program_name; if(!grouped[k])grouped[k]={...e,camps:[]};
+          grouped[k].camps.push(e.camp_name);
+        }
+        return `
+          <div class="day">
+            <div class="day-head"><div class="d-num">${parseInt(d.slice(8,10))}</div><div class="d-week ${wkCls}">${wk}</div></div>
+            ${Object.values(grouped).map(g=>`
+              <div class="event e${g.category}">
+                <span class="badge b-${g.category}">${g.category}</span>
+                <div class="e-body">
+                  <div class="e-title">${g.program_name}</div>
+                  <div class="e-camps">${g.camps.length}곳: ${g.camps.join(", ")}</div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }).join("")}
+    `;
+  }).join("");
 }
 
 function renderIssues(){
   const issues = getIssues();
-  if(issues.length === 0){
-    $("#issues").innerHTML = `<div class="empty">검증 이슈 없음</div>`;
-    return;
-  }
-
+  if(issues.length===0){$("#issues").innerHTML='<div class="empty">✅ 모든 일정이 정상입니다</div>';return}
   $("#issues").innerHTML = issues.map(i=>`
-    <div class="notice ${i.type === "danger" ? "danger" : ""}">
-      <b>${escapeHtml(i.title)}</b><br>
-      ${escapeHtml(i.detail)}
+    <div class="issue ${i.type}">
+      <div class="issue-title">${i.title}</div>
+      <div>${i.detail}${i.camps?` · 캠프: ${i.camps.join(", ")}`:""}</div>
     </div>
   `).join("");
 }
 
 function renderAllCamps(){
-  const rows = state.camps.map(c=>{
-    const budget = campBudget(c.name);
-    const spent = campSpent(c.name);
-    const remain = budget - spent;
-    return {name:c.name,group:getCampGroup(c.name),budget,spent,remain,forfeit:isForfeitedCamp(c.name)};
-  });
-
-  $("#all-camps").innerHTML = `
-    <table class="table">
-      <thead>
-        <tr>
-          <th>캠프</th>
-          <th>사용</th>
-          <th>한도</th>
-          <th>잔액</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows.map(r=>`
-          <tr>
-            <td>
-              <b>${escapeHtml(r.name)}</b><br>
-              <span class="sum-mini">${escapeHtml(r.group)} ${r.forfeit ? "· 포기" : ""}</span>
-            </td>
-            <td>${won(r.spent)}</td>
-            <td>${won(r.budget)}</td>
-            <td style="color:${r.remain<0?'var(--danger)':'var(--ok)'};font-weight:800">${won(r.remain)}</td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
+  $("#all-camps").innerHTML = state.camps.map(c=>{
+    const t = campSpent(c.name);
+    const limit = campBudget(c.name);
+    const extra = campExtraBudget(c.name);
+    const remain = limit - t;
+    const pct = limit > 0 ? Math.min(100,Math.round(t/limit*100)) : (t > 0 ? 100 : 0);
+    const cls = isForfeitedCamp(c.name) || remain<0 ? "over" : pct>=90 ? "warn" : "ok";
+    const grp = c.group_name || c.group;
+    const forfeited = isForfeitedCamp(c.name);
+    return `
+      <div class="sum-row" style="${forfeited?'background:#FEF2F2;border-radius:10px;padding-left:10px;padding-right:10px':''}">
+        <div>
+          <div class="sum-name"><span class="gd ${groupColor(grp)}"></span>${c.name}${forfeited?' <span style="font-size:10px;background:#FECACA;color:#991B1B;padding:2px 6px;border-radius:6px">예산권 포기</span>':''}</div>
+          <div class="sum-mini">${grp}${!forfeited ? ` · 추가금 ${won(extra)}` : ' · 신청 제외'}</div>
+        </div>
+        <div class="sum-amt">
+          <div>${won(t)}</div>
+          <div class="sum-mini" style="color:${remain<0?"var(--danger)":"var(--ok)"}">${forfeited?'적용예산':remain<0?'초과':'잔액'} ${forfeited?won(limit):won(Math.abs(remain))}</div>
+        </div>
+        <div class="sum-bar"><div class="${cls}" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join("");
 }
 
-function renderAdmin(){
-  const totalSpent = state.camps.reduce((s,c)=>s+campSpent(c.name),0);
-  const activeCount = state.camps.filter(c=>!isForfeitedCamp(c.name) && campSpent(c.name)>0).length;
-  const totalLimit = state.camps.filter(c=>!isForfeitedCamp(c.name)).length * FINAL_CAMP_BUDGET;
-  const issueCount = getIssues().length;
 
-  $("#admin-stats").innerHTML = `
-    <div class="grid2">
-      <div class="notice ok"><b>참여</b><br>${activeCount}곳</div>
-      <div class="notice"><b>등록</b><br>${state.events.length}건</div>
-      <div class="notice"><b>총 사용</b><br>${won(totalSpent)}</div>
-      <div class="notice ${issueCount?'danger':'ok'}"><b>검증</b><br>${issueCount}건</div>
-    </div>
-    <div class="budget-breakdown">
-      <div class="break-row"><span>총예산</span><b>${won(TOTAL_BUDGET)}</b></div>
-      <div class="break-row"><span>전체 기준</span><b>${TOTAL_TARGET_COUNT}곳</b></div>
-      <div class="break-row"><span>자체 신청</span><b>${SELF_APPLY_COUNT}곳</b></div>
-      <div class="break-row"><span>시스템 신청</span><b>${SYSTEM_APPLY_COUNT}곳</b></div>
-      <div class="break-row"><span>포기 업체</span><b>2곳 · 아빠의나무 / 강변캠핑장</b></div>
-      <div class="break-row"><span>해밀터 사용액</span><b>${won(HAMILTON_USED)}</b></div>
-      <div class="break-row"><span>최종 1곳 한도</span><b>${won(FINAL_CAMP_BUDGET)}</b></div>
-      <div class="break-row"><span>현재 적용 가능 총한도</span><b>${won(totalLimit)}</b></div>
-    </div>
-  `;
+function renderDeadlineBudgetBanner(){
+  const eligibleCount = budgetEligibleCamps().length;
+  const closed = isApplicationClosed();
 
-  $("#admin-events").innerHTML = state.events.length ? state.events.map(e=>renderEventCard(e,true)).join("") : `<div class="empty">신청 내역 없음</div>`;
+  const el = $("#deadline-budget-banner");
+  if(el){
+    el.style.display = 'block';
+    el.innerHTML = `
+      <div style="background:${closed?'#FEF2F2':'#FFFBEB'};border:1px solid ${closed?'#FCA5A5':'#FCD34D'};border-left:4px solid ${closed?'#B91C1C':'#F59E0B'};border-radius:12px;padding:13px 14px;margin-bottom:12px;font-size:12px;color:${closed?'#991B1B':'#92400E'};line-height:1.6">
+        ${closed?'⛔':'⏰'} <b>신청마감: ${applicationDeadlineText()}</b>${closed?' · 일반 회원 신청 마감됨':' · 마감 전 신청 가능'}<br>
+        💰 기본 ${won(BUDGET)} + <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b> = 캠프당 ${won(ACTIVE_CAMP_BUDGET)}<br>
+        ${FORFEITED_CAMP_NAME}는 예산권 포기: 예산 0원 / 신규 신청 불가 · 현재 적용 대상 ${eligibleCount}곳
+      </div>
+    `;
+  }
+
+  const notice = $("#budget-policy-notice");
+  if(notice){
+    notice.innerHTML = `
+      ⚠️ <b>${FORFEITED_CAMP_NAME} 야영장 예산권 포기 반영 완료</b><br>
+      총사업비 ${won(PROJECT_TOTAL_BUDGET)} ÷ ${TOTAL_PROJECT_CAMPS}곳 = 기본 ${won(BUDGET)}<br>
+      ${FORFEITED_CAMP_NAME} 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = <b>추가금 ${won(EXTRA_BUDGET_PER_CAMP)}</b><br>
+      이 페이지 예산권 보유 캠프 ${eligibleCount}곳에 캠프당 <b>${won(ACTIVE_CAMP_BUDGET)}</b> 적용 · ${FORFEITED_CAMP_NAME}는 예산 0원 / 신청 불가
+    `;
+  }
+
+  const base = $("#budget-base-label");
+  if(base){
+    base.innerHTML = `기본예산 ${won(BUDGET)} + 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = <b>${won(ACTIVE_CAMP_BUDGET)}/캠프</b> · ${FORFEITED_CAMP_NAME} 제외`;
+  }
 }
+
+function syncAddButtonState(){
+  const btn = $("#btn-add-event");
+  if(!btn) return;
+  if(!state.selectedCamp){
+    btn.disabled = true;
+    btn.textContent = '캠프를 먼저 선택하세요';
+    return;
+  }
+  if(isForfeitedCamp(state.selectedCamp)){
+    btn.disabled = true;
+    btn.textContent = '아빠의나무 예산권 포기 — 신청 불가';
+    return;
+  }
+  if(isApplicationClosed() && !state.isAdmin){
+    btn.disabled = true;
+    btn.textContent = '신청 마감됨 (14:00)';
+    return;
+  }
+  if(!canEdit(state.selectedCamp)){
+    btn.disabled = true;
+    btn.textContent = '본인 캠프만 신청 가능';
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = '＋ 새 행사 추가';
+}
+
 
 function renderAll(){
+  renderAnnouncementBanner();
+  renderDeadlineBudgetBanner();
   renderCampPicker();
-  renderForfeitWarning();
   renderBudget();
   renderMyEvents();
+  renderJoinOpportunitiesCard();
   renderCalendar();
   renderIssues();
   renderAllCamps();
+  syncAddButtonState();
   if(state.isAdmin) renderAdmin();
 }
 
-function switchTab(tab){
-  $$(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab === tab));
-  $$(".tab-content").forEach(c=>c.style.display = "none");
-  const target = $(`#tab-${tab}`);
-  if(target) target.style.display = "block";
-  if(tab === "admin" && state.isAdmin) renderAdmin();
+function renderAnnouncementBanner(){
+  const banner = $("#announcement-banner");
+  if(!banner) return;
+  
+  // 닫지 않은 가장 최신 공지 1개
+  const visible = state.announcements.filter(a => !state.dismissedAnnIds.has(a.id));
+  if(visible.length === 0){
+    banner.style.display = 'none';
+    return;
+  }
+  
+  const a = visible[0]; // 최신 1개만
+  const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+  const created = new Date(a.created_at);
+  const dateStr = `${created.getMonth()+1}/${created.getDate()}`;
+  
+  banner.className = a.type;
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <button class="ann-banner-close" data-id="${a.id}">×</button>
+    <div class="ann-banner-title">${icon} ${a.title}</div>
+    ${a.content ? `<div class="ann-banner-content">${a.content}</div>` : ''}
+    <div class="ann-banner-meta">${dateStr} 등록 · ${visible.length > 1 ? `+${visible.length-1}건 더` : ''}</div>
+  `;
 }
 
-function openEventModal(){
-  if(isForfeitedCamp(state.selectedCamp)){
-    toast("예산권 포기 업체는 신청할 수 없습니다.");
+function dismissAnnouncement(id){
+  state.dismissedAnnIds.add(parseInt(id));
+  localStorage.setItem('dismissedAnn', JSON.stringify([...state.dismissedAnnIds]));
+  renderAnnouncementBanner();
+}
+
+function renderAnnouncementList(){
+  const target = $("#ann-list");
+  if(!target) return;
+  if(state.announcements.length === 0){
+    target.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">활성 공지 없음</div>';
+    return;
+  }
+  target.innerHTML = state.announcements.map(a=>{
+    const icon = a.type==='urgent'?'🚨':a.type==='menu_add'?'🆕':'📢';
+    const created = new Date(a.created_at);
+    const dateStr = `${created.getMonth()+1}/${created.getDate()} ${created.getHours()}:${String(created.getMinutes()).padStart(2,'0')}`;
+    return `
+      <div class="ann-list-item ${a.type}">
+        <div class="ann-list-head">
+          <span>${icon}</span>
+          <span class="ann-list-title">${a.title}</span>
+          <span class="ann-list-meta">${dateStr}</span>
+          <button class="ann-delete-btn" data-ann-del="${a.id}">삭제</button>
+        </div>
+        ${a.content ? `<div class="ann-list-content">${a.content}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function createAnnouncement(){
+  const type = $("#ann-type").value;
+  const title = $("#ann-title").value.trim();
+  const content = $("#ann-content").value.trim();
+  if(!title){toast('❌ 제목을 입력하세요');return}
+  
+  const {error} = await sb.from('announcements').insert({
+    type, title, content: content || null, created_by: state.user.id
+  });
+  if(error){toast('❌ '+error.message);console.error(error);return}
+  
+  $("#ann-title").value = '';
+  $("#ann-content").value = '';
+  toast('📤 공지 발송됨 — 모든 사용자에게 표시됩니다');
+}
+
+async function deleteAnnouncement(id){
+  if(!confirm('이 공지를 삭제하시겠습니까?')) return;
+  const {error} = await sb.from('announcements').update({is_active:false}).eq('id', id);
+  if(error){toast('❌ '+error.message);return}
+  toast('삭제됨');
+}
+
+function renderJoinOpportunitiesCard(){
+  const c = state.selectedCamp;
+  if(!c){
+    $("#join-opportunities-card").style.display="none";
+    $("#recruitment-banner").style.display="none";
+    return;
+  }
+  
+  // 본인이 합류 가능한 미완성 묶음 추출
+  const opportunities = getMyJoinOpportunities(c);
+  
+  // 1) 강조 배너 (상단)
+  renderRecruitmentBanner(opportunities);
+  
+  // 2) 합류 기회 카드 (기존)
+  if(opportunities.length > 0){
+    $("#join-opportunities-card").style.display = "block";
+    renderJoinOpportunities();
+  } else {
+    $("#join-opportunities-card").style.display = "none";
+  }
+}
+
+// 본인이 합류 가능한 행사 추출 (재사용)
+function getMyJoinOpportunities(myCamp){
+  const opps = [];
+  const seenKeys = new Set();
+  
+  for(const e of state.events){
+    if(e.bundle_type === 'ticket') continue;
+    if(e.camp_name === myCamp) continue;
+    
+    const key = `${e.event_date}|${e.program_name}`;
+    if(seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    
+    const myAlready = state.events.some(me => 
+      me.camp_name === myCamp && 
+      me.event_date === e.event_date && 
+      me.program_name === e.program_name &&
+      me.bundle_type !== 'ticket'
+    );
+    if(myAlready) continue;
+    
+    const bundles = getBundles(e.event_date, e.program_name);
+    const openBundle = bundles.find(b => !b.complete && !b.finalized);
+    if(!openBundle) continue;
+    
+    const p = findProgram(e.program_name);
+    if(!p) continue;
+    
+    const newCount = openBundle.count + 1;
+    const newAp = autoPrice(e.program_name, newCount);
+    const currentSingle = autoPrice(e.program_name, 1).price;
+    const savings = currentSingle - newAp.price;
+    if(savings <= 0) continue;
+    
+    // 마감 임박도 계산
+    const eventDate = new Date(e.event_date);
+    const today = new Date();
+    const daysLeft = Math.floor((eventDate - today) / (1000*60*60*24));
+    
+    opps.push({
+      date: e.event_date,
+      name: e.program_name,
+      cat: e.category,
+      camps: openBundle.events.map(ev => ev.camp_name),
+      newPrice: newAp.price,
+      savings,
+      need: openBundle.capacity - openBundle.count,
+      newCount,
+      daysLeft
+    });
+  }
+  
+  return opps.sort((a,b) => {
+    // 마감 임박 우선, 그 다음 절감액
+    if(a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
+    return b.savings - a.savings;
+  });
+}
+
+function renderRecruitmentBanner(opportunities){
+  const banner = $("#recruitment-banner");
+  if(!banner) return;
+  
+  if(opportunities.length === 0){
+    banner.style.display = 'none';
+    return;
+  }
+  
+  // 총 절감 가능액
+  const totalSavings = opportunities.reduce((s,o) => s + o.savings, 0);
+  // 마감 임박 (14일 이내) 건수
+  const urgent = opportunities.filter(o => o.daysLeft >= 0 && o.daysLeft <= 14).length;
+  
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div class="rb-title">
+      ${urgent > 0 ? '🚨' : '🎁'} 합류 가능 행사 ${opportunities.length}건!
+    </div>
+    <div class="rb-content">
+      ${urgent > 0 ? `<b>마감 임박 ${urgent}건</b> · ` : ''}지금 합류시 본인+상대 캠프 모두 단가 인하
+    </div>
+    <div class="rb-savings">
+      💰 본인 최대 ${won(totalSavings)} 절감 가능
+    </div>
+    <span class="rb-action">↓ 아래에서 확인하기</span>
+  `;
+}
+
+function renderJoinOpportunities(){
+  const c = state.selectedCamp;
+  if(!c) return;
+  
+  const opportunities = getMyJoinOpportunities(c);
+  
+  const target = $("#join-opportunities");
+  if(!target) return;
+  
+  if(opportunities.length === 0){
+    target.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:12px">현재 합류 가능한 행사 없음</div>';
+    return;
+  }
+  
+  target.innerHTML = opportunities.slice(0, 8).map(o => {
+    const dStr = o.date ? `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}` : "수시";
+    const isUrgent = o.daysLeft >= 0 && o.daysLeft <= 14;
+    const dayBadge = o.daysLeft < 0 ? '' : 
+                     o.daysLeft <= 7 ? `<span style="font-size:9px;background:#dc2626;color:#fff;padding:2px 6px;border-radius:5px;font-weight:700">D-${o.daysLeft}</span>` :
+                     o.daysLeft <= 14 ? `<span style="font-size:9px;background:#f59e0b;color:#fff;padding:2px 6px;border-radius:5px;font-weight:700">D-${o.daysLeft}</span>` :
+                     `<span style="font-size:9px;color:var(--muted)">D-${o.daysLeft}</span>`;
+    return `
+      <div class="join-card" style="${isUrgent?'border-color:#dc2626;background:#fef2f2':''}">
+        <div class="join-header">
+          <span class="badge b-${o.cat}">${o.cat}</span>
+          <span class="join-date">${dStr}</span>
+          ${dayBadge}
+          <span class="join-name">${o.name}</span>
+        </div>
+        <div class="join-camps">
+          현재 ${o.camps.length}곳: ${o.camps.join(", ")} · ${o.need}곳 더 필요
+        </div>
+        <div class="join-savings">
+          🎁 합류시 본인 ${won(o.newPrice)} (${won(o.savings)} 절감!)
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// 관리자 — 모집 중 묶음 알림
+// ============================================================
+function getOpenBundles(){
+  // 미완성·박제 안된 모든 묶음 추출 (전체)
+  const result = [];
+  const seenKeys = new Set();
+  
+  for(const e of state.events){
+    if(e.bundle_type === 'ticket') continue;
+    if(!e.event_date) continue;
+    
+    const key = `${e.event_date}|${e.program_name}`;
+    if(seenKeys.has(key)) continue;
+    seenKeys.add(key);
+    
+    const bundles = getBundles(e.event_date, e.program_name);
+    
+    for(const b of bundles){
+      if(b.complete || b.finalized) continue;
+      const p = findProgram(e.program_name);
+      if(!p) continue;
+      
+      // 절감 가능액 (capacity 채웠을 때 vs 현재)
+      const currentPrice = autoPrice(e.program_name, b.count).price;
+      const fullPrice = autoPrice(e.program_name, b.capacity).price;
+      const savings = currentPrice - fullPrice;
+      if(savings <= 0) continue;
+      
+      const eventDate = new Date(e.event_date);
+      const today = new Date();
+      const daysLeft = Math.floor((eventDate - today) / (1000*60*60*24));
+      
+      result.push({
+        date: e.event_date,
+        name: e.program_name,
+        cat: e.category,
+        bundleSeq: b.seq,
+        camps: b.events.map(ev => ev.camp_name),
+        count: b.count,
+        capacity: b.capacity,
+        need: b.capacity - b.count,
+        currentPrice,
+        fullPrice,
+        savings,
+        daysLeft
+      });
+    }
+  }
+  
+  return result.sort((a,b) => {
+    // 마감 임박 우선
+    if(a.daysLeft !== b.daysLeft) return a.daysLeft - b.daysLeft;
+    return b.savings - a.savings;
+  });
+}
+
+function renderAdminRecruitment(){
+  const target = $("#admin-recruitment");
+  if(!target) return;
+  
+  const open = getOpenBundles();
+  if(open.length === 0){
+    target.innerHTML = '<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px">✅ 모집 중인 묶음 없음 — 모두 박제 완료</div>';
+    return;
+  }
+  
+  // 통계
+  const urgent = open.filter(o => o.daysLeft >= 0 && o.daysLeft <= 14).length;
+  const totalSavings = open.reduce((s,o) => s + o.savings * o.need, 0);
+  
+  target.innerHTML = `
+    <div style="background:#fef3c7;border-radius:6px;padding:8px;margin-bottom:8px;font-size:11px">
+      📊 모집 중 ${open.length}건 ${urgent > 0 ? `(<b style="color:#dc2626">긴급 ${urgent}건</b>)` : ''}<br>
+      💰 모두 채워지면 협회 전체 ${won(totalSavings)} 절감 가능
+    </div>
+    ${open.slice(0, 10).map(o => {
+      const dStr = `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}`;
+      const dt = new Date(o.date);
+      const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+      const isUrgent = o.daysLeft >= 0 && o.daysLeft <= 14;
+      const dayBadge = o.daysLeft < 0 ? '⚫ 지남' : 
+                       o.daysLeft <= 7 ? `🚨 D-${o.daysLeft}` :
+                       o.daysLeft <= 14 ? `⚠️ D-${o.daysLeft}` :
+                       `D-${o.daysLeft}`;
+      return `
+        <div class="recruit-item ${isUrgent?'urgent':''}">
+          <div class="recruit-head">
+            <span class="badge b-${o.cat}">${o.cat}</span>
+            <span class="recruit-date">${dStr} ${wk}</span>
+            <span class="recruit-program">${o.name}</span>
+            ${isUrgent ? `<span class="recruit-urgent-badge">${dayBadge}</span>` : `<span style="font-size:10px;color:var(--muted)">${dayBadge}</span>`}
+          </div>
+          <div class="recruit-meta">현재 ${o.count}/${o.capacity}곳: ${o.camps.join(", ")}</div>
+          <div class="recruit-need">⚠️ ${o.need}곳 더 합류 필요</div>
+          <div class="recruit-savings">🎁 1곳 합류시 본인 ${won(o.savings)} 절감 (각 캠프별)</div>
+        </div>
+      `;
+    }).join('')}
+  `;
+}
+
+// 카톡 발송용 텍스트 생성
+function copyRecruitmentKakao(){
+  const open = getOpenBundles();
+  if(open.length === 0){
+    toast('모집 중인 묶음이 없습니다');
+    return;
+  }
+  
+  const lines = [];
+  lines.push('🚨 [괴산캠핑장협회] 묶음 모집 중!');
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  lines.push('아래 행사들이 참가자 모집 중입니다.');
+  lines.push('지금 신청하시면 묶음 단가로 할인 적용됩니다!');
+  lines.push('');
+  
+  // 마감 임박 따로
+  const urgent = open.filter(o => o.daysLeft >= 0 && o.daysLeft <= 14);
+  const normal = open.filter(o => o.daysLeft > 14 || o.daysLeft < 0);
+  
+  if(urgent.length > 0){
+    lines.push('🔥 마감 임박 (14일 이내)');
+    lines.push('━━━━━━━━━━━━━━━━━━━');
+    for(const o of urgent){
+      const dStr = `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}`;
+      const wk = ["일","월","화","수","목","금","토"][new Date(o.date).getDay()];
+      lines.push(`📅 ${dStr}(${wk}) ${o.name} [D-${o.daysLeft}]`);
+      lines.push(`   현재 ${o.count}/${o.capacity}곳 (${o.camps.join(", ")})`);
+      lines.push(`   ⚠️ ${o.need}곳 더 필요 → 합류시 ${won(o.savings)} 절감!`);
+      lines.push('');
+    }
+  }
+  
+  if(normal.length > 0){
+    lines.push('📋 모집 중인 행사');
+    lines.push('━━━━━━━━━━━━━━━━━━━');
+    for(const o of normal){
+      const dStr = `${parseInt(o.date.slice(5,7))}/${parseInt(o.date.slice(8,10))}`;
+      const wk = ["일","월","화","수","목","금","토"][new Date(o.date).getDay()];
+      lines.push(`📅 ${dStr}(${wk}) ${o.name}`);
+      lines.push(`   현재 ${o.count}/${o.capacity}곳 (${o.camps.join(", ")})`);
+      lines.push(`   ${o.need}곳 더 필요 → 합류시 ${won(o.savings)} 절감!`);
+      lines.push('');
+    }
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('💡 신청 방법:');
+  lines.push('https://dukebiz01-cmyk.github.io/goesan-camp/events.html');
+  lines.push('→ 본인 캠프 로그인');
+  lines.push('→ "+ 새 행사 추가" → 같은 날·행사 선택');
+  lines.push('→ 자동 묶음 합류, 단가 즉시 인하');
+  lines.push('');
+  lines.push('🔒 3곳 채워지면 가격 박제 — 더 이상 변경되지 않음');
+  lines.push('');
+  lines.push('괴산캠핑장협회 사무국');
+  
+  const text = lines.join('\n');
+  copyToClipboard(text, '📋 카톡 발송용 텍스트 복사됨');
+}
+
+// CSV 표 형식
+function copyRecruitmentCsv(){
+  const open = getOpenBundles();
+  if(open.length === 0){
+    toast('모집 중인 묶음이 없습니다');
+    return;
+  }
+  
+  const lines = ['날짜\t요일\tD-day\t분류\t행사\t현재인원\t정원\t참여캠프\t합류시절감액'];
+  for(const o of open){
+    const dt = new Date(o.date);
+    const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+    lines.push(`${o.date}\t${wk}\tD-${o.daysLeft}\t${o.cat}\t${o.name}\t${o.count}\t${o.capacity}\t${o.camps.join(", ")}\t${o.savings}`);
+  }
+  
+  copyToClipboard(lines.join('\n'), '📊 표 형식 복사됨 (엑셀 붙여넣기)');
+}
+async function renderAdmin(){
+  // 활동 로그용 사용자 정보 로드
+  await loadAdminData();
+  renderAdminStats();
+  renderAdminGroupAssignment();
+  renderAdminLoginInfo();
+  renderAdminInstructorPicker();
+  renderAdminRecruitment();
+  renderAdminCategories();
+  renderAdminCampActivity();
+  renderAdminInstructorStats();
+  renderAdminRecentActivity();
+  renderAnnouncementList();
+}
+
+// 강사 목록 추출 (실제 일정이 있는 강사만)
+function getInstructorsFromEvents(){
+  const instructors = {};
+  for(const e of state.events){
+    if(e.bundle_type === 'ticket') continue;
+    const p = findProgram(e.program_name);
+    if(!p || !p.i) continue;
+    // 자체행사 제외
+    if(p.i === 'D_자체') continue;
+    if(!instructors[p.i]){
+      const cat = p.i.charAt(0);
+      const name = p.i.split('_')[1] || p.i;
+      instructors[p.i] = {key:p.i, cat, name, count:0, events:[]};
+    }
+    instructors[p.i].count++;
+    instructors[p.i].events.push(e);
+  }
+  return Object.values(instructors).sort((a,b)=>b.count-a.count);
+}
+
+function renderAdminInstructorPicker(){
+  const sel = $("#inst-picker");
+  if(!sel) return;
+  const list = getInstructorsFromEvents();
+  if(list.length === 0){
+    sel.innerHTML = '<option value="">아직 등록된 강사 일정 없음</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">강사를 선택하세요</option>' + 
+    list.map(i=>`<option value="${i.key}">[${i.cat}] ${i.name} (${i.count}회 출장)</option>`).join('');
+}
+
+function renderInstructorSchedule(instKey){
+  const target = $("#inst-schedule");
+  const actions = $("#inst-actions");
+  if(!instKey){
+    target.innerHTML = '';
+    actions.style.display = 'none';
+    return;
+  }
+  
+  // 해당 강사 일정 추출
+  const events = state.events.filter(e=>{
+    if(e.bundle_type === 'ticket') return false;
+    const p = findProgram(e.program_name);
+    return p && p.i === instKey;
+  });
+  
+  if(events.length === 0){
+    target.innerHTML = '<div class="empty">일정 없음</div>';
+    actions.style.display = 'none';
+    return;
+  }
+  
+  // 날짜별 그룹화
+  const byDate = {};
+  for(const e of events){
+    if(!byDate[e.event_date]) byDate[e.event_date] = {};
+    if(!byDate[e.event_date][e.program_name]) byDate[e.event_date][e.program_name] = [];
+    byDate[e.event_date][e.program_name].push(e.camp_name);
+  }
+  const dates = Object.keys(byDate).sort();
+  
+  // 충돌 일자 (4곳 이상)
+  const overloadedDays = dates.filter(d=>{
+    const totalCamps = new Set();
+    for(const camps of Object.values(byDate[d])){
+      camps.forEach(c=>totalCamps.add(c));
+    }
+    return totalCamps.size >= 4;
+  });
+  
+  const instName = instKey.split('_')[1] || instKey;
+  
+  target.innerHTML = `
+    <div class="inst-summary">
+      <b>${instName} 강사</b> · 총 ${events.length}회 출장 (${dates.length}일)<br>
+      ${overloadedDays.length > 0 
+        ? `⚠️ 4곳 이상 출장 일정: ${overloadedDays.length}일 (협의 필요)`
+        : '✅ 일정 충돌 없음'}
+    </div>
+    ${dates.map(d=>{
+      const dt = new Date(d);
+      const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+      const wkCls = dt.getDay()===0?"sun":dt.getDay()===6?"sat":"";
+      const programs = byDate[d];
+      const totalCamps = new Set();
+      for(const camps of Object.values(programs)) camps.forEach(c=>totalCamps.add(c));
+      const overload = totalCamps.size >= 4;
+      return `
+        <div class="inst-day">
+          <div class="inst-day-head">
+            <span class="inst-day-num">${parseInt(d.slice(5,7))}/${parseInt(d.slice(8,10))}</span>
+            <span class="inst-day-week ${wkCls}">${wk}</span>
+            ${overload ? `<span class="inst-day-warn">⚠️ ${totalCamps.size}곳</span>` : ''}
+          </div>
+          ${Object.entries(programs).map(([prog, camps])=>`
+            <div class="inst-event">
+              <span class="badge b-${findProgram(prog)?.cat||'A'}">${findProgram(prog)?.cat||'?'}</span>
+              <div>
+                <div class="inst-event-name">${prog}</div>
+                <div class="inst-event-camps">${camps.length}곳: ${camps.join(", ")}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('')}
+  `;
+  
+  actions.style.display = 'block';
+}
+
+// 강사 스케줄 텍스트 생성
+function generateInstructorText(instKey){
+  if(!instKey) return '';
+  
+  const events = state.events.filter(e=>{
+    if(e.bundle_type === 'ticket') return false;
+    const p = findProgram(e.program_name);
+    return p && p.i === instKey;
+  });
+  
+  const byDate = {};
+  for(const e of events){
+    if(!byDate[e.event_date]) byDate[e.event_date] = {};
+    if(!byDate[e.event_date][e.program_name]) byDate[e.event_date][e.program_name] = [];
+    byDate[e.event_date][e.program_name].push(e.camp_name);
+  }
+  const dates = Object.keys(byDate).sort();
+  
+  const instName = instKey.split('_')[1] || instKey;
+  const lines = [];
+  
+  lines.push(`📋 ${instName} 강사님 출장 일정 안내`);
+  lines.push('');
+  lines.push('2026년 괴산캠핑장협회 활성화 프로그램');
+  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push('');
+  
+  for(const d of dates){
+    const dt = new Date(d);
+    const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+    const programs = byDate[d];
+    const totalCamps = new Set();
+    for(const camps of Object.values(programs)) camps.forEach(c=>totalCamps.add(c));
+    
+    lines.push(`📅 ${d.slice(5,10).replace('-','/')} (${wk})`);
+    for(const [prog, camps] of Object.entries(programs)){
+      lines.push(`   ${prog}`);
+      lines.push(`   - ${camps.length}곳: ${camps.join(', ')}`);
+    }
+    if(totalCamps.size >= 4){
+      lines.push(`   ⚠️ ${totalCamps.size}곳 출장 (협의 필요)`);
+    }
+    lines.push('');
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push(`총 ${events.length}회 출장 (${dates.length}일)`);
+  lines.push('');
+  lines.push('⚠️ 일정 변경/조정 필요시 협회 사무국에 연락주세요.');
+  lines.push('');
+  lines.push('괴산캠핑장협회 사무국');
+  
+  return lines.join('\n');
+}
+
+function generateInstructorCsv(instKey){
+  if(!instKey) return '';
+  const events = state.events.filter(e=>{
+    if(e.bundle_type === 'ticket') return false;
+    const p = findProgram(e.program_name);
+    return p && p.i === instKey;
+  });
+  const byDate = {};
+  for(const e of events){
+    if(!byDate[e.event_date]) byDate[e.event_date] = {};
+    if(!byDate[e.event_date][e.program_name]) byDate[e.event_date][e.program_name] = [];
+    byDate[e.event_date][e.program_name].push(e.camp_name);
+  }
+  const dates = Object.keys(byDate).sort();
+  const lines = ['날짜\t요일\t행사\t참여캠프수\t캠프목록'];
+  for(const d of dates){
+    const dt = new Date(d);
+    const wk = ["일","월","화","수","목","금","토"][dt.getDay()];
+    for(const [prog, camps] of Object.entries(byDate[d])){
+      lines.push(`${d}\t${wk}\t${prog}\t${camps.length}\t${camps.join(', ')}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function copyInstSchedule(){
+  const key = $("#inst-picker").value;
+  if(!key) return;
+  const text = generateInstructorText(key);
+  copyToClipboard(text, '📋 강사 스케줄 복사됨');
+}
+
+function copyInstCsv(){
+  const key = $("#inst-picker").value;
+  if(!key) return;
+  const text = generateInstructorCsv(key);
+  copyToClipboard(text, '📊 표 형식 복사됨 (엑셀 붙여넣기 가능)');
+}
+
+function sendInstSms(){
+  const key = $("#inst-picker").value;
+  if(!key) return;
+  const phone = $("#inst-phone").value.trim().replace(/[-\s]/g,'');
+  const text = generateInstructorText(key);
+  // SMS는 길이 제한 있어서 짧은 버전
+  const dates = state.events.filter(e=>{
+    if(e.bundle_type === 'ticket') return false;
+    return findProgram(e.program_name)?.i === key;
+  });
+  const uniqueDates = [...new Set(dates.map(e=>e.event_date))].sort();
+  const instName = key.split('_')[1] || key;
+  const shortText = `[괴산캠핑협회]\n${instName}강사님 출장일정\n총 ${dates.length}회 (${uniqueDates.length}일)\n첫 일정: ${uniqueDates[0]||''}\n상세는 메일/카톡 확인부탁드립니다.\n사무국`;
+  
+  if(phone){
+    location.href = `sms:${phone}?body=${encodeURIComponent(shortText)}`;
+  } else {
+    copyToClipboard(shortText, '📲 문자 텍스트 복사됨 (연락처 입력시 자동발송)');
+  }
+}
+
+function sendInstMail(){
+  const key = $("#inst-picker").value;
+  if(!key) return;
+  const email = $("#inst-phone").value.trim();
+  const instName = key.split('_')[1] || key;
+  const subject = `[괴산캠핑장협회] ${instName} 강사님 2026년 출장 일정 안내`;
+  const body = generateInstructorText(key);
+  
+  if(email && email.includes('@')){
+    location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  } else {
+    location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+}
+
+function renderAdminLoginInfo(){
+  const target = $("#admin-login-info");
+  if(!target) return;
+  
+  const grouped = {};
+  for(const c of state.camps){
+    const g = c.group_name || '기타';
+    if(!grouped[g]) grouped[g] = [];
+    grouped[g].push(c);
+  }
+  
+  const groupKeys = Object.keys(grouped).sort();
+  target.innerHTML = groupKeys.map(g=>`
+    <div class="login-group">
+      <div class="login-group-head">
+        <span class="gd ${groupColor(g)}"></span>${g}
+      </div>
+      ${grouped[g].map(c=>`
+        <div class="login-row">
+          <div>
+            <div class="login-camp">${c.name}${isForfeitedCamp(c.name)?' <span style="font-size:9px;color:#dc2626">예산권 포기</span>':''}</div>
+            ${c.member_email 
+              ? `<div><span class="login-email">${c.member_email}</span><span class="login-pw">/ 1234</span></div>`
+              : `<div class="login-empty">⚠️ owner 미매핑</div>`
+            }
+          </div>
+          ${c.member_email 
+            ? `<button class="login-copy" data-info="${c.name} - ${c.member_email} / 1234">복사</button>`
+            : ''
+          }
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// 카톡 발송용 텍스트 (협회원 안내)
+function copyLoginInfoKakao(){
+  const lines = [];
+  lines.push('🏕 괴산캠핑장협회 일정관리 시스템');
+  lines.push('');
+  lines.push('📌 접속 주소');
+  lines.push('https://dukebiz01-cmyk.github.io/goesan-camp/events.html');
+  lines.push('');
+  lines.push('🔑 본인 캠프 로그인 정보');
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  
+  const grouped = {};
+  for(const c of state.camps){
+    const g = c.group_name || '기타';
+    if(!grouped[g]) grouped[g] = [];
+    grouped[g].push(c);
+  }
+  const groupKeys = Object.keys(grouped).sort();
+  
+  for(const g of groupKeys){
+    lines.push(`[${g}]`);
+    for(const c of grouped[g]){
+      if(c.member_email){
+        lines.push(`${c.name}: ${c.member_email}`);
+      } else {
+        lines.push(`${c.name}: (계정 미생성)`);
+      }
+    }
+    lines.push('');
+  }
+  
+  lines.push('━━━━━━━━━━━━━━━━━━━');
+  lines.push('🔒 비밀번호 (공통): 1234');
+  lines.push('   ⚠️ 첫 로그인 후 변경 권장');
+  lines.push('');
+  lines.push('📋 사용법');
+  lines.push('1. 본인 캠프 자동 선택됨');
+  lines.push(`2. 예산은 기본 ${won(BUDGET)} + 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = ${won(ACTIVE_CAMP_BUDGET)}에서 시작`);
+  lines.push('3. "+ 새 행사 추가" 클릭');
+  lines.push('4. 카테고리 → 프로그램 → 날짜 선택');
+  lines.push('5. 같은 날 같은 행사 신청한 다른 캠프와 자동 묶음 (할인 적용)');
+  lines.push('');
+  lines.push('💡 다른 캠프 일정도 모두 보입니다');
+  lines.push('💡 본인 캠프 일정만 수정 가능합니다');
+  lines.push('');
+  lines.push('문의: 협회 사무국');
+  
+  const text = lines.join('\n');
+  copyToClipboard(text, '📋 카톡 발송용 텍스트가 복사되었습니다');
+}
+
+// 표 형식 (개별 발송용)
+function copyLoginInfoCsv(){
+  const lines = [];
+  lines.push('캠프명\t조\t이메일\t비밀번호');
+  
+  const sorted = [...state.camps].sort((a,b)=>(a.group_name||'').localeCompare(b.group_name||'') || a.id - b.id);
+  for(const c of sorted){
+    lines.push(`${c.name}\t${c.group_name||''}\t${c.member_email || '(미생성)'}\t1234`);
+  }
+  
+  const text = lines.join('\n');
+  copyToClipboard(text, '📊 표 형식이 복사되었습니다 (엑셀/시트 붙여넣기 가능)');
+}
+
+function copyToClipboard(text, msg){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>fallbackCopy(text, msg));
+  } else {
+    fallbackCopy(text, msg);
+  }
+}
+
+function fallbackCopy(text, msg){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try{document.execCommand('copy');toast(msg)}catch(e){toast('❌ 복사 실패')}
+  document.body.removeChild(ta);
+}
+
+function renderAdminGroupAssignment(){
+  // 그룹별로 캠프 묶기
+  const groupMap = {};
+  for(const c of state.camps){
+    const g = c.group_name || "기타";
+    if(!groupMap[g]) groupMap[g] = [];
+    groupMap[g].push(c);
+  }
+  const groupList = Object.keys(groupMap).sort();
+  
+  // 다른 그룹으로 옮길 수 있는 옵션 목록
+  const allGroupOptions = groupList.map(g=>`<option value="${g}">${g}</option>`).join('');
+  
+  $("#admin-group-assignment").innerHTML = `
+    ${groupList.map(g=>{
+      const camps = groupMap[g];
+      return `
+        <div class="ga-group-block">
+          <div class="ga-group-head">
+            <span class="gd ${groupColor(g)}"></span>
+            <input class="ga-group-name-input" value="${g}" data-old="${g}">
+            <span class="ga-group-count">${camps.length}곳</span>
+          </div>
+          ${camps.map(c=>`
+            <div class="ga-row">
+              <span class="ga-camp-name">${c.name}</span>
+              <span style="font-size:10px;color:var(--muted)">${c.member_id?'✅ owner 매핑됨':'⚠️ owner 미매핑'}</span>
+              <select class="ga-select" data-camp="${c.name}">
+                ${allGroupOptions}
+                <option value="__new__">+ 새 조로 이동</option>
+              </select>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('')}
+    <button class="ga-add-group-btn" id="ga-add-group">+ 새 조 만들기</button>
+  `;
+  
+  // 현재 선택값 설정 (HTML에서 selected 안 먹는 경우 대비)
+  document.querySelectorAll('.ga-select').forEach(sel=>{
+    const camp = state.camps.find(c=>c.name===sel.dataset.camp);
+    if(camp) sel.value = camp.group_name;
+  });
+}
+
+async function changeCampGroup(campName, newGroup){
+  const {error} = await sb.from('camps').update({group_name: newGroup}).eq('name', campName);
+  if(error){toast('❌ '+error.message);return}
+  toast(`✅ ${campName} → ${newGroup}`);
+  await loadCamps();
+  renderAll();
+}
+
+async function renameGroup(oldName, newName){
+  if(oldName === newName) return;
+  if(!newName.trim()){toast('❌ 빈 이름 불가');renderAdminGroupAssignment();return}
+  // 같은 그룹의 모든 캠프 그룹명 변경
+  const {error} = await sb.from('camps').update({group_name: newName}).eq('group_name', oldName);
+  if(error){toast('❌ '+error.message);return}
+  toast(`✅ "${oldName}" → "${newName}"`);
+  await loadCamps();
+  renderAll();
+}
+
+const adminCache = {users: {}};
+
+async function loadAdminData(){
+  // created_by user_id → email 매핑
+  const userIds = [...new Set(state.events.map(e=>e.created_by).filter(Boolean))];
+  if(userIds.length === 0) return;
+  // members 테이블에서 이메일 조회
+  const {data} = await sb.from('members').select('user_id,email,name').in('user_id', userIds);
+  if(data){
+    data.forEach(m=>{adminCache.users[m.user_id] = m});
+  }
+}
+
+function renderAdminStats(){
+  const totalEvents = state.events.length;
+  const eligible = budgetEligibleCamps();
+  const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name), 0);
+  const totalBudget = totalBudgetLimit();
+  const usagePct = totalBudget > 0 ? Math.round(totalSpent/totalBudget*100) : 0;
+  const issues = getIssues();
+  const danger = issues.filter(i=>i.type==="danger").length;
+  const warn = issues.filter(i=>i.type==="warn").length;
+  const activeCamps = eligible.filter(c=>campSpent(c.name)>0).length;
+
+  $("#admin-stats").innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:#dbeafe;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#1e40af">${totalEvents}</div>
+        <div style="font-size:10px;color:#3b82f6">총 행사</div>
+      </div>
+      <div style="background:#dcfce7;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#166534">${activeCamps}/${eligible.length}</div>
+        <div style="font-size:10px;color:#16a34a">참여 캠프</div>
+      </div>
+      <div style="background:#fef3c7;padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#a16207">${(totalSpent/10000).toFixed(0)}만</div>
+        <div style="font-size:10px;color:#ca8a04">총 편성 (${usagePct}%)</div>
+      </div>
+      <div style="background:${danger>0?'#fecaca':warn>0?'#fed7aa':'#dcfce7'};padding:10px;border-radius:8px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:${danger>0?'#991b1b':warn>0?'#9a3412':'#166534'}">${danger>0?'🚨':warn>0?'⚠️':'✅'} ${issues.length}</div>
+        <div style="font-size:10px;color:${danger>0?'#b91c1c':warn>0?'#c2410c':'#16a34a'}">충돌 (불가${danger}/주의${warn})</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px;font-size:11px;color:#1e40af;line-height:1.6">
+      💰 추가금: 아빠의나무 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = ${won(EXTRA_BUDGET_PER_CAMP)} / 캠프
+    </div>
+  `;
+}
+
+
+function renderAdminCategories(){
+  const counts = {A:0,B:0,C:0,D:0};
+  for(const e of state.events){counts[e.category] = (counts[e.category]||0)+1}
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+  if(total===0){$("#admin-categories").innerHTML = '<div class="empty">데이터 없음</div>';return}
+
+  const colors = {A:'#c8425a',B:'#5a8c3f',C:'#3d6dad',D:'#a36b1f'};
+  const labels = {A:'공연',B:'먹거리',C:'체험',D:'활동'};
+  $("#admin-categories").innerHTML = `
+    <div style="display:flex;height:24px;border-radius:6px;overflow:hidden;margin-bottom:8px">
+      ${Object.entries(counts).map(([cat,n])=>n>0?`<div style="background:${colors[cat]};flex:${n};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700">${cat} ${n}</div>`:'').join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
+      ${Object.entries(counts).map(([cat,n])=>`
+        <div style="display:flex;align-items:center;gap:6px;padding:5px;background:#f4f4f0;border-radius:6px">
+          <span class="badge b-${cat}">${cat}</span>
+          <span>${labels[cat]}: <b>${n}건</b> (${Math.round(n/total*100)}%)</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminCampActivity(){
+  const target = $("#admin-camp-activity");
+  if(!target) return;
+
+  const stats = state.camps.map(c=>{
+    const events = state.events.filter(e=>e.camp_name===c.name).length;
+    const spent = campSpent(c.name);
+    const limit = campBudget(c.name);
+    const pct = limit > 0 ? Math.round(spent/limit*100) || 0 : 0;
+    return {name:c.name, group:c.group_name || c.group || '', events, spent, pct, limit};
+  }).sort((a,b)=>b.events-a.events || b.spent-a.spent || a.name.localeCompare(b.name));
+
+  const top5 = stats.slice(0,5);
+  const inactive = stats.filter(s=>s.events===0);
+
+  target.innerHTML = `
+    <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px">🏆 활성 TOP 5</div>
+    ${top5.map((s,i)=>`
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:6px;border-bottom:1px dashed var(--line);font-size:12px;align-items:center">
+        <span style="font-weight:700;color:${i===0?'#d97706':'#64748b'}">#${i+1}</span>
+        <div>
+          <div style="font-weight:600">${s.name}</div>
+          <div style="font-size:10px;color:var(--muted)">${s.group || '미지정'} · ${s.events}건${isForfeitedCamp(s.name)?' · 예산권 포기':''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:700">${s.pct}%</div>
+          <div style="font-size:9px;color:var(--muted)">${(s.spent/10000).toFixed(0)}만원</div>
+        </div>
+      </div>
+    `).join('')}
+    ${inactive.length>0?`
+      <div style="margin-top:12px;padding:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;font-size:11px;color:#9a3412;line-height:1.6">
+        <b>⚠️ 아직 일정 없는 캠프 ${inactive.length}곳</b><br>
+        ${inactive.map(s=>s.name).join(', ')}
+      </div>
+    `:''}
+  `;
+}
+
+function renderAdminInstructorStats(){
+  const target = $("#admin-instructor-stats");
+  if(!target) return;
+
+  const map = {};
+  for(const e of state.events){
+    if(e.bundle_type === 'ticket') continue;
+    const p = findProgram(e.program_name);
+    if(!p || !p.i || p.i === 'D_자체') continue;
+    const key = p.i;
+    if(!map[key]) map[key] = {key, name:key.split('_')[1] || key, cat:key.charAt(0), count:0, days:new Set(), camps:new Set()};
+    map[key].count += 1;
+    if(e.event_date) map[key].days.add(e.event_date);
+    if(e.camp_name) map[key].camps.add(e.camp_name);
+  }
+
+  const list = Object.values(map).sort((a,b)=>b.count-a.count || a.name.localeCompare(b.name));
+  if(list.length === 0){
+    target.innerHTML = '<div class="empty">강사 일정 없음</div>';
     return;
   }
 
-  formState = {cat:""};
-  $("#m-camp-display").textContent = state.selectedCamp;
-  $("#m-date").value = "";
-  $("#m-program").innerHTML = `<option value="">먼저 카테고리 선택</option>`;
-  $("#m-qty").value = 1;
-  $("#m-qty-row").style.display = "none";
-  $("#m-preview").innerHTML = "";
+  target.innerHTML = list.map((s,i)=>`
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:8px 6px;border-bottom:1px dashed var(--line);font-size:12px;align-items:center">
+      <span class="badge b-${s.cat}">${s.cat}</span>
+      <div>
+        <div style="font-weight:700">${s.name}</div>
+        <div style="font-size:10px;color:var(--muted)">${s.days.size}일 · ${s.camps.size}개 캠프</div>
+      </div>
+      <div style="text-align:right;font-weight:800">${s.count}회</div>
+    </div>
+  `).join('');
+}
+
+function renderAdminRecentActivity(){
+  const target = $("#admin-recent-activity");
+  if(!target) return;
+
+  const rows = [...state.events].sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||''))).slice(0,12);
+  if(rows.length === 0){
+    target.innerHTML = '<div class="empty">최근 활동 없음</div>';
+    return;
+  }
+
+  target.innerHTML = rows.map(e=>{
+    const who = adminCache.users[e.created_by]?.email || e.created_by || '알 수 없음';
+    const when = e.created_at ? new Date(e.created_at) : null;
+    const whenText = when && !isNaN(when) ? `${when.getMonth()+1}/${when.getDate()} ${String(when.getHours()).padStart(2,'0')}:${String(when.getMinutes()).padStart(2,'0')}` : '-';
+    const price = getEventPrice(e);
+    return `
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;padding:8px 4px;border-bottom:1px dashed var(--line);font-size:11px;align-items:start">
+        <span class="badge b-${e.category||'A'}">${e.category||'?'}</span>
+        <div>
+          <div style="font-weight:700">${e.camp_name || '-'} · ${e.program_name || '-'}</div>
+          <div style="color:var(--muted);font-size:10px">${e.event_date || '수시'} · ${who}</div>
+        </div>
+        <div style="text-align:right;color:var(--muted);font-size:10px">
+          <div>${whenText}</div>
+          <div>${won(price)}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// 행사 추가 / 삭제
+// ============================================================
+function renderCategoryPills(){
+  document.querySelectorAll('#m-cat-pills .pill').forEach(pill=>{
+    pill.classList.toggle('active', pill.dataset.cat === formState.cat);
+  });
+}
+
+function renderProgramOptions(selectedName=''){
+  const sel = $("#m-program");
+  if(!sel) return;
+  if(!formState.cat){
+    sel.innerHTML = '<option value="">먼저 카테고리 선택</option>';
+    return;
+  }
+  const opts = programs[formState.cat] || [];
+  sel.innerHTML = '<option value="">프로그램 선택</option>' + opts.map(p=>`<option value="${p.n}" ${selectedName===p.n?'selected':''}>${p.n}</option>`).join('');
+}
+
+function openEventModal(prefill={}){
+  if(!state.selectedCamp){toast('캠프를 먼저 선택하세요');return;}
+  if(isForfeitedCamp(state.selectedCamp)){toast('❌ 아빠의나무는 예산권 포기로 신청할 수 없습니다');return;}
+  if(isApplicationClosed() && !state.isAdmin){toast('⛔ 신청 마감되었습니다 (14:00)');return;}
+  if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
+
+  formState = {cat: prefill.cat || ''};
+  $("#m-camp-display").textContent = `${state.selectedCamp} (${getCampGroup(state.selectedCamp) || '조 미지정'}) · 적용예산 ${won(campBudget(state.selectedCamp))}`;
+  $("#m-date").value = prefill.date || '';
+  $("#m-qty").value = prefill.qty || 1;
+  $("#m-preview").innerHTML = '';
   $("#m-save").disabled = true;
-  $$("#m-cat-pills .pill").forEach(p=>p.classList.remove("active"));
-  $("#modal").style.display = "flex";
+
+  renderCategoryPills();
+  renderProgramOptions(prefill.programName || '');
+  $("#modal").style.display = 'flex';
+  updateEventPreview();
 }
 
 function closeEventModal(){
-  $("#modal").style.display = "none";
+  const modal = $("#modal");
+  if(modal) modal.style.display = 'none';
 }
 
-function renderProgramOptions(){
-  const cat = formState.cat;
-  const sel = $("#m-program");
-  if(!cat){
-    sel.innerHTML = `<option value="">먼저 카테고리 선택</option>`;
-    return;
+function getSelectedProgram(){
+  const name = $("#m-program")?.value;
+  if(!name) return null;
+  return findProgram(name);
+}
+
+function updateQtyVisibility(){
+  const p = getSelectedProgram();
+  const isTicket = !!(p && p.p && p.p.ticket);
+  const row = $("#m-qty-row");
+  if(row) row.style.display = isTicket ? 'block' : 'none';
+  const dateInput = $("#m-date");
+  if(dateInput){
+    dateInput.disabled = isTicket;
+    dateInput.style.opacity = isTicket ? '0.45' : '1';
   }
-  sel.innerHTML = `<option value="">프로그램 선택</option>` + programs[cat].map(p=>`<option value="${escapeHtml(p.n)}">${escapeHtml(p.n)}</option>`).join("");
 }
 
 function updateEventPreview(){
-  const cat = formState.cat;
-  const name = $("#m-program").value;
-  const date = $("#m-date").value;
-  const qty = Number($("#m-qty").value || 1);
-  const p = findProgram(name);
   const pv = $("#m-preview");
-  const save = $("#m-save");
+  const saveBtn = $("#m-save");
+  if(!pv || !saveBtn) return;
 
-  save.disabled = true;
+  const p = getSelectedProgram();
+  const date = $("#m-date")?.value;
+  const qty = Math.max(1, parseInt($("#m-qty")?.value || '1',10));
 
-  if(!cat || !name || !p){
-    pv.innerHTML = "";
+  updateQtyVisibility();
+
+  if(!formState.cat || !p){
+    pv.innerHTML = '<div class="preview">카테고리와 프로그램을 선택하세요.</div>';
+    saveBtn.disabled = true;
     return;
   }
 
   const isTicket = !!p.p.ticket;
-  $("#m-qty-row").style.display = isTicket ? "block" : "none";
-
   if(!isTicket && !date){
-    pv.innerHTML = `<div class="preview err">날짜를 선택하세요.</div>`;
+    pv.innerHTML = '<div class="preview warn"><div class="pv-title">📅 날짜 필요</div>행사 날짜를 선택하세요.</div>';
+    saveBtn.disabled = true;
     return;
   }
+
+  const duplicate = !isTicket && state.events.some(e=>
+    e.camp_name === state.selectedCamp &&
+    e.event_date === date &&
+    e.program_name === p.n &&
+    e.bundle_type !== 'ticket'
+  );
+
+  if(duplicate){
+    pv.innerHTML = '<div class="preview err"><div class="pv-title">❌ 중복 일정</div>이미 같은 날짜에 같은 프로그램이 등록되어 있습니다.</div>';
+    saveBtn.disabled = true;
+    return;
+  }
+
+  let price = 0;
+  let details = '';
 
   if(isTicket){
-    const price = ticketPrice(name,qty);
-    pv.innerHTML = `<div class="preview ok"><b>${escapeHtml(name)}</b><br>수량 ${qty}매 · 예상 금액 <b>${won(price)}</b></div>`;
-    save.disabled = false;
-    return;
+    price = ticketPrice(p.n, qty);
+    details = `
+      <div class="pv-row">매수권 / 수시 사용</div>
+      <div class="pv-row">수량: <b>${qty}매</b></div>
+      <div class="pv-row">단가: <b>${won(p.p.ticket)}</b></div>
+    `;
+  } else {
+    const existing = state.events.filter(e=>e.event_date===date && e.program_name===p.n && e.bundle_type!=='ticket');
+    const bundles = getBundles(date, p.n);
+    const openBundle = bundles.find(b=>!b.complete && !b.finalized);
+    const cap = bundleCapacity(p.n);
+    const nextCount = openBundle ? openBundle.count + 1 : 1;
+    const ap = autoPrice(p.n, nextCount);
+    price = ap.price;
+    const currentCamps = openBundle ? openBundle.events.map(e=>e.camp_name) : [];
+    details = `
+      <div class="pv-row">날짜: <b>${date}</b></div>
+      <div class="pv-row">현재 같은 묶음: <b>${currentCamps.length}곳</b>${currentCamps.length?` (${currentCamps.join(', ')})`:''}</div>
+      <div class="pv-row">추가 후: <b>${nextCount}/${cap}곳</b> ${ap.warn?`· ${ap.warn}`:''}</div>
+      <div class="pv-row">강사/업체: <b>${p.i || '-'}</b></div>
+    `;
   }
 
-  const currentCount = activeEvents().filter(e=>e.event_date===date && e.program_name===name && e.bundle_type!=="ticket").length;
-  const newCount = currentCount + 1;
-  const ap = autoPrice(name,newCount);
-  const cap = bundleCapacity(name);
-
+  const limit = campBudget(state.selectedCamp);
+  const extra = campExtraBudget(state.selectedCamp);
+  const remainAfter = limit - campSpent(state.selectedCamp) - price;
+  const cls = remainAfter < 0 ? 'err' : remainAfter < 300000 ? 'warn' : 'ok';
   pv.innerHTML = `
-    <div class="preview ok">
-      <b>${escapeHtml(name)}</b><br>
-      날짜 ${escapeHtml(date)} · 신청 후 묶음 ${newCount}/${cap}곳<br>
-      예상 단가 <b>${won(ap.price)}</b>
-      ${ap.warn ? `<br><span style="color:var(--warn);font-weight:800">${escapeHtml(ap.warn)}</span>` : ""}
+    <div class="preview ${cls}">
+      <div class="pv-title">${remainAfter < 0 ? '⚠️ 예산 초과' : '✅ 추가 전 확인'}</div>
+      ${details}
+      <div class="pv-row">적용 예산: <b>${won(limit)}</b> ${extra?`(기본 ${won(BUDGET)} + 추가금 ${won(extra)})`:''}</div>
+      <div class="pv-price">예상 금액 ${won(price)}</div>
+      <div class="pv-row">추가 후 잔액: <b>${won(remainAfter)}</b></div>
+      ${remainAfter < 0 ? '<div style="font-size:12px;color:var(--danger);font-weight:700;margin-top:6px">예산 초과 상태입니다. 관리자만 강제 입력을 권장합니다.</div>' : ''}
     </div>
   `;
-  save.disabled = false;
+
+  saveBtn.disabled = remainAfter < 0 && !state.isAdmin;
+}
+
+async function insertCampEvent(payload){
+  const attempts = [
+    payload,
+    omitKeys(payload, ['locked_price','finalized']),
+    omitKeys(payload, ['bundle_seq','locked_price','finalized']),
+    omitKeys(payload, ['created_by','bundle_seq','locked_price','finalized']),
+    {
+      camp_name: payload.camp_name,
+      event_date: payload.event_date,
+      category: payload.category,
+      program_name: payload.program_name,
+      qty: payload.qty || 1,
+      bundle_type: payload.bundle_type
+    },
+    {
+      camp_name: payload.camp_name,
+      event_date: payload.event_date,
+      category: payload.category,
+      program_name: payload.program_name,
+      qty: payload.qty || 1
+    }
+  ];
+  let lastError = null;
+  const used = new Set();
+  for(const body of attempts){
+    const key = JSON.stringify(body);
+    if(used.has(key)) continue;
+    used.add(key);
+    const {data, error} = await sb.from('camp_events').insert(body).select('*').maybeSingle();
+    if(!error) return data;
+    lastError = error;
+    console.warn('insert attempt failed:', error.message, body);
+  }
+  throw lastError || new Error('행사 등록 실패');
+}
+
+function omitKeys(obj, keys){
+  const out = {...obj};
+  for(const k of keys) delete out[k];
+  return out;
+}
+
+async function finalizeCompleteBundlesFor(date, programName){
+  try{
+    await loadEvents();
+    const bundles = getBundles(date, programName);
+    for(const b of bundles){
+      if(!b.complete || b.finalized || b.lockedPrice) continue;
+      const ids = b.events.map(e=>e.id).filter(Boolean);
+      if(ids.length === 0) continue;
+      const lockedPrice = autoPrice(programName, b.count).price;
+      const {error} = await sb.from('camp_events').update({locked_price: lockedPrice, finalized: true}).in('id', ids);
+      if(error) console.warn('bundle finalize skipped:', error.message);
+    }
+  }catch(err){
+    console.warn('bundle finalize failed:', err);
+  }
 }
 
 async function saveEvent(){
-  if(isForfeitedCamp(state.selectedCamp)){
-    toast("포기 업체는 신청할 수 없습니다.");
-    return;
-  }
-
-  const cat = formState.cat;
-  const name = $("#m-program").value;
-  const date = $("#m-date").value;
-  const qty = Number($("#m-qty").value || 1);
-  const p = findProgram(name);
-
-  if(!cat || !name || !p){
-    toast("카테고리와 프로그램을 선택하세요.");
-    return;
-  }
+  const p = getSelectedProgram();
+  if(!p){toast('프로그램을 선택하세요');return;}
+  if(!state.selectedCamp){toast('캠프를 선택하세요');return;}
+  if(!canEdit(state.selectedCamp)){toast('❌ 본인 캠프 일정만 수정할 수 있습니다');return;}
 
   const isTicket = !!p.p.ticket;
-  if(!isTicket && !date){
-    toast("날짜를 선택하세요.");
+  const date = isTicket ? null : $("#m-date").value;
+  const qty = isTicket ? Math.max(1, parseInt($("#m-qty").value || '1',10)) : 1;
+
+  if(!isTicket && !date){toast('날짜를 선택하세요');return;}
+
+  const duplicate = !isTicket && state.events.some(e=>
+    e.camp_name === state.selectedCamp &&
+    e.event_date === date &&
+    e.program_name === p.n &&
+    e.bundle_type !== 'ticket'
+  );
+  if(duplicate){toast('❌ 중복 일정입니다');return;}
+
+  const existingCount = !isTicket ? state.events.filter(e=>e.event_date===date && e.program_name===p.n && e.bundle_type!=='ticket').length : 0;
+  const estimatedPrice = isTicket ? ticketPrice(p.n, qty) : autoPrice(p.n, existingCount + 1).price;
+  const remainAfter = campBudget(state.selectedCamp) - campSpent(state.selectedCamp) - estimatedPrice;
+  if(remainAfter < 0 && !state.isAdmin){
+    toast(`❌ 적용 예산 초과: ${won(Math.abs(remainAfter))} 초과`);
     return;
   }
-
-  const existingCount = activeEvents().filter(e=>e.event_date===date && e.program_name===name && e.bundle_type!=="ticket").length;
-  const bundleSeq = isTicket ? null : existingCount + 1;
-  const price = isTicket ? ticketPrice(name,qty) : autoPrice(name,existingCount+1).price;
 
   const payload = {
     camp_name: state.selectedCamp,
-    event_date: isTicket ? null : date,
-    category: cat,
-    program_name: name,
-    qty: isTicket ? qty : 1,
-    bundle_type: isTicket ? "ticket" : "auto",
-    created_by: state.user.id,
-    bundle_seq: bundleSeq,
-    locked_price: price
+    event_date: date,
+    category: p.cat,
+    program_name: p.n,
+    qty,
+    bundle_type: isTicket ? 'ticket' : 'program',
+    bundle_seq: isTicket ? null : existingCount + 1,
+    locked_price: null,
+    finalized: false,
+    created_by: state.user?.id || null
   };
 
+  const btn = $("#m-save");
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
   try{
-    const {error} = await sb.from("camp_events").insert(payload);
-    if(error) throw error;
-    toast("신청 저장 완료");
+    await insertCampEvent(payload);
+    if(!isTicket) await finalizeCompleteBundlesFor(date, p.n);
+    await loadEvents();
+    renderAll();
     closeEventModal();
-    await loadAll();
-  }catch(e){
-    console.error(e);
-    toast("저장 실패: " + (e.message || "확인 필요"));
+    toast(isTicket ? '✅ 매수권 등록 완료' : '✅ 행사 추가 완료');
+  }catch(err){
+    console.error(err);
+    toast('❌ 저장 실패: ' + (err.message || '권한/RLS/컬럼 확인 필요'));
+  }finally{
+    btn.textContent = '행사 추가';
+    updateEventPreview();
   }
 }
 
 async function deleteEvent(id){
-  if(!confirm("삭제하시겠습니까?")) return;
-  try{
-    const {error} = await sb.from("camp_events").delete().eq("id",id);
-    if(error) throw error;
-    toast("삭제 완료");
-    await loadAll();
-  }catch(e){
-    console.error(e);
-    toast("삭제 실패: " + (e.message || "확인 필요"));
+  const e = state.events.find(x=>String(x.id)===String(id));
+  if(!e){toast('일정을 찾을 수 없습니다');return;}
+  if(!canEdit(e.camp_name)){toast('❌ 본인 캠프 일정만 삭제할 수 있습니다');return;}
+  if(!confirm(`${e.camp_name} / ${e.program_name} 일정을 삭제할까요?`)) return;
+
+  const {error} = await sb.from('camp_events').delete().eq('id', id);
+  if(error){toast('❌ 삭제 실패: ' + error.message);return;}
+  await loadEvents();
+  renderAll();
+  toast('삭제 완료');
+}
+
+// ============================================================
+// 탭 / 지도
+// ============================================================
+let memberMap = null;
+const CAMP_LOCATIONS = {
+  "가자우리집":[36.681,127.830], "솔베이":[36.674,127.812], "도명산":[36.667,127.807],
+  "아빠의나무":[36.719,127.795], "시냇가":[36.707,127.784], "후평숲":[36.730,127.808],
+  "해밀터":[36.789,127.833], "원탑":[36.775,127.850], "즐거운녀석들":[36.762,127.842],
+  "따봄스테이":[36.815,127.789], "모래재캠핑장":[36.765,127.655], "자연애캠핑장":[36.705,127.744],
+  "루파니캠핑장":[36.733,127.916], "숲속의하모니":[36.786,127.909], "아이뜰캠핑장":[36.754,127.884],
+  "운교랜드캠핑장":[36.653,127.755], "화양숲노리":[36.670,127.802], "그린비":[36.690,127.865]
+};
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display = 'none');
+  const target = $(`#tab-${tab}`);
+  if(target) target.style.display = 'block';
+  if(tab === 'all' && $("#all-map-view")?.style.display !== 'none'){
+    setTimeout(()=>initMemberMap(), 50);
   }
 }
 
-function generateCsv(){
-  const lines = ["캠프명,조,날짜,카테고리,프로그램,수량,금액,상태"];
-  for(const e of state.events){
-    lines.push([
+function setAllView(mode){
+  const isMap = mode === 'map';
+  $("#all-list-view").style.display = isMap ? 'none' : 'block';
+  $("#all-map-view").style.display = isMap ? 'block' : 'none';
+  $("#view-list-btn").classList.toggle('active', !isMap);
+  $("#view-map-btn").classList.toggle('active', isMap);
+  if(isMap) setTimeout(()=>initMemberMap(), 80);
+}
+
+function initMemberMap(){
+  const el = $("#member-map");
+  if(!el) return;
+  if(typeof L === 'undefined'){
+    el.innerHTML = '<div class="empty">지도 라이브러리 로드 실패</div>';
+    return;
+  }
+  if(memberMap){
+    memberMap.invalidateSize();
+    return;
+  }
+
+  memberMap = L.map('member-map').setView([36.735,127.820], 10);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(memberMap);
+
+  for(const c of state.camps){
+    const loc = CAMP_LOCATIONS[c.name] || [36.735 + (Math.random()-0.5)*0.08, 127.820 + (Math.random()-0.5)*0.08];
+    const spent = campSpent(c.name);
+    const count = state.events.filter(e=>e.camp_name===c.name).length;
+    L.marker(loc).addTo(memberMap).bindPopup(`
+      <b>${c.name}</b><br>
+      ${c.group_name || c.group || '조 미지정'}<br>
+      일정 ${count}건 · 사용 ${won(spent)}<br>
+      잔액 ${won(campBudget(c.name)-spent)}
+    `);
+  }
+}
+
+// ============================================================
+// 내보내기 / 보고서
+// ============================================================
+function csvCell(v){
+  const s = String(v ?? '');
+  return /[",\n\t]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function downloadText(filename, text, type='text/plain;charset=utf-8'){
+  const blob = new Blob([text], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+function generateEventsCsv(){
+  const rows = [['캠프명','조','날짜','분류','프로그램','수량','묶음유형','금액','적용예산','추가금','등록일']];
+  const sorted = [...state.events].sort((a,b)=>(a.camp_name||'').localeCompare(b.camp_name||'') || String(a.event_date||'').localeCompare(String(b.event_date||'')));
+  for(const e of sorted){
+    rows.push([
       e.camp_name,
       getCampGroup(e.camp_name),
-      e.event_date || "수시",
+      e.event_date || '수시',
       e.category,
       e.program_name,
       e.qty || 1,
+      e.bundle_type || 'program',
       getEventPrice(e),
-      isForfeitedCamp(e.camp_name) ? "예산권 포기" : "정상"
-    ].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(","));
+      campBudget(e.camp_name),
+      campExtraBudget(e.camp_name),
+      e.created_at || ''
+    ]);
   }
-  return lines.join("\n");
+  return '\ufeff' + rows.map(r=>r.map(csvCell).join(',')).join('\n');
 }
 
-function downloadCsv(){
-  const blob = new Blob(["\ufeff"+generateCsv()],{type:"text/csv;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `goesan-camp-events-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+function exportCsv(){
+  downloadText(`goesan-camp-events-${new Date().toISOString().slice(0,10)}.csv`, generateEventsCsv(), 'text/csv;charset=utf-8');
+  toast('📋 CSV 다운로드 시작');
+}
+
+function generateSummaryText(){
+  const totalEvents = state.events.length;
+  const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name),0);
+  const issues = getIssues();
+  const active = budgetEligibleCamps().filter(c=>campSpent(c.name)>0).length;
+  const lines = [];
+  lines.push('🏕 괴산캠핑장협회 활성화 프로그램 요약');
+  lines.push('━━━━━━━━━━━━━━━━━━━━');
+  lines.push(`작성일: ${new Date().toLocaleString('ko-KR')}`);
+  const eligible = budgetEligibleCamps();
+  lines.push(`참여 캠프: ${active}/${eligible.length}곳`);
+  lines.push(`등록 행사: ${totalEvents}건`);
+  lines.push(`총 편성액: ${won(totalSpent)}`);
+  lines.push(`전체 적용 예산: ${won(totalBudgetLimit())}`);
+  lines.push(`추가금: ${FORFEITED_CAMP_NAME} 포기분 ${won(FORFEITED_BUDGET)} ÷ ${REDISTRIBUTION_TARGET_COUNT}곳 = ${won(EXTRA_BUDGET_PER_CAMP)} / 캠프`);
+  lines.push(`검증 이슈: ${issues.length}건`);
+  lines.push('');
+  lines.push('[캠프별 현황]');
+  for(const c of state.camps){
+    const spent = campSpent(c.name);
+    const cnt = state.events.filter(e=>e.camp_name===c.name).length;
+    lines.push(`${c.name}\t${getCampGroup(c.name)}\t${cnt}건\t사용 ${won(spent)}\t적용예산 ${won(campBudget(c.name))}\t추가금 ${won(campExtraBudget(c.name))}\t잔액 ${won(campBudget(c.name)-spent)}${isForfeitedCamp(c.name)?"\t예산권 포기":""}`);
+  }
+  if(issues.length){
+    lines.push('');
+    lines.push('[검증 이슈]');
+    issues.forEach((i,idx)=>lines.push(`${idx+1}. ${i.title} - ${i.detail}`));
+  }
+  return lines.join('\n');
 }
 
 function copySummary(){
-  const totalSpent = state.camps.reduce((s,c)=>s+campSpent(c.name),0);
-  const summary = [
-    "[괴산캠핑장협회 활성화 프로그램 예산 요약]",
-    "",
-    `총예산: ${won(TOTAL_BUDGET)}`,
-    `전체 기준: ${TOTAL_TARGET_COUNT}곳`,
-    `자체 신청: ${SELF_APPLY_COUNT}곳`,
-    `시스템 신청: ${SYSTEM_APPLY_COUNT}곳`,
-    `포기 업체: 아빠의나무, 강변캠핑장`,
-    `해밀터 사용액: ${won(HAMILTON_USED)}`,
-    "",
-    `기본 배정액: ${won(BASE_BUDGET)}`,
-    `포기 2곳 추가금: ${won(FORFEITED_EXTRA_PER_CAMP)}`,
-    `해밀터 차액 추가금: ${won(HAMILTON_EXTRA_PER_CAMP)}`,
-    `최종 1곳당 한도: ${won(FINAL_CAMP_BUDGET)}`,
-    "",
-    `현재 총 사용액: ${won(totalSpent)}`,
-    `검증 이슈: ${getIssues().length}건`,
-    "",
-    "신청 상태: 활성화"
-  ].join("\n");
-
-  copyToClipboard(summary,"요약 복사 완료");
+  copyToClipboard(generateSummaryText(), '📄 요약 텍스트 복사됨');
 }
 
-function copyToClipboard(text,msg){
-  if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>fallbackCopy(text,msg));
-  }else{
-    fallbackCopy(text,msg);
-  }
+function generateReportBody(){
+  const totalSpent = state.camps.reduce((sum,c)=>sum + campSpent(c.name),0);
+  const eligible = budgetEligibleCamps();
+  const active = eligible.filter(c=>campSpent(c.name)>0).length;
+  const issues = getIssues();
+  const byCat = {A:0,B:0,C:0,D:0};
+  for(const e of state.events) byCat[e.category] = (byCat[e.category]||0)+1;
+
+  return `2026년 괴산캠핑장협회 활성화 프로그램 운영계획\n\n` +
+`1. 사업 개요\n` +
+`- 대상: 괴산캠핑장협회 회원 캠프 ${state.camps.length}곳\n` +
+`- 예산 산식: 기본 ${won(BUDGET)} + 아빠의나무 포기분 재분배 추가금 ${won(EXTRA_BUDGET_PER_CAMP)} = 캠프당 ${won(ACTIVE_CAMP_BUDGET)}\n` +
+`- 아빠의나무: 예산권 포기, 예산 0원, 신규 신청 불가\n` +
+`- 총 적용 예산: ${won(totalBudgetLimit())}\n\n` +
+`2. 등록 현황\n` +
+`- 참여 캠프: ${active}/${eligible.length}곳\n` +
+`- 등록 행사: ${state.events.length}건\n` +
+`- 총 편성액: ${won(totalSpent)}\n` +
+`- 잔여 예산: ${won(totalBudgetLimit() - totalSpent)}\n\n` +
+`3. 카테고리별 편성\n` +
+`- A 공연: ${byCat.A || 0}건\n` +
+`- B 먹거리: ${byCat.B || 0}건\n` +
+`- C 체험: ${byCat.C || 0}건\n` +
+`- D 활동: ${byCat.D || 0}건\n\n` +
+`4. 캠프별 세부 현황\n` +
+state.camps.map(c=>{
+  const spent = campSpent(c.name);
+  const cnt = state.events.filter(e=>e.camp_name===c.name).length;
+  return `- ${c.name} (${getCampGroup(c.name)}): ${cnt}건 / 사용 ${won(spent)} / 적용예산 ${won(campBudget(c.name))} / 추가금 ${won(campExtraBudget(c.name))} / 잔액 ${won(campBudget(c.name)-spent)}${isForfeitedCamp(c.name)?' / 예산권 포기':''}`;
+}).join('\n') +
+`\n\n5. 검증 결과\n` +
+(issues.length ? issues.map((i,idx)=>`- ${idx+1}. ${i.title}: ${i.detail}`).join('\n') : '- 특이사항 없음') +
+`\n\n붙임: 세부 일정 CSV 1부.\n`;
 }
 
-function fallbackCopy(text,msg){
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.style.position = "fixed";
-  ta.style.left = "-9999px";
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand("copy");
-  ta.remove();
-  toast(msg);
+function openReportModal(){
+  $("#report-body").value = generateReportBody();
+  $("#report-modal").style.display = 'flex';
+}
+function closeReportModal(){
+  $("#report-modal").style.display = 'none';
+}
+function reportCopy(){
+  copyToClipboard($("#report-body").value, '📋 보고서 본문 복사됨');
+}
+function reportCsv(){
+  downloadText(`goesan-camp-report-${new Date().toISOString().slice(0,10)}.csv`, generateEventsCsv(), 'text/csv;charset=utf-8');
+}
+function reportMail(){
+  const to = $("#report-email").value.trim();
+  const subject = $("#report-subject").value.trim() || '2026년 괴산캠핑장협회 활성화 프로그램 운영계획';
+  const body = $("#report-body").value;
+  location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-function escapeHtml(v){
-  return String(v ?? "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[m]));
-}
-
-function bindEvents(){
-  $("#btn-login").addEventListener("click",()=>{
-    const email = $("#login-email").value.trim();
-    const pw = $("#login-pw").value;
+// ============================================================
+// 이벤트 바인딩 / 초기화
+// ============================================================
+function bindUIEvents(){
+  // 로그인
+  window.doLogin = async function(){
+    const email = $("#login-email")?.value.trim();
+    const pw = $("#login-pw")?.value;
+    const btn = $("#btn-login");
+    const msg = $("#login-msg");
     if(!email || !pw){
-      $("#login-msg").textContent = "이메일과 비밀번호를 입력하세요.";
+      if(msg){msg.style.color='var(--danger)';msg.textContent='❌ 이메일과 비밀번호를 입력하세요';}
       return;
     }
-    login(email,pw);
-  });
+    if(btn){btn.disabled=true;btn.textContent='로그인 중...';}
+    try{
+      await login(email,pw);
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='로그인';}
+    }
+  };
+  $("#login-pw")?.addEventListener('keydown', e=>{ if(e.key==='Enter') window.doLogin(); });
+  $("#login-email")?.addEventListener('keydown', e=>{ if(e.key==='Enter') $("#login-pw")?.focus(); });
 
-  $("#login-pw").addEventListener("keydown",e=>{
-    if(e.key === "Enter") $("#btn-login").click();
-  });
-
-  $("#login-email").addEventListener("keydown",e=>{
-    if(e.key === "Enter") $("#login-pw").focus();
-  });
-
-  $("#btn-refresh").addEventListener("click",async()=>{
-    await loadAll();
-    toast("새로고침 완료");
-  });
-
-  $("#btn-logout").addEventListener("click",logout);
-
-  $("#camp-picker").addEventListener("change",e=>{
-    state.selectedCamp = e.target.value;
+  // 기본 버튼
+  $("#btn-refresh")?.addEventListener('click', async()=>{ await loadAll(); toast('🔄 새로고침 완료'); });
+  $("#btn-logout")?.addEventListener('click', logout);
+  $("#camp-picker")?.addEventListener('change', e=>{
+    if(state.myCamp && !state.isAdmin){
+      e.target.value = state.myCamp;
+      state.selectedCamp = state.myCamp;
+    }else{
+      state.selectedCamp = e.target.value;
+    }
     renderAll();
   });
 
-  $$(".tab").forEach(tab=>{
-    tab.addEventListener("click",()=>switchTab(tab.dataset.tab));
+  // 탭
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>switchTab(tab.dataset.tab));
   });
+  $("#view-list-btn")?.addEventListener('click', ()=>setAllView('list'));
+  $("#view-map-btn")?.addEventListener('click', ()=>setAllView('map'));
 
-  $("#btn-add-event").addEventListener("click",openEventModal);
-  $("#m-close").addEventListener("click",closeEventModal);
-  $("#modal").addEventListener("click",e=>{
-    if(e.target.id === "modal") closeEventModal();
-  });
-
-  $$("#m-cat-pills .pill").forEach(pill=>{
-    pill.addEventListener("click",()=>{
+  // 모달
+  $("#btn-add-event")?.addEventListener('click', ()=>openEventModal());
+  $("#m-close")?.addEventListener('click', closeEventModal);
+  $("#modal")?.addEventListener('click', e=>{ if(e.target.id === 'modal') closeEventModal(); });
+  document.querySelectorAll('#m-cat-pills .pill').forEach(pill=>{
+    pill.addEventListener('click', ()=>{
       formState.cat = pill.dataset.cat;
-      $$("#m-cat-pills .pill").forEach(p=>p.classList.remove("active"));
-      pill.classList.add("active");
+      renderCategoryPills();
       renderProgramOptions();
       updateEventPreview();
     });
   });
+  $("#m-program")?.addEventListener('change', updateEventPreview);
+  $("#m-date")?.addEventListener('change', updateEventPreview);
+  $("#m-qty")?.addEventListener('input', updateEventPreview);
+  $("#m-save")?.addEventListener('click', saveEvent);
 
-  $("#m-program").addEventListener("change",updateEventPreview);
-  $("#m-date").addEventListener("change",updateEventPreview);
-  $("#m-qty").addEventListener("input",updateEventPreview);
-  $("#m-save").addEventListener("click",saveEvent);
+  // 관리자/리스트 액션 위임
+  document.addEventListener('click', async e=>{
+    const delBtn = e.target.closest('.me-btn.del');
+    if(delBtn?.dataset.id){ await deleteEvent(delBtn.dataset.id); return; }
 
-  document.addEventListener("click",e=>{
-    const btn = e.target.closest(".btn-del");
-    if(btn && btn.dataset.id) deleteEvent(btn.dataset.id);
+    const annClose = e.target.closest('.ann-banner-close');
+    if(annClose?.dataset.id){ dismissAnnouncement(annClose.dataset.id); return; }
+
+    const annDel = e.target.closest('[data-ann-del]');
+    if(annDel?.dataset.annDel){ await deleteAnnouncement(annDel.dataset.annDel); await loadAnnouncements(); renderAll(); return; }
+
+    const loginCopy = e.target.closest('.login-copy');
+    if(loginCopy?.dataset.info){ copyToClipboard(loginCopy.dataset.info, '복사됨'); return; }
   });
 
-  $("#btn-export-csv")?.addEventListener("click",downloadCsv);
-  $("#btn-copy-summary")?.addEventListener("click",copySummary);
+  // 관리자 조편성
+  document.addEventListener('change', async e=>{
+    if(e.target.classList.contains('ga-select')){
+      const campName = e.target.dataset.camp;
+      let newGroup = e.target.value;
+      if(newGroup === '__new__'){
+        newGroup = prompt('새 조 이름을 입력하세요', '7조 신규');
+        if(!newGroup){ renderAdminGroupAssignment(); return; }
+      }
+      await changeCampGroup(campName, newGroup);
+    }
+  });
+  document.addEventListener('blur', async e=>{
+    if(e.target.classList.contains('ga-group-name-input')){
+      const oldName = e.target.dataset.old;
+      const newName = e.target.value.trim();
+      if(oldName && newName && oldName !== newName) await renameGroup(oldName, newName);
+    }
+  }, true);
+  document.addEventListener('click', async e=>{
+    if(e.target.id === 'ga-add-group'){
+      const group = prompt('새 조 이름을 입력하세요', '7조 신규');
+      if(!group) return;
+      toast('새 조는 캠프를 이동하면 자동 생성됩니다');
+    }
+  });
 
+  // 관리자 버튼
+  $("#btn-copy-login-kakao")?.addEventListener('click', copyLoginInfoKakao);
+  $("#btn-copy-login-csv")?.addEventListener('click', copyLoginInfoCsv);
+  $("#btn-recruitment-kakao")?.addEventListener('click', copyRecruitmentKakao);
+  $("#btn-recruitment-csv")?.addEventListener('click', copyRecruitmentCsv);
+  $("#btn-ann-create")?.addEventListener('click', createAnnouncement);
+  $("#btn-export-csv")?.addEventListener('click', exportCsv);
+  $("#btn-export-summary")?.addEventListener('click', copySummary);
+
+  // 강사
+  $("#inst-picker")?.addEventListener('change', e=>renderInstructorSchedule(e.target.value));
+  $("#btn-inst-copy")?.addEventListener('click', copyInstSchedule);
+  $("#btn-inst-csv")?.addEventListener('click', copyInstCsv);
+  $("#btn-inst-sms")?.addEventListener('click', sendInstSms);
+  $("#btn-inst-mail")?.addEventListener('click', sendInstMail);
+
+  // 보고서
+  $("#btn-report")?.addEventListener('click', openReportModal);
+  $("#report-close")?.addEventListener('click', closeReportModal);
+  $("#report-modal")?.addEventListener('click', e=>{ if(e.target.id === 'report-modal') closeReportModal(); });
+  $("#report-copy")?.addEventListener('click', reportCopy);
+  $("#report-csv")?.addEventListener('click', reportCsv);
+  $("#report-mail")?.addEventListener('click', reportMail);
+
+  // 온라인 상태
   const syncOnline = ()=>{
     const el = $("#online-status");
     if(!el) return;
-    if(navigator.onLine){
-      el.textContent = "온라인";
-      el.classList.remove("h-offline");
-    }else{
-      el.textContent = "오프라인";
-      el.classList.add("h-offline");
-    }
+    const on = navigator.onLine;
+    el.textContent = on ? '온라인' : '오프라인';
+    el.classList.toggle('h-offline', !on);
   };
-  window.addEventListener("online",syncOnline);
-  window.addEventListener("offline",syncOnline);
+  window.addEventListener('online', syncOnline);
+  window.addEventListener('offline', syncOnline);
   syncOnline();
 }
 
-async function init(){
-  bindEvents();
+// setupRealtime 중복 구독 방지
+const _setupRealtimeOriginal = setupRealtime;
+let _realtimeStarted = false;
+setupRealtime = function(){
+  if(_realtimeStarted) return;
+  _realtimeStarted = true;
+  return _setupRealtimeOriginal();
+};
 
+function toast(msg){
+  const old = document.querySelector('.toast');
+  if(old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+
+async function initApp(){
+  bindUIEvents();
   try{
-    const ok = await checkAuth();
-    if(오케이){
+    const authed = await checkAuth();
+    if(authed){
       await loadAll();
-      setupRealtimeOnce();
+      setupRealtime();
     }
-  }catch(e){
-    console.error("초기화 실패",e);
+  }catch(err){
+    console.error('initApp failed:', err);
     showLogin();
-    $("#login-msg").textContent = "초기화 실패: " + (e.message || "확인 필요");
+    const msg = $("#login-msg");
+    if(msg){
+      msg.style.color = 'var(--danger)';
+      msg.textContent = '❌ 초기화 실패: ' + (err.message || '설정 확인 필요');
+    }
   }
 }
 
-window.addEventListener("error",e=>{
-  console.error("전역 오류",e.error || e.message);
-});
-
-document.addEventListener("DOMContentLoaded",init);
+document.addEventListener('DOMContentLoaded', initApp);
 </script>
-
 </body>
 </html>
