@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-member-hardening-v4-20260509">
+<meta name="app-version" content="gca-v4.3-20260509-vote-proposal-stable">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -72,6 +72,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .mover{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:300;display:none;align-items:flex-end;justify-content:center}.mover.open{display:flex}.mo{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:20px 18px 32px}.moh{width:36px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 14px}.mot{font-family:var(--fh);font-size:18px;font-weight:800;margin-bottom:14px}.moa{display:flex;gap:8px;margin-top:14px}.moa .btn{flex:1;justify-content:center}.empty{text-align:center;padding:40px 18px;color:var(--mid);font-size:13px}.emptyic{font-size:32px;margin-bottom:8px}.errm{color:var(--red);font-size:13px;padding:14px;text-align:center}.loading{padding:24px;text-align:center;color:var(--mid);font-size:13px}
 .map-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.map-stat{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:11px 12px;text-align:center;box-shadow:var(--s1)}.map-stat-n{font-family:var(--fh);font-size:22px;font-weight:800;color:var(--g);line-height:1}.map-stat-l{font-size:10px;color:var(--mid);font-weight:700;margin-top:4px}#assoc-map{height:520px;border-radius:18px;overflow:hidden;border:1px solid var(--bdr);box-shadow:var(--s1);font-family:var(--fd)}.leaflet-popup-content{font-family:var(--fd);font-size:13px;line-height:1.6;margin:10px 12px}.leaflet-popup-content b{font-size:14px;color:var(--g);font-family:var(--fh);display:block;margin-bottom:4px}.leaflet-popup-content-wrapper{border-radius:14px}.region-legend{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:12px 14px;margin-top:10px;box-shadow:var(--s1)}.region-legend-t{font-size:11px;font-weight:800;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}.region-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px}.region-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
 .events-section{margin-top:22px;padding-top:18px;border-top:1px solid var(--cd)}.events-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px}.events-t{font-family:var(--fh);font-size:18px;font-weight:800}.events-link{font-size:12px;color:var(--g);font-weight:800;padding:6px 11px;background:var(--gp);border-radius:999px}.events-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.events-filter button{padding:6px 11px;border-radius:999px;border:1.5px solid transparent;background:#f2f5f1;color:var(--mid);font-size:11px;font-weight:800}.events-filter button.active{background:var(--g);color:#fff}.ev-card{background:var(--w);border:1px solid rgba(24,33,26,.07);border-radius:14px;padding:13px 14px;margin-bottom:8px;box-shadow:var(--s1);display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.ev-date{background:var(--gp);color:var(--g);border-radius:10px;padding:7px 9px;font-family:var(--fh);font-weight:800;font-size:11px;text-align:center;line-height:1.2;min-width:46px}.ev-date .ev-d{font-size:16px;display:block}.ev-date.ticket{background:var(--ab);color:var(--amber)}.ev-title{font-size:14px;font-weight:700;line-height:1.35;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.ev-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;align-items:center}.ev-cat{padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800}.ev-cat-A{background:#fef3c7;color:#92400e}.ev-cat-B{background:#fee2e2;color:#b91c1c}.ev-cat-C{background:#dbeafe;color:#1e40af}.ev-cat-D{background:#dcfce7;color:#15803d}.ev-status{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:800;flex-shrink:0;text-align:center;min-width:42px}.ev-locked{background:#dcfce7;color:#15803d}.ev-pending{background:#fef3c7;color:#92400e}.ev-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:14px;padding:20px;text-align:center;color:var(--mid);font-size:12px}
+
+.version-mark{position:fixed;right:10px;bottom:calc(62px + env(safe-area-inset-bottom));z-index:120;background:rgba(253,254,251,.88);border:1px solid rgba(24,33,26,.09);color:#6b756c;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:800;letter-spacing:-.01em;box-shadow:0 4px 14px rgba(24,33,26,.05);backdrop-filter:blur(10px);pointer-events:none}
+@media(max-width:700px){.version-mark{left:50%;right:auto;transform:translateX(-50%);bottom:calc(58px + env(safe-area-inset-bottom));font-size:9px;white-space:nowrap}}
 @media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
 </style>
 </head>
@@ -168,6 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="version-mark" id="version-mark">GCA v4.3 · 2026.05.09 · 투표안 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -178,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='gca-member-hardening-v4.1-manual-login-20260509';
+const APP_VERSION='GCA v4.3 · 2026.05.09 · 투표안 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -186,6 +190,7 @@ let assocMapInstance=null;
 let _mapCamps=[];
 let _allEvents=[];
 let _evFilter='upcoming';
+const _actionLocks=new Set();
 let _currentPage='notices';
 let campLayer=null;
 let _authBootDone=false;
@@ -567,46 +572,140 @@ async function submitMinutes(){
 
 async function loadBudget(){
   const list=g('budget-list');list.innerHTML='<div class="loading">불러오는 중...</div>';
-  const {data,error}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
-  if(error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(error.message)+'</div>';return;}
-  if(!data.length){list.innerHTML='<div class="empty"><div class="emptyic">✅</div>등록된 예산안이 없습니다</div>';return;}
-  let mv={};
-  if(App.member){const {data:vd}=await db.from('votes').select('proposal_id,vote').eq('member_id',App.member.id);(vd||[]).forEach(v=>mv[v.proposal_id]=v.vote);}
-  list.innerHTML=data.map(p=>renderP(p,mv)).join('');bindBudgetBar();applyBF();
+  const br=await selectBudgetProposals();
+  if(br.error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(budgetErrText(br.error))+'</div>';return;}
+  const rows=br.data||[];
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="emptyic">✅</div>등록된 예산안이 없습니다</div>';return;}
+  const ids=rows.map(p=>p.id).filter(Boolean);
+  const [counts,mv]=await Promise.all([loadVoteCounts(ids),loadMyVotes(ids)]);
+  const viewRows=rows.map(p=>applyVoteCounts(p,counts));
+  list.innerHTML=viewRows.map(p=>renderP(p,mv)).join('');bindBudgetBar();applyBF();
 }
+async function selectBudgetProposals(){
+  let r=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').order('created_at',{ascending:false});
+  if(r.error&&isRelationshipError(r.error)){
+    console.warn('budget relation select fallback:',r.error.message);
+    r=await db.from('budget_proposals').select('*').order('created_at',{ascending:false});
+  }
+  return r;
+}
+async function selectBudgetProposalById(id){
+  let r=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').eq('id',id).single();
+  if(r.error&&isRelationshipError(r.error)){
+    console.warn('budget relation single fallback:',r.error.message);
+    r=await db.from('budget_proposals').select('*').eq('id',id).single();
+  }
+  return r;
+}
+async function loadMyVotes(ids){
+  const mv={};
+  if(!App.member?.id||!ids?.length)return mv;
+  try{
+    let q=db.from('votes').select('proposal_id,vote').eq('member_id',App.member.id);
+    if(ids.length<=100)q=q.in('proposal_id',ids);
+    const {data,error}=await q;
+    if(error){console.warn('my votes read error:',error.message);return mv;}
+    (data||[]).forEach(v=>{mv[v.proposal_id]=v.vote;});
+  }catch(e){console.warn('my votes exception:',e);}
+  return mv;
+}
+async function loadVoteCounts(ids){
+  if(!ids?.length)return null;
+  try{
+    let q=db.from('votes').select('proposal_id,vote');
+    if(ids.length<=100)q=q.in('proposal_id',ids);
+    const {data,error}=await q;
+    if(error){console.warn('vote counts read error:',error.message);return null;}
+    const counts={};
+    (data||[]).forEach(v=>{
+      if(!counts[v.proposal_id])counts[v.proposal_id]={yes:0,no:0,total:0};
+      if(v.vote==='yes')counts[v.proposal_id].yes++;
+      else if(v.vote==='no')counts[v.proposal_id].no++;
+      counts[v.proposal_id].total++;
+    });
+    return counts;
+  }catch(e){console.warn('vote counts exception:',e);return null;}
+}
+function applyVoteCounts(p,counts){
+  if(!p||!counts||!p.id||!counts[p.id])return p;
+  const c=counts[p.id];
+  return {...p,vote_yes:c.yes,vote_no:c.no};
+}
+function proposalAuthorName(p){return p?.members?.name||p?.creator_name||p?.created_by_name||''}
 function budgetStatusMaps(){
   return {
     stM:{draft:'초안',voting:'투표중',approved:'가결',rejected:'부결',quorum_failed:'정족수미달',closed:'정족수미달',cancelled:'취소'},
     stC:{draft:'tgr',voting:'ta',approved:'tg',rejected:'tr',quorum_failed:'ta',closed:'ta',cancelled:'tgr'}
   };
 }
+function voteBlockedReason(p,myv,hasDeadline,deadline){
+  if(myv)return (myv==='yes'?'✅ 찬성으로 투표':'❌ 반대로 투표')+' · 변경 불가';
+  if(p.status!=='voting')return '';
+  if(App.role==='county')return '군청 계정은 투표권이 없습니다';
+  if(!App.member?.is_voter)return '투표권이 없는 계정입니다';
+  if(hasDeadline&&deadline<=new Date())return '투표 마감됨';
+  return '';
+}
 function renderP(p,mv={}){
-  const tot=(p.vote_yes||0)+(p.vote_no||0),yesPct=tot>0?Math.round((p.vote_yes||0)/tot*100):0;
-  const qmet=tot>=(p.quorum_count||1),myv=mv[p.id],now=new Date();
+  const yes=Number(p.vote_yes)||0,no=Number(p.vote_no)||0,tot=yes+no,yesPct=tot>0?Math.round(yes/tot*100):0;
+  const quorum=Number(p.quorum_count)||0,qmet=quorum>0?tot>=quorum:false,myv=mv[p.id];
   const deadline=p.vote_deadline?new Date(p.vote_deadline):null;
   const hasDeadline=validDate(deadline);
-  const isPastDeadline=hasDeadline&&deadline<=now;
-  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv&&(!hasDeadline||deadline>now);
+  const isPastDeadline=hasDeadline&&deadline<=new Date();
+  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv&&(!hasDeadline||deadline>new Date());
   const {stM,stC}=budgetStatusMaps();
-  const deadlineText=hasDeadline?'마감 '+fdt(p.vote_deadline):'마감 없음';
+  const deadlineText=hasDeadline?'마감 '+fdt(p.vote_deadline):'마감 없음 · 관리자 수동마감';
   const deadlineStyle=isPastDeadline?'color:var(--red)':'color:var(--amber)';
-  return '<div class="pc '+esc(p.status)+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
-    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title)+'</div><div class="pc-meta">'+esc(p.category||'')+' · '+esc(p.budget_source||'')+'</div></div>'+ 
-    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status)+'</span></div></div>'+ 
-    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(p.quorum_count||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+(p.vote_yes||0)+' · ❌ '+(p.vote_no||0)+' · 참여 '+tot+'/'+(p.total_voters||'?')+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
-    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':myv?'<div class="vdone">'+(myv==='yes'?'✅ 찬성으로 투표':'❌ 반대로 투표')+' · 변경 불가</div>':'')+
+  const totalVoters=Number(p.total_voters)||parseInt(g('mc-num')?.textContent,10)||'?';
+  const blocked=voteBlockedReason(p,myv,hasDeadline,deadline);
+  return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
+    '<div class="pc-top"><div><div class="pc-title">'+esc(p.title||'제목 없음')+'</div><div class="pc-meta">'+esc(p.category||'항목 미지정')+' · '+esc(p.budget_source||'출처 미지정')+'</div></div>'+ 
+    '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
+    (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
+    (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':blocked?'<div class="vdone">'+esc(blocked)+'</div>':'')+
     (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
 }
 async function castVote(pid,vote){
-  if(!App.member)return;load(true);
-  const {error}=await db.rpc('cast_budget_vote',{p_proposal_id:pid,p_vote:vote});
-  load(false);if(error){toast(error.message||'투표 오류');return;}
+  if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
+  if(!App.member.is_voter||App.role==='county'){toast('투표권이 없는 계정입니다');return;}
+  const lock='vote:'+pid;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
+  load(true);
+  let {error}=await db.rpc('cast_budget_vote',{p_proposal_id:pid,p_vote:vote});
+  if(error&&isRpcFallbackable(error)){
+    console.warn('cast_budget_vote rpc fallback:',error.message);
+    const fr=await directCastVote(pid,vote);error=fr.error;
+  }
+  load(false);_actionLocks.delete(lock);
+  if(error){const msg=voteErrorText(error);toast(msg.slice(0,120));alert('투표 오류\n\n'+msg);return;}
   toast(vote==='yes'?'✅ 찬성 투표 완료':'❌ 반대 투표 완료');loadBudget();loadBadges();
 }
+async function directCastVote(pid,vote){
+  const row={proposal_id:pid,member_id:App.member.id,vote};
+  const {error}=await db.from('votes').insert(row);
+  if(error)return {error};
+  await recountAndPersistVotes(pid);
+  return {error:null};
+}
+async function recountAndPersistVotes(pid){
+  const counts=await loadVoteCounts([pid]);
+  const c=counts?.[pid];
+  if(!c)return;
+  const {error}=await safeUpdateBudgetProposal(pid,{vote_yes:c.yes,vote_no:c.no});
+  if(error)console.warn('vote count persist warning:',error.message);
+}
+async function activeVoterCount(){
+  try{
+    const {count,error}=await db.from('members').select('id',{count:'exact',head:true}).eq('is_active',true).eq('is_voter',true);
+    if(!error&&Number.isFinite(count))return count;
+  }catch(e){console.warn('active voter count exception:',e);}
+  return parseInt(g('mc-num')?.textContent,10)||1;
+}
 async function startVoting(id){
+  if(App.role!=='admin'){toast('관리자만 투표를 시작할 수 있습니다');return;}
   const dline=prompt('투표 마감일시 입력\n예: 2026-05-20T18:00\n빈칸으로 두면 마감시간 없이 수동 마감합니다.');
   if(dline===null)return;
-  const defaultQuorum=Math.max(1,Math.ceil((parseInt(g('mc-num')?.textContent,10)||App.member?.total_voters||8)/2));
+  const voterCount=await activeVoterCount();
+  const defaultQuorum=Math.max(1,Math.ceil((voterCount||1)/2));
   const quorum=prompt('정족수(최소 참여 회원 수)를 입력하세요',String(defaultQuorum));if(quorum===null)return;
   const qn=parseInt(quorum,10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');return;}
   let iso=null;
@@ -614,24 +713,53 @@ async function startVoting(id){
     const dt=new Date(dline.trim());if(!validDate(dt)){toast('마감일시 형식이 올바르지 않습니다');return;}iso=dt.toISOString();
   }
   const rule=confirm('2/3 이상 찬성이 필요하면 [확인], 과반이면 [취소]')?'two_thirds':'simple_majority';
+  const lock='start:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  const {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
-  load(false);if(error){toast('투표 시작 오류: '+error.message);return;}
+  let {error}=await db.rpc('start_budget_voting',{p_proposal_id:id,p_vote_deadline:iso,p_quorum_count:qn,p_approval_rule:rule});
+  if(error&&isRpcFallbackable(error)){
+    console.warn('start_budget_voting rpc fallback:',error.message);
+    const fr=await safeUpdateBudgetProposal(id,{status:'voting',vote_deadline:iso,quorum_count:qn,approval_rule:rule,total_voters:voterCount,vote_yes:0,vote_no:0,finalized_at:null,final_result_text:null});
+    error=fr.error;
+  }
+  load(false);_actionLocks.delete(lock);
+  if(error){const msg=budgetErrText(error);toast(msg.slice(0,120));alert('투표 시작 오류\n\n'+msg);return;}
   toast('투표가 시작되었습니다 ✓');loadBudget();loadBadges();
 }
 async function finalize(id){
+  if(App.role!=='admin'){toast('관리자만 마감 처리할 수 있습니다');return;}
   if(!confirm('투표를 마감 처리합니다. 결과가 확정됩니다. 진행하시겠습니까?'))return;
-  load(true);const {data,error}=await db.rpc('finalize_budget_proposal',{p_proposal_id:id});load(false);
-  if(error){toast('마감 오류: '+error.message);return;}
+  const lock='finalize:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
+  load(true);let {data,error}=await db.rpc('finalize_budget_proposal',{p_proposal_id:id});
+  if(error&&isRpcFallbackable(error)){
+    console.warn('finalize_budget_proposal rpc fallback:',error.message);
+    const fr=await directFinalizeBudget(id);data=fr.data;error=fr.error;
+  }
+  load(false);_actionLocks.delete(lock);
+  if(error){const msg=budgetErrText(error);toast(msg.slice(0,120));alert('마감 오류\n\n'+msg);return;}
   const row=Array.isArray(data)?data[0]:(data||{});
   const status=row.status||row.final_status;
   const msg=status==='approved'?'✅ 가결 확정':status==='rejected'?'❌ 부결 확정':status==='quorum_failed'?'⚠️ 정족수 미달':'마감 처리 완료';
   toast(msg);loadBudget();loadBadges();
 }
+async function directFinalizeBudget(id){
+  const {data:p,error:pe}=await db.from('budget_proposals').select('*').eq('id',id).single();
+  if(pe)return {data:null,error:pe};
+  const counts=await loadVoteCounts([id]);const c=counts?.[id]||{yes:Number(p.vote_yes)||0,no:Number(p.vote_no)||0,total:(Number(p.vote_yes)||0)+(Number(p.vote_no)||0)};
+  const quorum=Number(p.quorum_count)||1;
+  let status='rejected';
+  if(c.total<quorum)status='quorum_failed';
+  else if(p.approval_rule==='two_thirds')status=(c.yes>0&&c.yes*3>=c.total*2)?'approved':'rejected';
+  else status=(c.yes>c.total/2)?'approved':'rejected';
+  const finalText=status==='approved'?'가결':status==='quorum_failed'?'정족수 미달':'부결';
+  const {error}=await safeUpdateBudgetProposal(id,{status,finalized_at:new Date().toISOString(),final_result_text:finalText,vote_yes:c.yes,vote_no:c.no});
+  return {data:{status,final_status:status},error};
+}
 async function openProposal(id){
-  const {data:p,error}=await db.from('budget_proposals').select('*, members!budget_proposals_created_by_fkey(name)').eq('id',id).single();
-  if(error){toast('예산안 조회 오류: '+error.message);return;}
+  const {data:p,error}=await selectBudgetProposalById(id);
+  if(error){toast('예산안 조회 오류: '+budgetErrText(error));return;}
   if(!p)return;
+  const counts=await loadVoteCounts([id]);
+  const vp=applyVoteCounts(p,counts);
   let files=[];
   const q1=await db.from('attachments').select('*').eq('target_type','proposal').eq('target_id',id);
   if(!q1.error&&q1.data)files=q1.data;
@@ -640,23 +768,143 @@ async function openProposal(id){
     const seen=new Set(files.map(f=>f.id));
     q2.data.forEach(f=>{if(!seen.has(f.id)){files.push(f);seen.add(f.id);}});
   }
-  const tot=(p.vote_yes||0)+(p.vote_no||0);const {stM}=budgetStatusMaps();
-  const deadlineText=p.vote_deadline?fdt(p.vote_deadline):'마감 없음';
+  const yes=Number(vp.vote_yes)||0,no=Number(vp.vote_no)||0,tot=yes+no;const {stM}=budgetStatusMaps();
+  const deadlineText=vp.vote_deadline?fdt(vp.vote_deadline):'마감 없음 · 관리자 수동마감';
   let fileHtml='';
   if(files?.length){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
     fileHtml='<div class="p-sec"><div class="p-sec-t">첨부 서류</div>'+rows.join('')+'</div>';
   }
-  showPan(p.title,'<div class="p-meta">등록: '+esc(p.members?.name||'')+' · '+fd(p.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(p.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(p.category||'')+'</span><span class="tag tgr">'+esc(p.budget_source||'')+'</span><span class="tag '+(p.approval_rule==='two_thirds'?'tr':'tg')+'">'+(p.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(p.description||'').replace(/\n/g,'<br>')+'</div>'+(p.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[p.status]||p.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+(p.vote_yes||0)+'</strong> · 반대 <strong>'+(p.vote_no||0)+'</strong> · 참여 '+tot+' / '+(p.total_voters||'?')+'<br>정족수 '+tot+' / '+(p.quorum_count||'?')+' '+(tot>=(p.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(p.finalized_at?'<br>확정: '+fdt(p.finalized_at):'')+(p.final_result_text?'<br>결과: '+esc(p.final_result_text):'')+'</div></div>':'')+fileHtml);
+  showPan(vp.title||'예산안','<div class="p-meta">등록: '+esc(proposalAuthorName(vp)||'')+' · '+fd(vp.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(vp.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(vp.category||'항목 미지정')+'</span><span class="tag tgr">'+esc(vp.budget_source||'출처 미지정')+'</span><span class="tag '+(vp.approval_rule==='two_thirds'?'tr':'tg')+'">'+(vp.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(vp.description||'').replace(/\n/g,'<br>')+'</div>'+(vp.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[vp.status]||vp.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+yes+'</strong> · 반대 <strong>'+no+'</strong> · 참여 '+tot+' / '+(vp.total_voters||'?')+'<br>정족수 '+tot+' / '+(vp.quorum_count||'?')+' '+(tot>=(vp.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(vp.finalized_at?'<br>확정: '+fdt(vp.finalized_at):'')+(vp.final_result_text?'<br>결과: '+esc(vp.final_result_text):'')+'</div></div>':'')+fileHtml);
+}
+function isRelationshipError(err){
+  const msg=String(err?.message||'');
+  return err?.code==='PGRST200'||/relationship|foreign key|not find.*relation|could not find.*relationship/i.test(msg);
+}
+function isSchemaColumnError(err){
+  const msg=String(err?.message||'');
+  return err?.code==='PGRST204'||/Could not find|schema cache|column .* does not exist|column .* of .* does not exist/i.test(msg);
+}
+function isPolicyError(err){
+  const msg=String(err?.message||'');
+  return /row-level security|permission denied|not authorized|violates row-level security/i.test(msg);
+}
+function isRpcFallbackable(err){
+  const msg=String(err?.message||'');
+  return err?.code==='PGRST202'||/Could not find the function|function .* does not exist|schema cache|No function matches|Could not choose the best candidate function/i.test(msg);
+}
+function isDuplicateVoteError(err){
+  const msg=String(err?.message||'')+' '+String(err?.details||'');
+  return err?.code==='23505'||/duplicate key|unique constraint|already exists/i.test(msg);
+}
+function budgetErrText(err){
+  if(!err)return '알 수 없는 오류';
+  const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
+  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. vote_repair_v4_3.sql을 실행해야 합니다. 원문: '+detail;
+  if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
+  if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
+  if(isRelationshipError(err))return 'DB 외래키 관계 조회 오류입니다. 화면은 우회했지만, FK 관계를 정리하는 것이 좋습니다. 원문: '+detail;
+  return detail||String(err);
+}
+function voteErrorText(err){
+  if(isDuplicateVoteError(err))return '이미 이 안건에 투표했습니다. 투표는 1회만 가능합니다.';
+  return budgetErrText(err);
+}
+function stripUnknownBudgetColumns(payload,err){
+  const msg=String(err?.message||'');
+  const m=msg.match(/'([^']+)' column|column "([^"]+)"/i);
+  const col=m&&(m[1]||m[2]);
+  if(col&&Object.prototype.hasOwnProperty.call(payload,col)){const next={...payload};delete next[col];return next;}
+  return null;
+}
+async function safeUpdateBudgetProposal(id,payload){
+  let cur={...payload},lastErr=null,tried=new Set(),safety=0;
+  while(cur&&safety<8){
+    safety++;const key=JSON.stringify(Object.keys(cur).sort());if(tried.has(key))break;tried.add(key);
+    const {error}=await db.from('budget_proposals').update(cur).eq('id',id);
+    if(!error)return {error:null};
+    lastErr=error;
+    if(isSchemaColumnError(error)){cur=stripUnknownBudgetColumns(cur,error);continue;}
+    break;
+  }
+  return {error:lastErr};
+}
+function stripUnknownVoteColumns(payload,err){
+  const msg=String(err?.message||'');
+  const m=msg.match(/'([^']+)' column|column "([^"]+)"/i);
+  const col=m&&(m[1]||m[2]);
+  if(col&&Object.prototype.hasOwnProperty.call(payload,col)){const next={...payload};delete next[col];return next;}
+  return null;
+}
+async function insertBudgetAttempt(payload,needId){
+  if(needId){return await db.from('budget_proposals').insert(payload).select('id').single();}
+  const r=await db.from('budget_proposals').insert(payload);
+  return {data:{id:payload.id||null},error:r.error};
+}
+async function findInsertedBudgetId(title,amount){
+  if(!App.member?.id)return null;
+  const {data,error}=await db.from('budget_proposals')
+    .select('id,created_at')
+    .eq('created_by',App.member.id)
+    .eq('title',title)
+    .eq('amount',amount)
+    .order('created_at',{ascending:false})
+    .limit(1)
+    .maybeSingle();
+  if(error){console.warn('findInsertedBudgetId error:',error.message);return null;}
+  return data?.id||null;
+}
+async function safeInsertBudgetProposal(basePayload,hasFiles){
+  const clientId=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(16).slice(2));
+  const attempts=[];
+  attempts.push({...basePayload,id:clientId});
+  attempts.push({...basePayload});
+  attempts.push(Object.fromEntries(Object.entries(basePayload).filter(([k])=>!['approval_rule'].includes(k))));
+  attempts.push(Object.fromEntries(Object.entries(basePayload).filter(([k])=>!['approval_rule','category','budget_source'].includes(k))));
+  attempts.push(Object.fromEntries(Object.entries(basePayload).filter(([k])=>['created_by','title','amount','description','status'].includes(k))));
+  attempts.push(Object.fromEntries(Object.entries(basePayload).filter(([k])=>['created_by','title','amount','description'].includes(k))));
+  const tried=new Set();
+  let lastErr=null;
+  for(let payload of attempts){
+    let safety=0;
+    while(payload&&safety<5){
+      safety++;
+      const key=JSON.stringify(Object.keys(payload).sort());
+      if(tried.has(key))break;
+      tried.add(key);
+      const needId=hasFiles||!payload.id;
+      const {data,error}=await insertBudgetAttempt(payload,needId);
+      if(!error){
+        let id=data?.id||payload.id||null;
+        if(!id&&hasFiles)id=await findInsertedBudgetId(basePayload.title,basePayload.amount);
+        return {data:{id},error:null,usedPayload:payload};
+      }
+      lastErr=error;
+      console.warn('budget insert attempt failed:',error);
+      if(isSchemaColumnError(error)){payload=stripUnknownBudgetColumns(payload,error);continue;}
+      break;
+    }
+  }
+  return {data:null,error:lastErr||{message:'예산안 등록 실패'}};
 }
 async function submitProposal(){
   const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),amt=Number(v('pr-amt')),desc=v('pr-desc'),rule=v('pr-rule');
+  if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
+  if(App.role!=='admin'){toast('예산안 등록은 관리자만 가능합니다');return;}
   if(!title||!Number.isFinite(amt)||amt<=0||!desc){toast('제목, 금액, 세부 계획을 정확히 입력하세요');return;}
+  const amount=Math.round(amt);
+  const fi=g('pr-file');
+  const hasFiles=!!(fi?.files?.length);
+  const payload={created_by:App.member.id,title,category:cat||null,budget_source:src||null,amount,description:desc,approval_rule:rule||'simple_majority',status:'draft'};
   load(true);
-  const {data,error}=await db.from('budget_proposals').insert({created_by:App.member.id,title,category:cat,budget_source:src,amount:Math.round(amt),description:desc,approval_rule:rule,status:'draft'}).select().single();
-  if(!error&&data){const fi=g('pr-file');if(fi?.files?.length)await uploadAtt(fi.files,'proposal',data.id);}
-  load(false);if(error){toast('오류: '+error.message);return;}
-  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();
+  const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
+  if(error){load(false);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
+  if(hasFiles){
+    if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
+    else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
+  }
+  load(false);
+  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
 }
 
 async function loadLibrary(){
