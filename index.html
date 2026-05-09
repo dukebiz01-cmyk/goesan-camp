@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.8-20260509-vote-cast-fix">
+<meta name="app-version" content="gca-v4.9-20260509-deadline-repair">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.8 · 2026.05.09 · 투표처리 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.10 · 2026.05.09 · 수동마감 전환</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.8 · 2026.05.09 · 투표처리 안정화';
+const APP_VERSION='GCA v4.10 · 2026.05.09 · 수동마감 전환';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -755,19 +755,19 @@ function voteBlockedReason(p,myv,hasDeadline,deadline){
   if(p.status!=='voting')return '';
   if(App.role==='county')return '군청 계정은 투표권이 없습니다';
   if(!App.member?.is_voter)return '투표권이 없는 계정입니다';
-  if(hasDeadline&&deadline<=new Date())return '투표 마감됨';
+  // v4.10: 투표 마감은 시간 기준이 아니라 관리자 수동 마감(status 변경) 기준으로만 판단합니다.
   return '';
 }
 function renderP(p,mv={}){
   const yes=Number(p.vote_yes)||0,no=Number(p.vote_no)||0,tot=yes+no,yesPct=tot>0?Math.round(yes/tot*100):0;
   const quorum=Number(p.quorum_count)||0,qmet=quorum>0?tot>=quorum:false,myv=mv[p.id];
-  const deadline=p.vote_deadline?new Date(p.vote_deadline):null;
-  const hasDeadline=validDate(deadline);
-  const isPastDeadline=hasDeadline&&deadline<=new Date();
-  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv&&(!hasDeadline||deadline>new Date());
+  const deadline=null;
+  const hasDeadline=false;
+  const isPastDeadline=false;
+  const canVote=App.role!=='county'&&App.member?.is_voter&&p.status==='voting'&&!myv;
   const {stM,stC}=budgetStatusMaps();
-  const deadlineText=hasDeadline?'마감 '+fdt(p.vote_deadline):'마감 없음 · 관리자 수동마감';
-  const deadlineStyle=isPastDeadline?'color:var(--red)':'color:var(--amber)';
+  const deadlineText='마감 없음 · 관리자 수동마감';
+  const deadlineStyle='color:var(--amber)';
   const totalVoters=Number(p.total_voters)||parseInt(g('mc-num')?.textContent,10)||'?';
   const blocked=voteBlockedReason(p,myv,hasDeadline,deadline);
   return '<div class="pc '+esc(p.status||'draft')+'" data-bs="'+esc((p.title||'').toLowerCase())+'" onclick="openProposal(\''+jsq(p.id)+'\')">'+
@@ -775,7 +775,7 @@ function renderP(p,mv={}){
     '<div style="text-align:right;flex-shrink:0"><div class="pc-amount">'+won(p.amount)+'</div><span class="tag '+(stC[p.status]||'tgr')+'">'+(stM[p.status]||p.status||'초안')+'</span></div></div>'+ 
     (p.status!=='draft'?'<div class="rule-note">📜 '+(p.approval_rule==='two_thirds'?'2/3 이상':'과반')+' · 정족수 '+tot+'/'+(quorum||'?')+' '+(qmet?'✓':'⚠️ 미달')+'</div><div class="qbar"><div class="qfill '+(yesPct<50?'low':'')+'" style="width:'+yesPct+'%"></div></div><div class="vrow"><span>✅ '+yes+' · ❌ '+no+' · 참여 '+tot+'/'+totalVoters+'</span><span style="'+deadlineStyle+'">'+deadlineText+'</span></div>':'')+
     (canVote?'<div class="vbtns" onclick="event.stopPropagation()"><button class="vby" onclick="castVote(\''+jsq(p.id)+'\',\'yes\')">✅ 찬성</button><button class="vbn" onclick="castVote(\''+jsq(p.id)+'\',\'no\')">❌ 반대</button></div>':blocked?'<div class="vdone">'+esc(blocked)+'</div>':'')+
-    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
+    (App.role==='admin'?'<div class="adm-acts" onclick="event.stopPropagation()">'+(p.status==='draft'?'<button class="btn bp btn-sm" onclick="startVoting(\''+jsq(p.id)+'\')">🗳️ 투표 시작</button>':'')+(p.status==='voting'&&p.vote_deadline?'<button class="btn bo btn-sm" onclick="clearVoteDeadline(\''+jsq(p.id)+'\')">⏱️ 마감 없음 전환</button>':'')+(p.status==='voting'?'<button class="btn br btn-sm" onclick="finalize(\''+jsq(p.id)+'\')">🔒 마감 처리</button>':'')+'</div>':'')+'</div>';
 }
 async function castVote(pid,vote){
   if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
@@ -789,7 +789,15 @@ async function castVote(pid,vote){
     await refreshMemberLinkForVote();
     let error=null;
     let data=null;
-    let r=await db.rpc('cast_budget_vote_v4_8',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    let r=await db.rpc('cast_budget_vote_v4_10',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    if(r.error&&isRpcFallbackable(r.error)){
+      console.warn('cast_budget_vote_v4_10 fallback to cast_budget_vote_v4_9:',r.error.message);
+      r=await db.rpc('cast_budget_vote_v4_9',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    }
+    if(r.error&&isRpcFallbackable(r.error)){
+      console.warn('cast_budget_vote_v4_9 fallback to cast_budget_vote_v4_8:',r.error.message);
+      r=await db.rpc('cast_budget_vote_v4_8',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    }
     if(r.error&&isRpcFallbackable(r.error)){
       console.warn('cast_budget_vote_v4_8 fallback to cast_budget_vote:',r.error.message);
       r=await db.rpc('cast_budget_vote',{p_proposal_id:pid,p_vote:vote});
@@ -814,8 +822,8 @@ async function votePreflight(pid){
   if(error)return {ok:false,message:'예산안 확인 실패: '+budgetErrText(error)};
   if(!p)return {ok:false,message:'예산안을 찾을 수 없습니다.'};
   if(p.status!=='voting')return {ok:false,message:'현재 투표 중인 안건이 아닙니다. 현재 상태: '+(budgetStatusMaps().stM[p.status]||p.status||'알 수 없음')};
-  const deadline=p.vote_deadline?new Date(p.vote_deadline):null;
-  if(validDate(deadline)&&deadline<=new Date())return {ok:false,message:'투표가 이미 마감되었습니다. 관리자가 마감 처리해야 합니다.'};
+  // v4.10: vote_deadline 값이 과거로 남아 있어도 회원 투표를 막지 않습니다.
+  // 실제 마감은 관리자가 [마감 처리]를 눌러 status를 바꾸는 방식으로만 처리합니다.
   const my=await loadMyVotes([pid]);
   if(my?.[pid])return {ok:false,message:'이미 이 안건에 투표했습니다. 투표는 1회만 가능합니다.'};
   return {ok:true,proposal:p};
@@ -866,8 +874,8 @@ async function startVoting(id){
   const d=new Date(Date.now()+2*24*60*60*1000);d.setHours(18,0,0,0);
   g('mo-body').innerHTML=`<div class="mot">🗳️ 투표 시작</div>
     <input type="hidden" id="sv-id" value="${esc(id)}">
-    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">마감시간을 안 두려면 아래 설정을 그대로 두고 시작하세요. 날짜를 지정할 때는 선택창을 쓰면 형식 오류가 나지 않습니다.</div>
-    <div class="ff"><label>마감 방식</label><select id="sv-mode" onchange="updateStartVoteMode()"><option value="none" selected>마감 없음 · 관리자 수동 마감</option><option value="deadline">마감일시 지정</option></select><div id="sv-deadline-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">마감시간 없이 관리자 수동 마감으로 진행됩니다.</div></div>
+    <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:800;margin-bottom:12px;line-height:1.55">v4.10부터 투표는 마감시간 없이 관리자 수동 마감으로만 진행됩니다. 기존 과거 마감값은 SQL에서 자동 해제됩니다.</div>
+    <div class="ff"><label>마감 방식</label><select id="sv-mode" onchange="updateStartVoteMode()"><option value="none" selected>마감 없음 · 관리자 수동 마감</option></select><div id="sv-deadline-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">마감시간 없이 관리자 수동 마감으로 진행됩니다.</div></div>
     <div class="ff" id="sv-deadline-wrap" style="display:none"><label>마감일시 선택</label><input type="datetime-local" id="sv-deadline" value="${localDateTimeValue(d)}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin:7px 0 5px;line-height:1.5">직접 입력도 가능: 2026-05-20 18:00 / 5월20일 18시</div><input type="text" id="sv-deadline-text" placeholder="직접 입력은 선택사항"></div>
     <div class="ff"><label>정족수</label><input type="number" inputmode="numeric" id="sv-quorum" min="1" value="${defaultQuorum}"><div style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">현재 투표권 회원 ${voterCount}명 기준 기본값 ${defaultQuorum}명</div></div>
     <div class="ff"><label>승인 기준</label><select id="sv-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div>
@@ -881,7 +889,7 @@ async function submitStartVoting(){
   const voterCount=await activeVoterCount();
   const qn=parseInt(v('sv-quorum'),10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');const q=g('sv-quorum');if(q)q.focus();return;}
   let iso=null;
-  if((v('sv-mode')||'none')==='deadline'){
+  if(false && (v('sv-mode')||'none')==='deadline'){
     const manual=v('sv-deadline-text');
     const raw=manual||v('sv-deadline');
     const parsed=parseDeadlineInput(raw);
@@ -901,6 +909,27 @@ async function submitStartVoting(){
   load(false);_actionLocks.delete(lock);
   if(error){const msg=budgetErrText(error);toast(msg.slice(0,120));alert('투표 시작 오류\n\n'+msg);return;}
   toast('투표가 시작되었습니다 ✓');closeMo();loadBudget();loadBadges();
+}
+async function clearVoteDeadline(id){
+  if(App.role!=='admin'){toast('관리자만 마감시간을 해제할 수 있습니다');return;}
+  if(!confirm('이 안건의 투표 마감시간을 없애고 수동 마감으로 전환하시겠습니까?'))return;
+  const lock='deadline-clear:'+id;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
+  load(true);
+  try{
+    let {error}=await db.rpc('clear_budget_deadline',{p_proposal_id:id});
+    if(error&&isRpcFallbackable(error)){
+      console.warn('clear_budget_deadline fallback to direct update:',error.message);
+      const fr=await safeUpdateBudgetProposal(id,{vote_deadline:null,finalized_at:null,final_result_text:null});
+      error=fr.error;
+    }
+    load(false);_actionLocks.delete(lock);
+    if(error){const msg=budgetErrText(error);toast(msg.slice(0,120));alert('마감시간 해제 오류\n\n'+msg);return;}
+    toast('마감 없음으로 전환되었습니다 ✓');
+    await loadBudget();loadBadges();
+  }catch(e){
+    load(false);_actionLocks.delete(lock);
+    const msg=budgetErrText(e);toast(msg.slice(0,120));alert('마감시간 해제 오류\n\n'+msg);
+  }
 }
 async function finalize(id){
   if(App.role!=='admin'){toast('관리자만 마감 처리할 수 있습니다');return;}
@@ -946,7 +975,7 @@ async function openProposal(id){
     q2.data.forEach(f=>{if(!seen.has(f.id)){files.push(f);seen.add(f.id);}});
   }
   const yes=Number(vp.vote_yes)||0,no=Number(vp.vote_no)||0,tot=yes+no;const {stM}=budgetStatusMaps();
-  const deadlineText=vp.vote_deadline?fdt(vp.vote_deadline):'마감 없음 · 관리자 수동마감';
+  const deadlineText='마감 없음 · 관리자 수동마감';
   let fileHtml='';
   if(files?.length){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
@@ -967,8 +996,8 @@ function isPolicyError(err){
   return /row-level security|permission denied|not authorized|violates row-level security/i.test(msg);
 }
 function isRpcFallbackable(err){
-  const msg=String(err?.message||'');
-  return err?.code==='PGRST202'||/Could not find the function|function .* does not exist|schema cache|No function matches|Could not choose the best candidate function/i.test(msg);
+  const msg=String(err?.message||'')+' '+String(err?.details||'')+' '+String(err?.hint||'');
+  return err?.code==='PGRST202'||err?.code==='P0001'||/Could not find the function|function .* does not exist|schema cache|No function matches|Could not choose the best candidate function|투표마감|마감시간|deadline/i.test(msg);
 }
 function isDuplicateVoteError(err){
   const msg=String(err?.message||'')+' '+String(err?.details||'');
@@ -993,7 +1022,8 @@ function stripRiskyBudgetColumnsForCheck(payload){
 function budgetErrText(err){
   if(!err)return '알 수 없는 오류';
   const detail=[err.message,err.details,err.hint,err.code].filter(Boolean).join(' / ');
-  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. budget_registration_repair_v4_4.sql을 실행해야 합니다. 원문: '+detail;
+  if(/마감|deadline|closed/i.test(detail))return '투표마감시간 오류입니다. v4.10 SQL을 먼저 실행해 마감시간 검사를 제거하고, HTML도 v4.10으로 교체하세요. 원문: '+detail;
+  if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. v4.10 SQL을 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
   if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 예산안 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
@@ -1006,7 +1036,7 @@ function voteErrorText(err){
   if(/회원 정보를 찾을 수 없습니다|member.*not found|current_member/i.test(detail))return '회원 매칭 오류입니다. 로그인 계정과 members.email 또는 members.user_id 연결이 맞지 않습니다. vote_cast_repair_v4_8.sql을 먼저 실행하고 다시 로그인하세요. 원문: '+detail;
   if(/투표권이 없는|not.*voter|county/i.test(detail))return '투표권이 없는 계정입니다. members.is_voter=true, role=member/admin인지 확인하세요. 원문: '+detail;
   if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 예산안을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
-  if(/마감|deadline|closed/i.test(detail))return '투표가 마감되었거나 마감일시가 지났습니다. 마감 없는 투표라면 투표 시작 설정을 다시 확인하세요. 원문: '+detail;
+  if(/마감|deadline|closed/i.test(detail))return '투표마감시간 오류입니다. v4.10 SQL을 먼저 실행해 마감시간 검사를 제거하고, HTML도 v4.10으로 교체하세요. 원문: '+detail;
   return budgetErrText(err);
 }
 function stripUnknownBudgetColumns(payload,err){
