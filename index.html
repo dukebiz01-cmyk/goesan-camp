@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.7-20260509-deadline-input-fix">
+<meta name="app-version" content="gca-v4.8-20260509-vote-cast-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -171,7 +171,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="pan" id="pan"><div class="panh"></div><div class="panhd"><div class="panhd-title" id="pan-title"></div><button class="panclose" onclick="closePan()">✕</button></div><div class="panb" id="pan-body"></div></div>
 <div class="mover" id="mover" onclick="if(event.target===this)closeMo()"><div class="mo"><div class="moh"></div><div id="mo-body"></div></div></div>
 <div class="toast" id="toast"></div>
-<div class="version-mark" id="version-mark">GCA v4.7 · 2026.05.09 · 마감입력 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.8 · 2026.05.09 · 투표처리 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -182,7 +182,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.7 · 2026.05.09 · 마감입력 안정화';
+const APP_VERSION='GCA v4.8 · 2026.05.09 · 투표처리 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -780,23 +780,70 @@ function renderP(p,mv={}){
 async function castVote(pid,vote){
   if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
   if(!App.member.is_voter||App.role==='county'){toast('투표권이 없는 계정입니다');return;}
+  if(!['yes','no'].includes(vote)){toast('투표값이 올바르지 않습니다');return;}
   const lock='vote:'+pid;if(_actionLocks.has(lock))return;_actionLocks.add(lock);
   load(true);
-  let {error}=await db.rpc('cast_budget_vote',{p_proposal_id:pid,p_vote:vote});
-  if(error&&isRpcFallbackable(error)){
-    console.warn('cast_budget_vote rpc fallback:',error.message);
-    const fr=await directCastVote(pid,vote);error=fr.error;
+  try{
+    const pre=await votePreflight(pid);
+    if(!pre.ok){load(false);_actionLocks.delete(lock);toast(pre.message.slice(0,120));alert('투표 오류\n\n'+pre.message);return;}
+    await refreshMemberLinkForVote();
+    let error=null;
+    let data=null;
+    let r=await db.rpc('cast_budget_vote_v4_8',{p_proposal_id:pid,p_vote:vote,p_member_id:App.member.id});
+    if(r.error&&isRpcFallbackable(r.error)){
+      console.warn('cast_budget_vote_v4_8 fallback to cast_budget_vote:',r.error.message);
+      r=await db.rpc('cast_budget_vote',{p_proposal_id:pid,p_vote:vote});
+    }
+    data=r.data;error=r.error;
+    if(error&&isRpcFallbackable(error)){
+      console.warn('cast_budget_vote rpc fallback to direct insert:',error.message);
+      const fr=await directCastVote(pid,vote);data=fr.data;error=fr.error;
+    }
+    load(false);_actionLocks.delete(lock);
+    if(error){const msg=voteErrorText(error);toast(msg.slice(0,120));alert('투표 오류\n\n'+msg);return;}
+    toast(vote==='yes'?'✅ 찬성 투표 완료':'❌ 반대 투표 완료');
+    await loadBudget();loadBadges();
+  }catch(e){
+    load(false);_actionLocks.delete(lock);
+    const msg=voteErrorText(e);toast(msg.slice(0,120));alert('투표 오류\n\n'+msg);
   }
-  load(false);_actionLocks.delete(lock);
-  if(error){const msg=voteErrorText(error);toast(msg.slice(0,120));alert('투표 오류\n\n'+msg);return;}
-  toast(vote==='yes'?'✅ 찬성 투표 완료':'❌ 반대 투표 완료');loadBudget();loadBadges();
+}
+async function votePreflight(pid){
+  if(!pid)return {ok:false,message:'예산안 ID가 없습니다. 화면을 새로고침한 뒤 다시 시도하세요.'};
+  const {data:p,error}=await selectBudgetProposalById(pid);
+  if(error)return {ok:false,message:'예산안 확인 실패: '+budgetErrText(error)};
+  if(!p)return {ok:false,message:'예산안을 찾을 수 없습니다.'};
+  if(p.status!=='voting')return {ok:false,message:'현재 투표 중인 안건이 아닙니다. 현재 상태: '+(budgetStatusMaps().stM[p.status]||p.status||'알 수 없음')};
+  const deadline=p.vote_deadline?new Date(p.vote_deadline):null;
+  if(validDate(deadline)&&deadline<=new Date())return {ok:false,message:'투표가 이미 마감되었습니다. 관리자가 마감 처리해야 합니다.'};
+  const my=await loadMyVotes([pid]);
+  if(my?.[pid])return {ok:false,message:'이미 이 안건에 투표했습니다. 투표는 1회만 가능합니다.'};
+  return {ok:true,proposal:p};
+}
+async function refreshMemberLinkForVote(){
+  if(!App.user||!App.member?.id)return;
+  if(App.member.user_id===App.user.id)return;
+  try{
+    const r=await db.rpc('claim_member_profile');
+    if(!r.error&&r.data){
+      const row=Array.isArray(r.data)?r.data[0]:r.data;
+      if(row?.id===App.member.id){App.member=row;App.role=row.role||App.role;return;}
+    }else if(r.error){console.warn('claim_member_profile vote refresh skipped:',r.error.message);}
+  }catch(e){console.warn('claim_member_profile vote refresh exception:',e);}
+  try{
+    if(!App.member.user_id&&App.user.email&&App.member.email&&String(App.user.email).toLowerCase()===String(App.member.email).toLowerCase()){
+      const up=await db.from('members').update({user_id:App.user.id}).eq('id',App.member.id).is('user_id',null).select('*').maybeSingle();
+      if(!up.error&&up.data){App.member=up.data;App.role=up.data.role||App.role;}
+      else if(up.error)console.warn('member user_id vote link skipped:',up.error.message);
+    }
+  }catch(e){console.warn('member user_id vote link exception:',e);}
 }
 async function directCastVote(pid,vote){
   const row={proposal_id:pid,member_id:App.member.id,vote};
   const {error}=await db.from('votes').insert(row);
-  if(error)return {error};
+  if(error)return {data:null,error};
   await recountAndPersistVotes(pid);
-  return {error:null};
+  return {data:{ok:true},error:null};
 }
 async function recountAndPersistVotes(pid){
   const counts=await loadVoteCounts([pid]);
@@ -955,6 +1002,11 @@ function budgetErrText(err){
 }
 function voteErrorText(err){
   if(isDuplicateVoteError(err))return '이미 이 안건에 투표했습니다. 투표는 1회만 가능합니다.';
+  const detail=[err?.message,err?.details,err?.hint,err?.code].filter(Boolean).join(' / ');
+  if(/회원 정보를 찾을 수 없습니다|member.*not found|current_member/i.test(detail))return '회원 매칭 오류입니다. 로그인 계정과 members.email 또는 members.user_id 연결이 맞지 않습니다. vote_cast_repair_v4_8.sql을 먼저 실행하고 다시 로그인하세요. 원문: '+detail;
+  if(/투표권이 없는|not.*voter|county/i.test(detail))return '투표권이 없는 계정입니다. members.is_voter=true, role=member/admin인지 확인하세요. 원문: '+detail;
+  if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 예산안을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
+  if(/마감|deadline|closed/i.test(detail))return '투표가 마감되었거나 마감일시가 지났습니다. 마감 없는 투표라면 투표 시작 설정을 다시 확인하세요. 원문: '+detail;
   return budgetErrText(err);
 }
 function stripUnknownBudgetColumns(payload,err){
