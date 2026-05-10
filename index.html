@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.16-20260510-refresh-session">
+<meta name="app-version" content="gca-v4.18-20260510-event-menu-cleanup">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -85,7 +85,20 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .map-note{background:#f6fbf7;border:1px solid #cfe3d4;color:#285a3c;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.65;margin:10px 0 12px}
 .member-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.member-legend span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--cd);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--mid)}.member-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}.i-member{background:var(--g)}.i-non{background:#9ca3af}.i-selected{background:#f59e0b}
 .event-hero{background:linear-gradient(135deg,#effaf2,#ffffff);border:1px solid rgba(24,92,66,.11);border-radius:18px;padding:14px 15px;margin-bottom:12px;box-shadow:var(--s1)}.event-hero strong{display:block;font-size:16px;font-weight:900;margin-bottom:4px}.event-hero p{font-size:12px;color:var(--mid);line-height:1.65;margin:0}
+
+.event-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.event-sum-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:14px;padding:12px;box-shadow:var(--s1)}.event-sum-card b{display:block;font-family:var(--fh);font-size:22px;line-height:1;color:var(--g);margin-bottom:5px}.event-sum-card span{font-size:11px;color:var(--mid);font-weight:800}.event-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:12px;margin:12px 0;box-shadow:var(--s1);display:grid;gap:10px}.event-select-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.event-select-row label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}.event-select-row select{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#f6f9f5;color:var(--ch);font-size:13px;outline:none}.event-calendar{display:grid;gap:10px;margin-top:10px}.event-day{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;overflow:hidden;box-shadow:var(--s1)}.event-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f4f8f4;padding:11px 13px;border-bottom:1px solid var(--cd)}.event-day-title{display:flex;align-items:baseline;gap:8px;font-weight:900}.event-day-title strong{font-family:var(--fh);font-size:18px;color:var(--ch)}.event-day-title span{font-size:12px;color:var(--mid);font-weight:800}.event-day-count{font-size:11px;color:var(--g);background:var(--gp);padding:4px 9px;border-radius:999px;font-weight:900}.event-day-body{padding:8px}.event-mini{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px;border-radius:12px;border:1px solid var(--cd);margin-bottom:7px;background:#fff}.event-mini:last-child{margin-bottom:0}.event-mini-title{font-size:14px;font-weight:900;line-height:1.35;margin-bottom:4px}.event-mini-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap}.event-provider{font-size:10px;color:#1e40af;background:#dbeafe;padding:2px 7px;border-radius:999px;font-weight:900}.event-camp{font-size:10px;color:var(--g);background:var(--gp);padding:2px 7px;border-radius:999px;font-weight:900}.event-calendar-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:16px;padding:24px;text-align:center;color:var(--mid);font-size:13px}.ev-section-title{font-family:var(--fh);font-weight:900;font-size:16px;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center}.ev-section-title small{font-size:11px;color:var(--mid);font-family:var(--fd);font-weight:700}.ev-card{grid-template-columns:auto 1fr auto}.ev-provider-line{font-size:11px;color:#1e40af;margin-top:4px;font-weight:800}.ev-card.ticket .ev-provider-line{color:#92400e}@media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
+
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}.info-kv{grid-template-columns:74px 1fr}.info-item{flex-direction:column}.info-item span{text-align:left}}
+
+
+.map-fallback{height:100%;min-height:360px;overflow:auto;background:#f8faf7;padding:14px;border-radius:18px;color:var(--ch)}
+.map-fallback h3{font-size:16px;font-weight:900;margin-bottom:6px;color:var(--g)}
+.map-fallback p{font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:10px}
+.map-fallback-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.map-fallback-card{background:#fff;border:1px solid var(--cd);border-radius:12px;padding:10px;box-shadow:var(--s1);font-size:12px;line-height:1.55}
+.map-fallback-card b{font-size:13px;color:var(--g);display:block;margin-bottom:3px}
+.map-status{position:absolute;z-index:450;left:12px;top:12px;background:rgba(253,254,251,.94);border:1px solid rgba(24,33,26,.12);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900;color:var(--g);box-shadow:var(--s1);pointer-events:none}
+#assoc-map{position:relative;background:#eef3ec}
 
 @media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
 </style>
@@ -144,14 +157,26 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <div class="page" id="page-events">
-    <div class="ph"><div><div class="ph-title">이벤트</div><div class="ph-sub">회원 캠핑장 행사일 · 콘텐츠 · 수행업체를 행사 달력으로 정리합니다</div></div><a href="events.html" target="_blank" class="btn bo btn-sm">신청·관리 →</a></div>
-    <div class="event-hero"><strong>행사 달력</strong><p>행사일자, 캠핑장, 콘텐츠, 카테고리, 수행업체를 확인하는 메뉴입니다. 예산 정산과 보고서 기능은 넣지 않고 일정 확인에 집중합니다.</p></div>
-    <div class="events-section" style="margin-top:0;padding-top:0;border-top:none">
-      <div class="events-h"><div class="events-t">📅 행사 일정</div><a href="events.html" class="events-link" target="_blank">전체 신청 페이지</a></div>
-      <div class="events-filter"><button class="active" data-evf="upcoming">다가오는</button><button data-evf="all">전체</button><button data-evf="locked">확정</button><button data-evf="A">공연</button><button data-evf="B">먹거리</button><button data-evf="C">체험</button><button data-evf="D">활동</button></div>
-      <div id="events-stats" style="font-size:11px;color:var(--mid);margin-bottom:8px"></div>
-      <div id="events-list"><div class="loading">불러오는 중...</div></div>
+    <div class="ph"><div><div class="ph-title">이벤트</div><div class="ph-sub">행사 달력 · 캠핑장별 행사일 · 콘텐츠 · 수행업체 정보를 한 화면에 정리합니다</div></div><a href="events.html" target="_blank" class="btn bo btn-sm">신청·관리 →</a></div>
+    <div class="event-hero"><strong>행사 일정 포털</strong><p>이벤트 메뉴는 일정 확인 전용입니다. 예산 정산·보고서 기능은 제외하고, 회원들이 언제 어느 캠핑장에서 어떤 콘텐츠가 진행되는지만 빠르게 확인하도록 정리했습니다.</p></div>
+    <div class="event-summary-grid">
+      <div class="event-sum-card"><b id="ev-sum-total">-</b><span>전체 행사</span></div>
+      <div class="event-sum-card"><b id="ev-sum-upcoming">-</b><span>다가오는 행사</span></div>
+      <div class="event-sum-card"><b id="ev-sum-camps">-</b><span>참여 캠핑장</span></div>
+      <div class="event-sum-card"><b id="ev-sum-month">-</b><span>이번 달 행사</span></div>
     </div>
+    <div class="event-toolbar">
+      <div class="events-filter"><button class="active" data-evf="upcoming">다가오는</button><button data-evf="all">전체</button><button data-evf="locked">확정</button><button data-evf="A">공연</button><button data-evf="B">먹거리</button><button data-evf="C">체험</button><button data-evf="D">활동</button></div>
+      <div class="event-select-row">
+        <label>행사월<select id="ev-month"><option value="all">전체 월</option></select></label>
+        <label>캠핑장<select id="ev-camp"><option value="all">전체 캠핑장</option></select></label>
+      </div>
+    </div>
+    <div id="events-stats" style="font-size:11px;color:var(--mid);margin-bottom:8px"></div>
+    <div class="ev-section-title"><span>📅 행사 달력</span><small>날짜별 묶음</small></div>
+    <div id="events-calendar"><div class="loading">불러오는 중...</div></div>
+    <div class="ev-section-title"><span>📋 행사 목록</span><small>상세 리스트</small></div>
+    <div id="events-list"><div class="loading">불러오는 중...</div></div>
   </div>
 
   <div class="page" id="page-info">
@@ -186,13 +211,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <div class="toast" id="toast"></div>
 
 <!--
-GCA v4.16 REFRESH SESSION FIX
+GCA v4.18 EVENT MENU CLEANUP
 기준: v4.13 캠핑협회 클린 재시작
-방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 관리자 삭제 기능 + 새로고침 세션 유지
+방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 이벤트 일정 집중 정리
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.16 · 2026.05.10 · 새로고침 세션 유지</div>
+<div class="version-mark" id="version-mark">GCA v4.18 · 2026.05.10 · 이벤트 메뉴 정리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -203,7 +228,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.16 · 2026.05.10 · 새로고침 세션 유지';
+const APP_VERSION='GCA v4.18 · 2026.05.10 · 이벤트 메뉴 정리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -211,6 +236,8 @@ let assocMapInstance=null;
 let _mapCamps=[];
 let _allEvents=[];
 let _evFilter='upcoming';
+let _evMonth='all';
+let _evCamp='all';
 const _actionLocks=new Set();
 let _currentPage='notices';
 let campLayer=null;
@@ -245,6 +272,7 @@ const MEMBER_CAMPS=[
   {n:"북두칠성캠핑장",lat:36.7658995,lng:127.8445934,o:"지태훈",e:"bukdu@camp.kr",a:"칠성면 칠성로 10길27 (9조)",c:"칠성"}
 ];
 const REGION_COLORS={"청천":"#2563EB","칠성":"#059669","감물":"#F59E0B","괴산":"#DC2626","사리":"#7C3AED","장연":"#0891B2"};
+const EVENT_PROGRAM_META={"풍선쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"버블쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"마술쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"솜사탕쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"레이저쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"풍선매직쇼":{"cat":"A","catName":"공연","provider":"신태호","type":"program"},"통기타음악회":{"cat":"A","catName":"공연","provider":"통기타","type":"program"},"마술쇼 조동희(40분)":{"cat":"A","catName":"공연","provider":"조동희","type":"program"},"반려견 행동 토크쇼":{"cat":"A","catName":"공연","provider":"반려견","type":"program"},"사과오이소박이":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃떡퐁듀":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"감자핫도그만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일꼬치화채":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"시원한 허브꽃 모히또":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"허브솔트":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"보들꽃 증편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"건강 강정 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"추석 꽃송편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"단호박 꽃단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"깍두기 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃장식 딸기 모찌":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기청 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃 코디얼 빙수":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"호두정과":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기 고추장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"카네이션 바람떡":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"수레국화 양갱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"캐릭터김밥":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"연잎밥 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"오이 모듬피클":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"얼굴 카나페":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"모기퇴치 꽃스머지스틱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"인절미":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"K도넛 개성주악":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"발효초콜릿":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"곳감단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄향기 화전":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄꽃 코디얼":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기도둑 달래쌈장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"쑥버무리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃식초":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기 마리네이드":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일젤리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"4인 재료비 1매":{"cat":"B","catName":"먹거리","provider":"재료비","type":"ticket"},"페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"헤나":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"가족캐리커쳐":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"타로카드":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"할로윈 페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"캐릭터 솜사탕":{"cat":"C","catName":"체험","provider":"캐릭터솜사탕","type":"program"},"짚라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"슬랙라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"로켓스윙":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"승마체험":{"cat":"D","catName":"활동","provider":"승마","type":"program"},"사과따기 체험":{"cat":"D","catName":"활동","provider":"사과따기","type":"program"},"산막이 보트 1매":{"cat":"D","catName":"활동","provider":"보트","type":"ticket"},"모터보트 2인 1매":{"cat":"D","catName":"활동","provider":"모터보트","type":"ticket"},"소형유람선 1매":{"cat":"D","catName":"활동","provider":"유람선","type":"ticket"},"자체행사비":{"cat":"D","catName":"활동","provider":"자체","type":"program"}};
 
 function g(id){return document.getElementById(id)}
 function v(id){const el=g(id);return el&&typeof el.value==='string'?el.value.trim():''}
@@ -1316,9 +1344,9 @@ function openModal(type){
 async function loadCampsFromDB(){
   let res=await db.from('camps').select('*').eq('is_active',true);
   if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
-  if(res.error){console.error('camps error:',res.error.message);return MEMBER_CAMPS;}
+  if(res.error){console.error('camps error:',res.error.message);return MEMBER_CAMPS.map(c=>({...c,m:true}));}
   if(!res.data||!res.data.length)return MEMBER_CAMPS.map(c=>({...c,m:true}));
-  const camps=res.data.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&c.n);
+  const camps=res.data.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&Math.abs(c.lat)>0&&Math.abs(c.lng)>0&&c.n);
   camps.sort((a,b)=>(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
   return camps.length?camps:MEMBER_CAMPS.map(c=>({...c,m:true}));
 }
@@ -1330,7 +1358,43 @@ function updateMapStats(camps){
   if(g('stat-total'))g('stat-total').textContent=camps.length;
   if(g('stat-regions'))g('stat-regions').textContent=members;
   if(g('stat-main'))g('stat-main').textContent=nonmembers;
-  const leg=g('region-legend');if(leg){leg.innerHTML='<div class="region-legend-t">📍 지역/회원 구분</div><div class="region-row"><div class="region-dot" style="background:var(--g)"></div>협회 회원 ('+members+'곳)</div><div class="region-row"><div class="region-dot" style="background:#9ca3af"></div>비회원/일반 등록 야영장 ('+nonmembers+'곳)</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');}
+  const leg=g('region-legend');
+  if(leg){
+    leg.innerHTML='<div class="region-legend-t">📍 지역/회원 구분</div><div class="region-row"><div class="region-dot" style="background:var(--g)"></div>협회 회원 ('+members+'곳)</div><div class="region-row"><div class="region-dot" style="background:#9ca3af"></div>비회원/일반 등록 야영장 ('+nonmembers+'곳)</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');
+  }
+}
+function loadLeafletCssOnce(){
+  if(document.getElementById('leaflet-css-main')||document.querySelector('link[href*="leaflet.css"]'))return;
+  const l=document.createElement('link');
+  l.id='leaflet-css-main';l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';
+  document.head.appendChild(l);
+}
+function loadLeafletScript(src){
+  return new Promise((resolve,reject)=>{
+    if(typeof L!=='undefined')return resolve(true);
+    const s=document.createElement('script');
+    s.src=src;s.async=true;s.defer=true;
+    s.onload=()=>resolve(typeof L!=='undefined');
+    s.onerror=()=>reject(new Error('Leaflet load failed: '+src));
+    document.head.appendChild(s);
+  });
+}
+async function ensureLeafletReady(){
+  if(typeof L!=='undefined')return true;
+  loadLeafletCssOnce();
+  const urls=[
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js'
+  ];
+  for(const url of urls){
+    try{await loadLeafletScript(url);if(typeof L!=='undefined')return true;}catch(e){console.warn(e.message||e)}
+  }
+  return typeof L!=='undefined';
+}
+function renderStaticMapFallback(camps,msg){
+  const mapEl=g('assoc-map');if(!mapEl)return;
+  const rows=(camps||[]).map(c=>'<div class="map-fallback-card"><b>'+esc(c.n)+'</b><span style="display:inline-block;margin-bottom:4px;padding:2px 7px;border-radius:999px;background:'+(c.m===false?'#f3f4f6':'#dff1e7')+';color:'+(c.m===false?'#6b7280':'#185c42')+';font-weight:900;font-size:10px">'+(c.m===false?'일반 등록 야영장':'협회 회원')+'</span><br>📍 '+esc(c.a||'-')+'<br>👤 '+esc(c.o||'-')+(c.phone?'<br>☎ '+esc(c.phone):'')+'</div>').join('');
+  mapEl.innerHTML='<div class="map-fallback"><h3>지도 표시를 불러오지 못했습니다</h3><p>'+esc(msg||'지도 라이브러리 또는 지도 타일 로딩이 실패했습니다. 아래 목록으로 캠핑장 정보를 확인하세요.')+'</p><div class="map-fallback-list">'+rows+'</div></div>';
 }
 function renderCampMarkers(camps){
   if(!assocMapInstance||typeof L==='undefined')return;
@@ -1344,58 +1408,154 @@ function renderCampMarkers(camps){
   if(camps.length){const bounds=L.latLngBounds(camps.map(c=>[c.lat,c.lng]));assocMapInstance.fitBounds(bounds,{padding:[40,40]});}
 }
 async function showAssocMap(){
-  _mapCamps=await loadCampsFromDB();updateMapStats(_mapCamps);
   const mapEl=g('assoc-map');
-  if(typeof L==='undefined'){
-    if(mapEl)mapEl.innerHTML='<div class="ev-empty" style="margin:18px">지도 라이브러리를 불러오지 못했습니다. 인터넷 연결 또는 CDN 차단을 확인하세요.</div>';
-    loadEventsList();return;
+  if(!mapEl)return;
+  mapEl.innerHTML='<div class="map-status">지도 데이터 불러오는 중...</div>';
+  _mapCamps=await loadCampsFromDB();
+  updateMapStats(_mapCamps);
+  const ok=await ensureLeafletReady();
+  if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.');loadEventsList();return;}
+  try{
+    if(assocMapInstance){try{assocMapInstance.remove();}catch(e){} assocMapInstance=null;campLayer=null;}
+    mapEl.innerHTML='';
+    assocMapInstance=L.map(mapEl,{preferCanvas:true,zoomControl:true}).setView([36.76,127.83],11);
+    const tile=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18});
+    tile.on('tileerror',()=>{console.warn('map tile load error')});
+    tile.addTo(assocMapInstance);
+    renderCampMarkers(_mapCamps);
+    [80,220,500,900].forEach(ms=>setTimeout(()=>{try{assocMapInstance&&assocMapInstance.invalidateSize();}catch(e){}},ms));
+  }catch(e){
+    console.error('map init error:',e);
+    renderStaticMapFallback(_mapCamps,'지도 초기화 중 오류가 발생했습니다: '+errMsg(e));
   }
-  if(!assocMapInstance){
-    assocMapInstance=L.map('assoc-map').setView([36.76,127.83],11);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18}).addTo(assocMapInstance);
-  }
-  renderCampMarkers(_mapCamps);
-  setTimeout(()=>assocMapInstance.invalidateSize(),120);
   loadEventsList();
 }
 async function loadEventsList(){
-  const list=g('events-list'),stats=g('events-stats');if(!list)return;list.innerHTML='<div class="loading">불러오는 중...</div>';
+  const list=g('events-list'),cal=g('events-calendar'),stats=g('events-stats');
+  if(list)list.innerHTML='<div class="loading">불러오는 중...</div>';
+  if(cal)cal.innerHTML='<div class="loading">불러오는 중...</div>';
   try{
-    const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false});
+    const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true});
     if(error){
       console.warn('camp_events load error:',error.message);
-      list.innerHTML='<div class="ev-empty">행사 테이블을 읽지 못했습니다.<br>'+esc(error.message)+'</div>';
+      const msg='<div class="ev-empty">행사 테이블을 읽지 못했습니다.<br>'+esc(error.message)+'</div>';
+      if(list)list.innerHTML=msg;if(cal)cal.innerHTML=msg;
       if(stats)stats.textContent='행사 데이터 연결 확인 필요';
       return;
     }
-    _allEvents=data||[];
-    const today=todayLocalDate();
-    const upcoming=_allEvents.filter(e=>!e.event_date||String(e.event_date)>=today).length;
-    const locked=_allEvents.filter(e=>!!e.finalized).length;
-    if(stats)stats.innerHTML=`총 ${_allEvents.length}건 · 다가오는 ${upcoming}건 · 확정 ${locked}건`;
-    bindEventsFilter();renderEventsList();
-  }catch(err){console.error(err);list.innerHTML='<div class="ev-empty">불러오기 오류: '+esc(errMsg(err))+'</div>';}
+    _allEvents=(data||[]).map(normalizeEventRow);
+    bindEventsFilter();
+    buildEventControls();
+    renderEventsPage();
+  }catch(err){
+    console.error(err);
+    const msg='<div class="ev-empty">불러오기 오류: '+esc(errMsg(err))+'</div>';
+    if(list)list.innerHTML=msg;if(cal)cal.innerHTML=msg;
+  }
+}
+function normalizeEventRow(e){
+  const meta=getEventMeta(e);
+  return {...e,_cat:e.category||meta.cat||'',_catName:meta.catName||({A:'공연',B:'먹거리',C:'체험',D:'활동'}[e.category]||'기타'),_provider:meta.provider||e.provider_name||e.vendor_name||e.instructor_name||'',_program:e.program_name||e.title||'미지정 행사'};
+}
+function getEventMeta(e){
+  const name=e?.program_name||e?.title||'';
+  const meta=EVENT_PROGRAM_META[name]||{};
+  const cat=e?.category||meta.cat||'';
+  return {cat,catName:meta.catName||({A:'공연',B:'먹거리',C:'체험',D:'활동'}[cat]||cat||'기타'),provider:meta.provider||'',type:meta.type||''};
+}
+function eventDateKey(e){return e.event_date?String(e.event_date).slice(0,10):'수시'}
+function eventMonthKey(e){return e.event_date?String(e.event_date).slice(0,7):'수시'}
+function eventDateLabel(k){
+  if(k==='수시')return {big:'수시',sub:'매수권·상시'};
+  const d=new Date(k+'T00:00:00');
+  const w=['일','월','화','수','목','금','토'][d.getDay()]||'';
+  return {big:String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'),sub:w+'요일'};
+}
+function getFilteredEvents(){
+  const today=todayLocalDate();
+  let filtered=[..._allEvents];
+  if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||String(e.event_date).slice(0,10)>=today);
+  else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
+  else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>e._cat===_evFilter);
+  if(_evMonth&&_evMonth!=='all')filtered=filtered.filter(e=>eventMonthKey(e)===_evMonth);
+  if(_evCamp&&_evCamp!=='all')filtered=filtered.filter(e=>(e.camp_name||'')===_evCamp);
+  filtered.sort((a,b)=>{
+    const da=a.event_date?String(a.event_date):'9999-12-31';
+    const db=b.event_date?String(b.event_date):'9999-12-31';
+    return da.localeCompare(db)||(a.camp_name||'').localeCompare(b.camp_name||'ko')||(a._program||'').localeCompare(b._program||'ko');
+  });
+  return filtered;
+}
+function buildEventControls(){
+  const monthSel=g('ev-month'),campSel=g('ev-camp');
+  if(monthSel){
+    const months=[...new Set(_allEvents.map(eventMonthKey))].sort((a,b)=>a==='수시'?1:b==='수시'?-1:a.localeCompare(b));
+    const old=_evMonth;
+    monthSel.innerHTML='<option value="all">전체 월</option>'+months.map(m=>'<option value="'+esc(m)+'">'+esc(m==='수시'?'수시/매수권':m)+'</option>').join('');
+    monthSel.value=months.includes(old)?old:'all';_evMonth=monthSel.value;
+    if(!monthSel._bound){monthSel._bound=1;monthSel.addEventListener('change',()=>{_evMonth=monthSel.value;renderEventsPage();});}
+  }
+  if(campSel){
+    const camps=[...new Set(_allEvents.map(e=>e.camp_name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
+    const old=_evCamp;
+    campSel.innerHTML='<option value="all">전체 캠핑장</option>'+camps.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+    campSel.value=camps.includes(old)?old:'all';_evCamp=campSel.value;
+    if(!campSel._bound){campSel._bound=1;campSel.addEventListener('change',()=>{_evCamp=campSel.value;renderEventsPage();});}
+  }
 }
 function bindEventsFilter(){
-  document.querySelectorAll('[data-evf]').forEach(btn=>{if(btn._bef)return;btn._bef=1;btn.addEventListener('click',()=>{_evFilter=btn.dataset.evf;document.querySelectorAll('[data-evf]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEventsList();});});
+  document.querySelectorAll('[data-evf]').forEach(btn=>{if(btn._bef)return;btn._bef=1;btn.addEventListener('click',()=>{_evFilter=btn.dataset.evf;document.querySelectorAll('[data-evf]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderEventsPage();});});
 }
-function renderEventsList(){
-  const list=g('events-list'),today=todayLocalDate();if(!list)return;let filtered=[..._allEvents];
-  if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||String(e.event_date)>=today);
-  else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
-  else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>e.category===_evFilter);
+function renderEventsPage(){
+  const filtered=getFilteredEvents();
+  renderEventsSummary(filtered);
+  renderEventCalendar(filtered);
+  renderEventsList(filtered);
+}
+function renderEventsSummary(filtered){
+  const today=todayLocalDate();
+  const thisMonth=today.slice(0,7);
+  const total=_allEvents.length;
+  const upcoming=_allEvents.filter(e=>!e.event_date||String(e.event_date).slice(0,10)>=today).length;
+  const camps=new Set(_allEvents.map(e=>e.camp_name).filter(Boolean)).size;
+  const monthCount=_allEvents.filter(e=>eventMonthKey(e)===thisMonth).length;
+  if(g('ev-sum-total'))g('ev-sum-total').textContent=total;
+  if(g('ev-sum-upcoming'))g('ev-sum-upcoming').textContent=upcoming;
+  if(g('ev-sum-camps'))g('ev-sum-camps').textContent=camps;
+  if(g('ev-sum-month'))g('ev-sum-month').textContent=monthCount;
+  const locked=_allEvents.filter(e=>!!e.finalized).length;
+  const stats=g('events-stats');
+  if(stats)stats.innerHTML='표시 '+filtered.length+'건 · 전체 '+total+'건 · 다가오는 '+upcoming+'건 · 확정 '+locked+'건';
+}
+function renderEventCalendar(events){
+  const cal=g('events-calendar');if(!cal)return;
+  if(!events.length){cal.innerHTML='<div class="event-calendar-empty">📭 해당 조건의 행사가 없습니다</div>';return;}
+  const groups={};
+  events.forEach(e=>{const k=eventDateKey(e);if(!groups[k])groups[k]=[];groups[k].push(e);});
+  const keys=Object.keys(groups).sort((a,b)=>a==='수시'?1:b==='수시'?-1:a.localeCompare(b));
+  cal.innerHTML='<div class="event-calendar">'+keys.slice(0,18).map(k=>{
+    const label=eventDateLabel(k),rows=groups[k];
+    return '<div class="event-day"><div class="event-day-head"><div class="event-day-title"><strong>'+esc(label.big)+'</strong><span>'+esc(label.sub)+'</span></div><div class="event-day-count">'+rows.length+'건</div></div><div class="event-day-body">'+rows.map(renderEventMini).join('')+'</div></div>';
+  }).join('')+'</div>'+(keys.length>18?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">날짜 그룹 '+(keys.length-18)+'개 더 있음 · 필터로 좁혀보세요</div>':'');
+}
+function renderEventMini(e){
+  const status=e.finalized?'<span class="ev-status ev-locked">확정</span>':'<span class="ev-status ev-pending">검토</span>';
+  const qty=Number(e.qty)>1?' · '+Number(e.qty)+'매':'';
+  return '<div class="event-mini"><div><div class="event-mini-title">'+esc(e._program)+'</div><div class="event-mini-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'')+(qty?'<span>'+qty.replace(' · ','')+'</span>':'')+'</div></div>'+status+'</div>';
+}
+function renderEventsList(events){
+  const list=g('events-list');if(!list)return;
+  const filtered=Array.isArray(events)?events:getFilteredEvents();
   if(!filtered.length){list.innerHTML='<div class="ev-empty">📭 해당 조건의 일정이 없습니다</div>';return;}
-  const display=filtered.slice(0,30);
+  const display=filtered.slice(0,60);
   list.innerHTML=display.map(e=>{
-    const evDate=String(e.event_date||'');
-    const isTicket=e.bundle_type==='ticket'||!evDate;
-    const mm=evDate&&evDate.length>=10?parseInt(evDate.slice(5,7),10):0;
-    const dd=evDate&&evDate.length>=10?parseInt(evDate.slice(8,10),10):0;
-    const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+mm+'월<span class="ev-d">'+dd+'일</span></div>';
-    const catName={A:'공연',B:'먹거리',C:'체험',D:'활동'}[e.category]||e.category||'기타';
+    const evDate=eventDateKey(e);
+    const isTicket=e.bundle_type==='ticket'||evDate==='수시';
+    const label=eventDateLabel(evDate);
+    const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+label.big.split('.')[0]+'월<span class="ev-d">'+label.big.split('.')[1]+'일</span></div>';
     const status=e.finalized?'<span class="ev-status ev-locked">🔒 확정</span>':'<span class="ev-status ev-pending">⏳ 검토</span>';
-    return '<div class="ev-card">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e.program_name||e.title||'')+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e.category||'')+'">'+esc(e.category||'')+' '+esc(catName||'')+'</span><span>🏕 '+esc(e.camp_name||'')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div></div>'+status+'</div>';
-  }).join('')+(filtered.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-30)+'건 더보기는 <a href="events.html" style="color:var(--g);font-weight:700">일정 시스템</a>에서</div>':'');
+    return '<div class="ev-card '+(isTicket?'ticket':'')+'">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e._program)+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div><div class="ev-provider-line">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div>'+status+'</div>';
+  }).join('')+(filtered.length>60?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-60)+'건 더 있음 · 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
 </script>
 </body>
