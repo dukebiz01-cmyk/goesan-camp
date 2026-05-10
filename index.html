@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.26-20260510-contact-links">
+<meta name="app-version" content="gca-v4.27-20260510-auth-stability">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -52,7 +52,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .lovo{position:fixed;inset:0;background:rgba(245,247,241,.82);backdrop-filter:blur(12px);z-index:600;display:none;align-items:center;justify-content:center}.lovo.show{display:flex}
 .spin{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(18,18,18,.88);color:#fff;padding:10px 18px;border-radius:24px;font-size:13px;z-index:500;opacity:0;transition:all .25s;white-space:nowrap;max-width:90vw;text-align:center;font-weight:700}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#091d10,#12442d 55%,#185c42)}
+#login-screen{min-height:100vh;display:none;align-items:center;justify-content:center;background:linear-gradient(155deg,#091d10,#12442d 55%,#185c42)}
 .lcard{background:rgba(253,254,251,.94);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:40px 36px;width:400px;max-width:94vw;box-shadow:0 32px 80px rgba(0,0,0,.3)}
 .llogo{text-align:center;margin-bottom:26px}.llogo .ic{width:56px;height:56px;background:linear-gradient(145deg,var(--g),#3a8a66);border-radius:18px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;box-shadow:var(--s2)}.llogo .ic svg{width:24px;height:24px;stroke:#fff;stroke-width:1.8}.llogo h1{font-family:var(--fh);font-size:20px;font-weight:800}.llogo p{font-size:12px;color:var(--mid);margin-top:3px}
 .kkbtn,.ebtn{width:100%;min-height:52px;border:none;border-radius:14px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;transition:all var(--tr)}.kkbtn{background:var(--kk);color:var(--kkt);margin-bottom:12px}.kkbtn:hover,.ebtn:hover{transform:translateY(-1px)}
@@ -564,7 +564,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.26 · 2026.05.10 · 행사/업체 연락 연결</div>
+<div class="version-mark" id="version-mark">GCA v4.27 · 2026.05.10 · 로그인/세션 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -573,9 +573,16 @@ const STORAGE_BUCKET='association-files';
 const KK_OC='https://open.kakao.com/o/XXXXXX';
 const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
-const db=createClient(SUPA_URL,SUPA_KEY);
+const db=createClient(SUPA_URL,SUPA_KEY,{
+  auth:{
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true,
+    storage:window.localStorage
+  }
+});
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.26 · 2026.05.10 · 행사/업체 연락 연결';
+const APP_VERSION='GCA v4.27 · 2026.05.10 · 로그인/세션 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -594,12 +601,129 @@ let _currentPage='notices';
 let campLayer=null;
 let _authBootDone=false;
 let _manualLoginInProgress=false;
+let _explicitLogoutInProgress=false;
+let _authEventSeq=0;
 const AUTH_RETURN_KEY='gca_oauth_manual_return';
 const AUTH_RETURN_TTL=10*60*1000;
 function markManualOAuthIntent(){try{sessionStorage.setItem(AUTH_RETURN_KEY,String(Date.now()));}catch(e){}}
 function clearManualOAuthIntent(){try{sessionStorage.removeItem(AUTH_RETURN_KEY);}catch(e){}}
 function hasFreshOAuthIntent(){try{const ts=Number(sessionStorage.getItem(AUTH_RETURN_KEY)||0);return ts>0&&(Date.now()-ts)<AUTH_RETURN_TTL;}catch(e){return false}}
 function isOAuthReturnUrl(){const qs=location.search||'',hs=location.hash||'';return /(?:[?&](code|error|error_code|error_description)=)/.test(qs)||/(?:access_token|refresh_token|provider_token|expires_in)=/.test(hs)}
+
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function withClientTimeout(promise,label,ms=9000){
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise(resolve=>setTimeout(()=>resolve({__timeout:true,error:{message:(label||'요청')+' 시간이 초과되었습니다. 네트워크 상태를 확인 후 다시 시도하세요.',code:'CLIENT_TIMEOUT'}}),ms))
+  ]);
+}
+async function getSessionOnce(ms=7000){
+  const res=await withClientTimeout(db.auth.getSession(),'세션 확인',ms);
+  if(res.__timeout)throw new Error(res.error.message);
+  if(res.error)throw res.error;
+  return res.data?.session||null;
+}
+async function getSessionWithRetry(attempts=3,ms=7000){
+  let lastErr=null;
+  for(let i=0;i<attempts;i++){
+    try{
+      const s=await getSessionOnce(ms);
+      return s;
+    }catch(e){
+      lastErr=e;
+      console.warn('session check retry',i+1,errMsg(e));
+      await sleep(350*(i+1));
+    }
+  }
+  if(lastErr)console.warn('session check failed:',errMsg(lastErr));
+  return null;
+}
+async function waitForOAuthSession(maxMs=3500){
+  const until=Date.now()+maxMs;
+  while(Date.now()<until){
+    const s=await getSessionWithRetry(1,2500);
+    if(s?.user)return s;
+    await sleep(300);
+  }
+  return null;
+}
+async function loadMemberSafe(user,attempts=3){
+  let ok=false;
+  for(let i=0;i<attempts;i++){
+    try{
+      ok=await loadMember(user);
+      if(ok)return true;
+    }catch(e){
+      console.warn('member load retry',i+1,errMsg(e));
+    }
+    await sleep(350*(i+1));
+  }
+  return false;
+}
+async function bootAuthSession(){
+  load(true);
+  try{
+    const session=await getSessionWithRetry(3,6500);
+    if(isOAuthReturnUrl())clearManualOAuthIntent();
+    if(session?.user){
+      const ok=await loadMemberSafe(session.user,3);
+      if(ok){showApp();return;}
+      showLogin();
+      return;
+    }
+    if(isOAuthReturnUrl()){
+      const oauthSession=await waitForOAuthSession(3500);
+      if(oauthSession?.user){
+        const ok=await loadMemberSafe(oauthSession.user,3);
+        if(ok){showApp();return;}
+      }
+    }
+    clearManualOAuthIntent();
+    showLogin();
+  }catch(e){
+    console.error('boot auth error:',e);
+    showLogin();
+    setLerr('세션 확인이 지연되었습니다. 네트워크를 확인한 뒤 다시 로그인하세요.');
+  }finally{
+    load(false);
+  }
+}
+async function handleAuthStateChange(ev,session){
+  const seq=++_authEventSeq;
+  if(ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION'||ev==='USER_UPDATED'){
+    if(!session?.user)return;
+    if(!_authBootDone&&ev!=='SIGNED_IN')return;
+    try{
+      const ok=await loadMemberSafe(session.user,2);
+      if(seq!==_authEventSeq&&ev!=='TOKEN_REFRESHED')return;
+      if(ok)showApp();
+      else if(_authBootDone)showLogin();
+    }catch(e){
+      console.error('auth state member error:',e);
+      if(_authBootDone)showLogin();
+    }
+    return;
+  }
+  if(ev==='SIGNED_OUT'){
+    if(_explicitLogoutInProgress){
+      clearManualOAuthIntent();
+      Object.assign(App,{user:null,member:null,role:null});
+      showLogin();
+      return;
+    }
+    // 새로고침/토큰 갱신 중 발생하는 일시적 SIGNED_OUT 가능성을 한번 더 검증한다.
+    await sleep(700);
+    const s=await getSessionWithRetry(2,3500);
+    if(s?.user){
+      const ok=await loadMemberSafe(s.user,2);
+      if(ok){showApp();return;}
+    }
+    if(_authBootDone&&!_manualLoginInProgress){
+      Object.assign(App,{user:null,member:null,role:null});
+      showLogin();
+    }
+  }
+}
 
 const MEMBER_CAMPS=[
   {n:"가자우리집",lat:36.7493059,lng:127.8985382,o:"안미선",e:"gaja@camp.kr",a:"칠성면 쌍곡로 504",c:"칠성"},
@@ -880,19 +1004,34 @@ async function loginEmail(){
   if(!e||!p){setLerr('이메일과 비밀번호를 입력하세요');return;}
   _manualLoginInProgress=true;
   load(true);
-  const finish=()=>setTimeout(()=>{_manualLoginInProgress=false},1200);
+  const finish=()=>setTimeout(()=>{_manualLoginInProgress=false},1500);
   try{
-    const {data:authData,error:authErr}=await db.auth.signInWithPassword({email:e,password:p});
-    if(authErr){load(false);setLerr('로그인 실패: '+authErr.message);finish();return;}
-    if(authData?.user){
-      const r=await loadMember(authData.user);
+    const res=await withClientTimeout(db.auth.signInWithPassword({email:e,password:p}),'로그인',10000);
+    if(res.__timeout||res.error){
       load(false);
-      if(r)showApp();else showLogin();
+      setLerr('로그인 실패: '+errMsg(res.error||res));
       finish();
       return;
     }
-    load(false);setLerr('로그인 세션을 확인하지 못했습니다. 다시 시도하세요.');finish();
-  }catch(e2){load(false);setLerr('오류: '+errMsg(e2));finish();}
+    const user=res.data?.user||res.data?.session?.user;
+    if(user){
+      const ok=await loadMemberSafe(user,3);
+      load(false);
+      if(ok)showApp();
+      else showLogin();
+      finish();
+      return;
+    }
+    const session=await getSessionWithRetry(2,3500);
+    load(false);
+    if(session?.user&&await loadMemberSafe(session.user,2))showApp();
+    else setLerr('로그인 세션을 확인하지 못했습니다. 다시 시도하세요.');
+    finish();
+  }catch(e2){
+    load(false);
+    setLerr('오류: '+errMsg(e2));
+    finish();
+  }
 }
 function clearLocalSupabaseSession(){
   try{
@@ -922,6 +1061,7 @@ async function forceManualLoginScreen(){
 
 async function logout(){
   if(!confirm('로그아웃 하시겠습니까?')) return;
+  _explicitLogoutInProgress=true;
   load(true);
   try{
     const signoutPromise=db.auth.signOut({scope:'local'});
@@ -949,10 +1089,11 @@ async function logout(){
     showLogin();
     try{history.replaceState(null,'',location.pathname);}catch(e){}
     toast('로그아웃 되었습니다');
+    setTimeout(()=>{_explicitLogoutInProgress=false},1200);
   }
 }
 function setLerr(msg){const el=g('lerr');el.textContent=msg;el.style.display='block'}
-function showLogin(){g('login-screen').style.display='flex';g('app').style.display='none'}
+function showLogin(){load(false);g('login-screen').style.display='flex';g('app').style.display='none'}
 function rolePages(){
   const role=App.role||'member';
   if(role==='admin')return ['my','notices','budget','events','info'];
@@ -974,6 +1115,7 @@ function applyRoleMenus(){
   if(evLink)evLink.style.display=canAccessPage('events')?'inline-flex':'none';
 }
 function showApp(){
+  load(false);
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
   const roleLabel={admin:'협회임원',member:'회원',provider:'업체',county:'군청'};
@@ -1007,40 +1149,12 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{localStorage.removeItem('gca_mc');}catch(e){}
   if(g('kk-oc'))g('kk-oc').href=KK_OC;if(g('kk-ch'))g('kk-ch').href=KK_CH;
 
-  try{
-    const {data:{session}}=await db.auth.getSession();
-    if(isOAuthReturnUrl())clearManualOAuthIntent();
-    if(session?.user){
-      const ok=await loadMember(session.user);
-      if(ok)showApp();
-      else showLogin();
-    }else{
-      clearManualOAuthIntent();
-      showLogin();
-    }
-  }catch(e){
-    console.error('session boot error',e);
-    showLogin();
-  }
-
-  _authBootDone=true;
-  db.auth.onAuthStateChange(async(ev,session)=>{
-    if(ev==='SIGNED_IN'&&session?.user){
-      if(!_authBootDone)return;
-      try{
-        const ok=await loadMember(session.user);
-        if(ok)showApp();
-        else showLogin();
-      }catch(e){
-        console.error('auth error',e);
-        showLogin();
-      }
-    }else if(ev==='SIGNED_OUT'){
-      clearManualOAuthIntent();
-      Object.assign(App,{user:null,member:null,role:null});
-      showLogin();
-    }
+  db.auth.onAuthStateChange((ev,session)=>{
+    handleAuthStateChange(ev,session).catch(e=>console.error('auth state handler error:',e));
   });
+
+  await bootAuthSession();
+  _authBootDone=true;
 });
 
 async function loadBadges(){
