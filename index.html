@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.29-20260510-notice-create-fix">
+<meta name="app-version" content="gca-v4.30-20260510-agenda-provider-auth">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -424,12 +424,12 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
 
   <div class="page" id="page-budget">
     <div class="ph">
-      <div><div class="ph-title">투표</div><div class="ph-sub">예산안·협회 의사결정 · 정관 제18조·33조 기준</div></div>
-      <button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 예산안</button>
+      <div><div class="ph-title">투표</div><div class="ph-sub">안건·협회 의사결정 · 정관 제18조·33조 기준</div></div>
+      <button class="btn bp btn-sm" id="btn-proposal" style="display:none" onclick="openModal('proposal')">+ 안건</button>
     </div>
     <div class="budget-toolbar">
       <div class="seg" id="bf-seg"><button class="active" data-bf="all">전체</button><button data-bf="voting">진행중</button><button data-bf="approved">가결</button><button data-bf="rejected">부결</button><button data-bf="quorum_failed">정족수미달</button><button data-bf="draft">초안</button></div>
-      <label class="bsearch"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="budget-search" type="search" placeholder="예산안 제목 검색"></label>
+      <label class="bsearch"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="budget-search" type="search" placeholder="안건 제목 검색"></label>
     </div>
     <div id="budget-list"><div class="loading">불러오는 중...</div></div>
   </div>
@@ -567,10 +567,10 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
 GCA v4.18 EVENT MENU CLEANUP
 기준: v4.13 캠핑협회 클린 재시작
 방향: MY / 공지 / 투표 / 이벤트 / 정보 5메뉴 구조 + 회원 보조사업 실행판
-범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
+범위: 로그인 / 공지 / 안건 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.29 · 2026.05.10 · 공지작성 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.30 · 2026.05.10 · 안건/업체/로그인 보강</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -588,7 +588,7 @@ const db=createClient(SUPA_URL,SUPA_KEY,{
   }
 });
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.29 · 2026.05.10 · 공지작성 안정화';
+const APP_VERSION='GCA v4.30 · 2026.05.10 · 안건/업체/로그인 보강';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -669,10 +669,10 @@ async function loadMemberSafe(user,attempts=3){
 async function bootAuthSession(){
   load(true);
   try{
-    const session=await getSessionWithRetry(3,6500);
+    const session=await getSessionWithRetry(5,9000);
     if(isOAuthReturnUrl())clearManualOAuthIntent();
     if(session?.user){
-      const ok=await loadMemberSafe(session.user,3);
+      const ok=await loadMemberSafe(session.user,5);
       if(ok){showApp();return;}
       showLogin();
       return;
@@ -680,7 +680,7 @@ async function bootAuthSession(){
     if(isOAuthReturnUrl()){
       const oauthSession=await waitForOAuthSession(3500);
       if(oauthSession?.user){
-        const ok=await loadMemberSafe(oauthSession.user,3);
+        const ok=await loadMemberSafe(oauthSession.user,5);
         if(ok){showApp();return;}
       }
     }
@@ -700,7 +700,7 @@ async function handleAuthStateChange(ev,session){
     if(!session?.user)return;
     if(!_authBootDone&&ev!=='SIGNED_IN')return;
     try{
-      const ok=await loadMemberSafe(session.user,2);
+      const ok=await loadMemberSafe(session.user,4);
       if(seq!==_authEventSeq&&ev!=='TOKEN_REFRESHED')return;
       if(ok)showApp();
       else if(_authBootDone)showLogin();
@@ -718,10 +718,10 @@ async function handleAuthStateChange(ev,session){
       return;
     }
     // 새로고침/토큰 갱신 중 발생하는 일시적 SIGNED_OUT 가능성을 한번 더 검증한다.
-    await sleep(700);
+    await sleep(1500);
     const s=await getSessionWithRetry(2,3500);
     if(s?.user){
-      const ok=await loadMemberSafe(s.user,2);
+      const ok=await loadMemberSafe(s.user,4);
       if(ok){showApp();return;}
     }
     if(_authBootDone&&!_manualLoginInProgress){
@@ -869,7 +869,7 @@ function parseBudgetAmount(raw){
     if((clean.match(/\./g)||[]).length>1)return {ok:false,amount:0,message:'금액 형식이 올바르지 않습니다'};
     total=Number(clean);
   }
-  if(!Number.isFinite(total)||total<=0)return {ok:false,amount:0,message:'예산안 금액은 0보다 커야 합니다'};
+  if(!Number.isFinite(total)||total<=0)return {ok:false,amount:0,message:'안건 금액은 0보다 커야 합니다'};
   if(total>999999999999)return {ok:false,amount:0,message:'금액이 너무 큽니다. 1조 원 미만으로 입력하세요'};
   return {ok:true,amount:Math.round(total),message:''};
 }
@@ -1012,7 +1012,7 @@ async function loginEmail(){
   load(true);
   const finish=()=>setTimeout(()=>{_manualLoginInProgress=false},1500);
   try{
-    const res=await withClientTimeout(db.auth.signInWithPassword({email:e,password:p}),'로그인',10000);
+    const res=await withClientTimeout(db.auth.signInWithPassword({email:e,password:p}),'로그인',15000);
     if(res.__timeout||res.error){
       load(false);
       setLerr('로그인 실패: '+errMsg(res.error||res));
@@ -1103,7 +1103,7 @@ function showLogin(){load(false);document.body.classList.add('login-mode');docum
 function rolePages(){
   const role=App.role||'member';
   if(role==='admin')return ['my','notices','budget','events','info'];
-  if(role==='provider')return ['my','notices','info'];
+  if(role==='provider'||role==='vendor'||role==='instructor')return ['my','notices','info'];
   if(role==='county')return ['notices','events','info'];
   return ['my','notices','budget','info'];
 }
@@ -1125,7 +1125,7 @@ function showApp(){
   document.body.classList.add('app-mode');document.body.classList.remove('login-mode');
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
-  const roleLabel={admin:'협회임원',member:'회원',provider:'업체',county:'군청'};
+  const roleLabel={admin:'협회임원',member:'회원',provider:'업체/강사',vendor:'업체/강사',instructor:'업체/강사',county:'군청'};
   g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
   ['btn-notice','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
@@ -1364,7 +1364,7 @@ async function loadBudget(){
   const br=await selectBudgetProposals();
   if(br.error){list.innerHTML='<div class="errm">불러오기 실패: '+esc(budgetErrText(br.error))+'</div>';return;}
   const rows=br.data||[];
-  if(!rows.length){list.innerHTML='<div class="empty"><div class="emptyic">✅</div>등록된 예산안이 없습니다</div>';return;}
+  if(!rows.length){list.innerHTML='<div class="empty"><div class="emptyic">✅</div>등록된 안건이 없습니다</div>';return;}
   const ids=rows.map(p=>p.id).filter(Boolean);
   const [counts,mv]=await Promise.all([loadVoteCounts(ids),loadMyVotes(ids)]);
   const viewRows=rows.map(p=>applyVoteCounts(p,counts));
@@ -1527,10 +1527,10 @@ async function castVote(pid,vote){
   }
 }
 async function votePreflight(pid){
-  if(!pid)return {ok:false,message:'예산안 ID가 없습니다. 화면을 새로고침한 뒤 다시 시도하세요.'};
+  if(!pid)return {ok:false,message:'안건 ID가 없습니다. 화면을 새로고침한 뒤 다시 시도하세요.'};
   const {data:p,error}=await selectBudgetProposalById(pid);
-  if(error)return {ok:false,message:'예산안 확인 실패: '+budgetErrText(error)};
-  if(!p)return {ok:false,message:'예산안을 찾을 수 없습니다.'};
+  if(error)return {ok:false,message:'안건 확인 실패: '+budgetErrText(error)};
+  if(!p)return {ok:false,message:'안건을 찾을 수 없습니다.'};
   if(p.status!=='voting')return {ok:false,message:'현재 투표 중인 안건이 아닙니다. 현재 상태: '+(budgetStatusMaps().stM[p.status]||p.status||'알 수 없음')};
   // v4.11: vote_deadline 값이 과거로 남아 있어도 회원 투표를 막지 않습니다.
   // 실제 마감은 관리자가 [마감 처리]를 눌러 status를 바꾸는 방식으로만 처리합니다.
@@ -1595,7 +1595,7 @@ async function startVoting(id){
 }
 async function submitStartVoting(){
   if(App.role!=='admin'){toast('관리자만 투표를 시작할 수 있습니다');return;}
-  const id=v('sv-id');if(!id){toast('예산안 ID를 찾지 못했습니다');return;}
+  const id=v('sv-id');if(!id){toast('안건 ID를 찾지 못했습니다');return;}
   const voterCount=await activeVoterCount();
   const qn=parseInt(v('sv-quorum'),10);if(!Number.isFinite(qn)||qn<1){toast('정족수는 1 이상의 숫자여야 합니다');const q=g('sv-quorum');if(q)q.focus();return;}
   let iso=null;
@@ -1672,7 +1672,7 @@ async function directFinalizeBudget(id){
 }
 async function openProposal(id){
   const {data:p,error}=await selectBudgetProposalById(id);
-  if(error){toast('예산안 조회 오류: '+budgetErrText(error));return;}
+  if(error){toast('안건 조회 오류: '+budgetErrText(error));return;}
   if(!p)return;
   const counts=await loadVoteCounts([id]);
   const vp=applyVoteCounts(p,counts);
@@ -1691,7 +1691,7 @@ async function openProposal(id){
     const rows=await Promise.all(files.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="file-row"><span class="fext fe-'+fext(f.file_name)+'">'+fext(f.file_name).toUpperCase()+'</span><div class="rmain"><div class="rt" style="font-size:12px">'+esc(f.file_name)+'</div></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">↓</a></div>';}));
     fileHtml='<div class="p-sec"><div class="p-sec-t">첨부 서류</div>'+rows.join('')+'</div>';
   }
-  showPan(vp.title||'예산안','<div class="p-meta">등록: '+esc(proposalAuthorName(vp)||'')+' · '+fd(vp.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(vp.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(vp.category||'항목 미지정')+'</span><span class="tag tgr">'+esc(vp.budget_source||'출처 미지정')+'</span><span class="tag '+(vp.approval_rule==='two_thirds'?'tr':'tg')+'">'+(vp.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(vp.description||'').replace(/\n/g,'<br>')+'</div>'+(vp.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[vp.status]||vp.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+yes+'</strong> · 반대 <strong>'+no+'</strong> · 참여 '+tot+' / '+(vp.total_voters||'?')+'<br>정족수 '+tot+' / '+(vp.quorum_count||'?')+' '+(tot>=(vp.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(vp.finalized_at?'<br>확정: '+fdt(vp.finalized_at):'')+(vp.final_result_text?'<br>결과: '+esc(vp.final_result_text):'')+'</div></div>':'')+fileHtml+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delProposal(\''+jsq(id)+'\')">🗑️ 투표안 삭제</button></div>':''));
+  showPan(vp.title||'안건','<div class="p-meta">등록: '+esc(proposalAuthorName(vp)||'')+' · '+fd(vp.created_at)+'</div><div style="font-size:19px;font-weight:800;color:var(--red);margin-bottom:10px">'+won(vp.amount)+'</div><div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap"><span class="tag tb">'+esc(vp.category||'항목 미지정')+'</span><span class="tag tgr">'+esc(vp.budget_source||'출처 미지정')+'</span><span class="tag '+(vp.approval_rule==='two_thirds'?'tr':'tg')+'">'+(vp.approval_rule==='two_thirds'?'2/3 찬성':'과반 찬성')+'</span></div><div class="p-content">'+esc(vp.description||'').replace(/\n/g,'<br>')+'</div>'+(vp.status!=='draft'?'<div class="p-sec"><div class="p-sec-t">투표 현황 ('+(stM[vp.status]||vp.status)+')</div><div style="font-size:13px;line-height:1.9">찬성 <strong>'+yes+'</strong> · 반대 <strong>'+no+'</strong> · 참여 '+tot+' / '+(vp.total_voters||'?')+'<br>정족수 '+tot+' / '+(vp.quorum_count||'?')+' '+(tot>=(vp.quorum_count||1)?'✓':'⚠️ 미달')+'<br>마감 '+deadlineText+(vp.finalized_at?'<br>확정: '+fdt(vp.finalized_at):'')+(vp.final_result_text?'<br>결과: '+esc(vp.final_result_text):'')+'</div></div>':'')+fileHtml+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delProposal(\''+jsq(id)+'\')">🗑️ 투표안 삭제</button></div>':''));
 }
 function isRelationshipError(err){
   const msg=String(err?.message||'');
@@ -1736,7 +1736,7 @@ function budgetErrText(err){
   if(isRpcFallbackable(err))return 'Supabase RPC 함수가 없거나 시그니처가 맞지 않습니다. v4.12 SQL을 먼저 실행해야 합니다. 원문: '+detail;
   if(isPolicyError(err))return '권한/RLS 오류입니다. 관리자 계정 또는 budget_proposals/votes 정책을 확인해야 합니다. 원문: '+detail;
   if(isSchemaColumnError(err))return 'DB 컬럼 불일치 오류입니다. budget_proposals/votes 테이블 컬럼과 화면 코드가 맞지 않습니다. 원문: '+detail;
-  if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 예산안 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
+  if(isCheckViolation(err))return 'DB CHECK 제약조건 오류(23514)입니다. 기존 budget_proposals/votes 제약조건이 현재 안건 값(status/category/budget_source/approval_rule/amount/vote)과 맞지 않습니다. budget_check_repair_v4_6.sql을 먼저 실행하세요. 원문: '+detail;
   if(isRelationshipError(err))return 'DB 외래키 관계 조회 오류입니다. 화면은 우회했지만, FK 관계를 정리하는 것이 좋습니다. 원문: '+detail;
   return detail||String(err);
 }
@@ -1745,7 +1745,7 @@ function voteErrorText(err){
   const detail=[err?.message,err?.details,err?.hint,err?.code].filter(Boolean).join(' / ');
   if(/회원 정보를 찾을 수 없습니다|member.*not found|current_member/i.test(detail))return '회원 매칭 오류입니다. 로그인 계정과 members.email 또는 members.user_id 연결이 맞지 않습니다. vote_cast_repair_v4_8.sql을 먼저 실행하고 다시 로그인하세요. 원문: '+detail;
   if(/투표권이 없는|not.*voter|county/i.test(detail))return '투표권이 없는 계정입니다. members.is_voter=true, role=member/admin인지 확인하세요. 원문: '+detail;
-  if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 예산안을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
+  if(/투표 중인 안건이 아닙니다|not.*voting|status/i.test(detail))return '현재 투표중 상태가 아닙니다. 관리자가 안건을 [투표 시작] 상태로 바꿔야 합니다. 원문: '+detail;
   if(err?.code==='42702'||/42702|ambiguous|모호/i.test(detail))return 'DB 컬럼 모호성 오류(42702)입니다. vote_42702_repair_v4_12.sql을 실행해 RPC 반환 구조를 JSON 방식으로 재생성해야 합니다. 원문: '+detail;
   if(/P0001|마감|deadline|closed/i.test(detail))return 'P0001/투표마감 잔존 오류입니다. v4.12 SQL을 실행해 예전 투표 RPC·정책·마감 트리거를 강제 삭제 후 JSON RPC로 재생성하세요. 원문: '+detail;
   return budgetErrText(err);
@@ -1853,14 +1853,14 @@ async function safeInsertBudgetProposal(basePayload,hasFiles){
       break;
     }
   }
-  return {data:null,error:lastErr||rpcErr||{message:'예산안 등록 실패'}};
+  return {data:null,error:lastErr||rpcErr||{message:'안건 등록 실패'}};
 }
 async function submitProposal(){
   const title=v('pr-title'),cat=v('pr-cat'),src=v('pr-src'),desc=v('pr-desc'),rule=v('pr-rule');
   const amountParsed=parseBudgetAmount(g('pr-amt')?.value||'');
   if(!App.member?.id){toast('회원 정보가 없습니다. 다시 로그인하세요');return;}
-  if(App.role!=='admin'){toast('예산안 등록은 관리자만 가능합니다');return;}
-  if(!title){toast('예산안 제목을 입력하세요');return;}
+  if(App.role!=='admin'){toast('안건 등록은 관리자만 가능합니다');return;}
+  if(!title){toast('안건 제목을 입력하세요');return;}
   if(!amountParsed.ok){toast(amountParsed.message);const inp=g('pr-amt');if(inp)inp.focus();updateBudgetAmountHelp();return;}
   if(!desc){toast('지출 사유 및 세부 계획을 입력하세요');return;}
   const amount=amountParsed.amount;
@@ -1869,13 +1869,13 @@ async function submitProposal(){
   const payload={created_by:App.member.id,title,category:cat||null,budget_source:src||null,amount,description:desc,approval_rule:rule||'simple_majority',status:'draft'};
   load(true);
   const {data,error}=await safeInsertBudgetProposal(payload,hasFiles);
-  if(error){load(false);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('예산안 등록 오류\n\n'+msg);return;}
+  if(error){load(false);const msg=budgetErrText(error);console.error('budget insert failed final:',error);toast(msg.slice(0,120));alert('안건 등록 오류\n\n'+msg);return;}
   if(hasFiles){
     if(data?.id)await uploadAtt(fi.files,'proposal',data.id);
-    else toast('예산안은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
+    else toast('안건은 저장됐지만 첨부 연결 ID를 찾지 못했습니다');
   }
   load(false);
-  toast('예산안 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
+  toast('안건 초안 저장 완료 ✓');closeMo();loadBudget();loadBadges();
 }
 
 async function loadLibrary(){
@@ -1921,7 +1921,7 @@ function renderMyPageSkeleton(){
   const role=App.role||'member';
   const roleText=roleLabelText();
   if(g('my-sum-role'))g('my-sum-role').textContent=roleText;
-  if(role==='provider'||getMyProviderName()){
+  if(role==='provider'||role==='vendor'||role==='instructor'||getMyProviderName()){
     renderProviderMyPage();
   }else if(role==='admin'){
     renderAdminMyPage();
@@ -2092,7 +2092,7 @@ async function renderMyDocs(){
 async function loadInfoPage(){
   loadInfoLibraryPreview();
   await ensureEventsForInfo();
-  await loadProviderContacts();
+  await loadProviderContacts(true);
   bindInfoControls();
   renderProviderDirectory();
   renderCampInfoList();
@@ -2101,7 +2101,7 @@ async function loadInfoPage(){
 }
 
 
-function memberRoleLabel(role){return {admin:'협회임원',member:'회원',county:'군청'}[role]||role||'회원'}
+function memberRoleLabel(role){return {admin:'협회임원',member:'회원',provider:'업체/강사',vendor:'업체/강사',instructor:'업체/강사',county:'군청'}[role]||role||'회원'}
 function normalizeEmail(s){return String(s||'').trim().toLowerCase()}
 function withDbTimeout(promise,label,ms=12000){
   return Promise.race([
@@ -2127,11 +2127,11 @@ function openMemberModal(){
       <div class="member-form-box">
         <div class="member-box-title">회원 정보 입력 <small>등록 후 오른쪽에 박스 생성</small></div>
         <div class="ff"><label>이름</label><input id="m-name" placeholder="회원 이름"></div>
-        <div class="ff"><label>캠핑장명</label><input id="m-camp" placeholder="캠핑장명"></div>
+        <div class="ff"><label>캠핑장명</label><input id="m-camp" placeholder="캠핑장명 · 회원일 때 입력"></div>
         <div class="ff"><label>이메일</label><input id="m-email" type="email" placeholder="로그인 이메일 또는 카카오 이메일"></div>
-        <div class="ff"><label>연락처</label><input id="m-phone" placeholder="010-0000-0000"></div>
+        <div class="ff"><label>연락처</label><input id="m-phone" placeholder="010-0000-0000"></div><div class="ffrow"><div class="ff"><label>업체/강사명</label><input id="m-provider" placeholder="예: 백선일, 정미화"></div><div class="ff"><label>업체명</label><input id="m-company" placeholder="예: 썬엔터테인먼트"></div></div>
         <div class="ffrow">
-          <div class="ff"><label>권한</label><select id="m-role"><option value="member">회원</option><option value="admin">협회임원</option><option value="county">군청</option></select></div>
+          <div class="ff"><label>권한</label><select id="m-role"><option value="member">회원</option><option value="provider">업체/강사</option><option value="admin">협회임원</option><option value="county">군청</option></select></div>
           <div class="ff"><label>투표권</label><select id="m-voter"><option value="true">있음</option><option value="false">없음</option></select></div>
         </div>
         <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:8px;line-height:1.55">회원의 로그인 이메일과 동일하게 입력해야 자동 연결됩니다. 등록 성공 시 오른쪽 회원 목록에 카드 박스가 생성됩니다.</div>
@@ -2153,7 +2153,7 @@ let _lastMemberCards=[];
 async function loadMemberCards(){
   const box=g('member-card-list');
   if(box)box.innerHTML='<div class="loading">회원 목록 불러오는 중...</div>';
-  let res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter,created_at').order('created_at',{ascending:false}).limit(200),'회원 목록 조회');
+  let res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,provider_name,company_name,is_active,is_voter,created_at').order('created_at',{ascending:false}).limit(200),'회원 목록 조회');
   if(res.error&&isMissingColumn(res.error,'created_at')){
     res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter').order('name',{ascending:true}).limit(200),'회원 목록 조회');
   }
@@ -2180,32 +2180,34 @@ function renderMemberCard(m){
   return '<div class="member-card '+cls+(active?'':' inactive')+'"><div class="member-card-top"><div><div class="member-card-name">'+esc(m.name||'이름 없음')+'</div><div class="member-card-camp">🏕 '+esc(m.camp_name||'캠핑장 미지정')+'</div></div><div class="member-chip-row"><span class="member-chip '+esc(role)+'">'+esc(memberRoleLabel(role))+'</span></div></div><div class="member-card-meta">📧 '+esc(m.email||'-')+(m.phone?'<br>☎ '+esc(m.phone):'')+'</div><div class="member-chip-row"><span class="member-chip '+(m.is_voter?'member':'no')+'">투표권 '+(m.is_voter?'있음':'없음')+'</span><span class="member-chip '+(active?'member':'no')+'">'+(active?'활성':'비활성')+'</span></div></div>';
 }
 async function createMemberViaRpc(payload){
-  return await withDbTimeout(db.rpc('create_member_admin_v4_23',{
+  return await withDbTimeout(db.rpc('create_member_admin_v4_30',{
     p_name:payload.name,
     p_camp_name:payload.camp_name,
     p_email:payload.email,
     p_phone:payload.phone,
     p_role:payload.role,
-    p_is_voter:payload.is_voter
+    p_is_voter:payload.is_voter,
+    p_provider_name:payload.provider_name,
+    p_company_name:payload.company_name
   }),'회원 등록 RPC');
 }
 async function createMemberDirect(payload){
-  return await withDbTimeout(db.from('members').insert(payload).select('id,name,camp_name,email,phone,role,is_active,is_voter,created_at').maybeSingle(),'회원 직접 등록');
+  return await withDbTimeout(db.from('members').insert(payload).select('id,name,camp_name,email,phone,role,provider_name,company_name,is_active,is_voter,created_at').maybeSingle(),'회원 직접 등록');
 }
 async function submitMember(){
   if(App.role!=='admin'){toast('관리자만 회원을 등록할 수 있습니다');return;}
   if(_actionLocks.has('submitMember'))return;
   const role=v('m-role')||'member';
   const email=normalizeEmail(v('m-email'));
-  const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
+  const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,provider_name:v('m-provider')||null,company_name:v('m-company')||null,is_active:true,is_voter:(role==='county'||role==='provider'||role==='vendor'||role==='instructor')?false:v('m-voter')==='true'};
   if(!payload.name){setMemberRegisterStatus('회원 이름을 입력하세요','err');return;}
-  if(!payload.email){setMemberRegisterStatus('이메일을 입력하세요. 로그인 연결에 필요합니다','err');return;}
+  if(!payload.email){setMemberRegisterStatus('이메일을 입력하세요. 로그인 연결에 필요합니다','err');return;} if((role==='provider'||role==='vendor'||role==='instructor')&&!payload.provider_name)payload.provider_name=payload.name;
   _actionLocks.add('submitMember');
   setMemberSubmitBusy(true);
   load(true);
   try{
     setMemberRegisterStatus('중복 이메일 확인 중...','warn');
-    const existing=await withDbTimeout(db.from('members').select('id,email').ilike('email',payload.email).maybeSingle(),'중복 이메일 확인',9000);
+    const existing=await withDbTimeout(db.from('members').select('id,email,role').ilike('email',payload.email).maybeSingle(),'중복 이메일 확인',9000);
     if(existing.error&&existing.error.code!=='PGRST116'){
       console.warn('member duplicate check error:',existing.error.message);
     }
@@ -2214,7 +2216,7 @@ async function submitMember(){
     setMemberRegisterStatus('회원 등록 중...','warn');
     let res=await createMemberViaRpc(payload);
     if(res.error){
-      console.warn('create_member_admin_v4_23 fallback:',res.error.message);
+      console.warn('create_member_admin_v4_30 fallback:',res.error.message);
       res=await createMemberDirect(payload);
     }
     if(res.error){setMemberRegisterStatus('회원 등록 오류: '+res.error.message,'err');return;}
@@ -2239,7 +2241,7 @@ function openModal(type){
     notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="form-status" id="n-status"></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" id="n-submit" onclick="submitNotice()">등록</button></div>',
     meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
-    proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
+    proposal:'<div class="mot">✅ 안건 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
   };
   g('mo-body').innerHTML=tpls[type]||'';g('mover').classList.add('open');
   if(type==='proposal')setTimeout(bindBudgetAmountInput,0);
@@ -2499,8 +2501,8 @@ function renderEventCalendar(events){
 
 
 function normalizeKey(s){return String(s||'').replace(/\s+/g,'').replace(/캠핑장|야영장/g,'').trim().toLowerCase();}
-async function loadProviderContacts(){
-  if(_providerContactsLoaded)return _providerContactMap;
+async function loadProviderContacts(force=false){
+  if(_providerContactsLoaded&&!force)return _providerContactMap;
   _providerContactsLoaded=true;
   _providerContactMap={...STATIC_PROVIDER_CONTACTS};
   try{
@@ -2696,7 +2698,9 @@ function renderProviderDirectory(){
   box.innerHTML='<div class="provider-directory">'+stats.map(s=>{
     const active=s.provider===selected?' active':'';
     const cats=[...s.cats].slice(0,3).map(c=>'<span class="provider-tag">'+esc(c)+'</span>').join('');
-    return '<button type="button" class="provider-card'+active+'" onclick="openProviderInfo(\''+jsq(s.provider)+'\')"><div class="provider-card-name">'+esc(s.provider)+'</div><div class="provider-card-meta">행사 '+s.events.length+'건 · 캠핑장 '+s.camps.size+'곳 · 콘텐츠 '+s.programs.size+'개</div><div class="provider-card-tags">'+cats+'</div></button>';
+    const contact=getProviderContact(s.provider);
+    const contactLine=(contact.phone||contact.email)?((contact.company?esc(contact.company)+' · ':'')+(contact.phone?'☎ '+esc(contact.phone)+' ':'')+(contact.email?'✉ '+esc(contact.email):'')):'연락처 미등록';
+    return '<button type="button" class="provider-card'+active+'" onclick="openProviderInfo(\''+jsq(s.provider)+'\')"><div class="provider-card-name">'+esc(s.provider)+'</div><div class="provider-card-meta">'+contactLine+'</div><div class="provider-card-meta">행사 '+s.events.length+'건 · 캠핑장 '+s.camps.size+'곳 · 콘텐츠 '+s.programs.size+'개</div><div class="provider-card-tags">'+cats+'</div></button>';
   }).join('')+'</div>';
 }
 async function openProviderInfo(provider){
