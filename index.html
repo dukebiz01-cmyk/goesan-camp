@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.28-20260510-version-mark-fix">
+<meta name="app-version" content="gca-v4.29-20260510-notice-create-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -59,6 +59,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .divd{text-align:center;font-size:12px;color:var(--mid);margin:12px 0;display:flex;align-items:center;gap:12px}.divd::before,.divd::after{content:'';flex:1;height:1px;background:var(--bdr)}
 .lf{margin-bottom:12px}.lf label,.ff label{display:block;font-size:11px;font-weight:800;color:var(--mid);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}.lf input,.ff input,.ff textarea,.ff select{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:12px 13px;font-size:14px;background:#f3f7f2;outline:none;transition:all var(--tr)}.lf input:focus,.ff input:focus,.ff textarea:focus,.ff select:focus{border-color:var(--g);box-shadow:0 0 0 4px rgba(24,92,66,.08);background:var(--w)}.ff textarea{height:100px;resize:vertical}.ff{margin-bottom:12px}.ffrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .ebtn{background:var(--g);color:var(--w)}.lerr{background:var(--rb);color:var(--red);border-radius:10px;padding:9px 12px;font-size:12px;margin-top:10px;display:none}
+.form-status{display:none;margin-top:10px;border-radius:10px;padding:9px 11px;font-size:12px;font-weight:800;line-height:1.5}.form-status.show{display:block}.form-status.ok{background:var(--gb);color:var(--green)}.form-status.err{background:var(--rb);color:var(--red)}.form-status.warn{background:var(--ab);color:var(--amber)}
 #app{display:none}.topbar{position:sticky;top:0;z-index:50;background:rgba(248,250,246,.9);backdrop-filter:blur(18px);border-bottom:1px solid rgba(24,33,26,.07);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}.tb-title{font-family:var(--fh);font-size:16px;font-weight:800}.tb-right{display:flex;align-items:center;gap:8px}.uchip{background:var(--gp);color:var(--g);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:800}.lobtn{border:1px solid var(--bdr);background:var(--w);border-radius:10px;padding:7px 11px;color:var(--mid);font-size:12px;font-weight:700}
 .mc-bar{position:sticky;top:56px;z-index:40;background:linear-gradient(90deg,var(--g),#1a6e4e);color:#e8f7ee;padding:9px 16px;display:flex;align-items:center;gap:10px}.mc-bar strong{font-family:var(--fh);font-size:20px;font-weight:800;line-height:1;min-width:44px;display:inline-block}.mc-lbl{font-size:11px;opacity:.78}.mc-join{margin-left:auto;padding:5px 13px;border-radius:999px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:white;font-size:11px;font-weight:800;display:flex;align-items:center;gap:5px}.mc-join svg{width:13px;height:13px;stroke:currentColor}
 .page{display:none;padding:18px 14px 90px;min-height:calc(100vh - 56px)}.page.active{display:block}.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}.ph-title{font-family:var(--fh);font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1.1}.ph-sub{font-size:12px;color:var(--mid);margin-top:5px;line-height:1.6;max-width:48ch}
@@ -569,7 +570,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.28 · 2026.05.10 · 버전마크 위치수정</div>
+<div class="version-mark" id="version-mark">GCA v4.29 · 2026.05.10 · 공지작성 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -587,7 +588,7 @@ const db=createClient(SUPA_URL,SUPA_KEY,{
   }
 });
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.28 · 2026.05.10 · 버전마크 위치수정';
+const APP_VERSION='GCA v4.29 · 2026.05.10 · 공지작성 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -1214,14 +1215,99 @@ async function openNotice(id){
   }
   showPan(n.title,'<div class="p-meta">'+esc(n.members?.name||'')+' · '+fd(n.created_at)+(n.is_pinned?' · 📌 고정':'')+'</div><div class="p-content">'+esc(n.content).replace(/\n/g,'<br>')+'</div>'+fileHtml+(App.role==='admin'?'<div class="p-sec"><button class="btn br btn-sm" onclick="delNotice(\''+id+'\')">🗑️ 삭제</button></div>':''));
 }
+function setNoticeStatus(msg,type){
+  const el=g('n-status');
+  if(!el){if(msg)toast(msg);return;}
+  el.textContent=msg||'';
+  el.className='form-status '+(msg?'show ':'')+(type||'');
+}
+function setNoticeBusy(on){
+  const btn=g('n-submit');
+  if(btn){btn.disabled=!!on;btn.textContent=on?'등록 중...':'등록';}
+}
+function extractNoticeData(raw){
+  if(!raw)return null;
+  const v=Array.isArray(raw)?raw[0]:raw;
+  if(v&&typeof v==='object'){
+    if(v.notice&&typeof v.notice==='object')return v.notice;
+    if(v.id)return v;
+    if(v.notice_id)return {id:v.notice_id};
+  }
+  return null;
+}
+async function createNoticeRpc(payload){
+  return await withClientTimeout(db.rpc('create_notice_admin_v4_29',{
+    p_title:payload.title,
+    p_content:payload.content,
+    p_is_pinned:payload.is_pinned
+  }),'공지 등록',10000);
+}
+async function createNoticeDirect(payload){
+  return await withClientTimeout(
+    db.from('notices').insert({
+      created_by:App.member.id,
+      title:payload.title,
+      content:payload.content,
+      is_pinned:payload.is_pinned
+    }).select().single(),
+    '공지 직접 등록',
+    10000
+  );
+}
 async function submitNotice(){
-  const title=v('n-title'),content=v('n-content'),pinned=g('n-pin').checked;
-  if(!title||!content){toast('제목과 내용을 입력하세요');return;}
+  if(App.role!=='admin'){setNoticeStatus('관리자만 공지를 작성할 수 있습니다','err');return;}
+  if(_actionLocks.has('submitNotice'))return;
+  const title=v('n-title'),content=v('n-content'),pinEl=g('n-pin'),pinned=!!(pinEl&&pinEl.checked);
+  if(!title||!content){setNoticeStatus('제목과 내용을 입력하세요','err');return;}
+  if(!App.member?.id){setNoticeStatus('회원 정보가 없어 공지를 작성할 수 없습니다. 다시 로그인하세요.','err');return;}
+
+  _actionLocks.add('submitNotice');
+  setNoticeBusy(true);
+  setNoticeStatus('공지 저장 중...','warn');
   load(true);
-  const {data,error}=await db.from('notices').insert({created_by:App.member.id,title,content,is_pinned:pinned}).select().single();
-  if(!error&&data){const fi=g('n-file');if(fi.files.length)await uploadAtt(fi.files,'notice',data.id);}
-  load(false);if(error){toast('오류: '+error.message);return;}
-  toast('공지 등록 완료 ✓');closeMo();loadNotices();loadBadges();
+
+  let notice=null, rpcError=null, directError=null;
+  try{
+    const payload={title,content,is_pinned:pinned};
+
+    const rpc=await createNoticeRpc(payload);
+    if(rpc.__timeout||rpc.error){
+      rpcError=rpc.error||rpc;
+      console.warn('create_notice_admin_v4_29 failed, fallback direct insert:',errMsg(rpcError));
+    }else{
+      notice=extractNoticeData(rpc.data);
+    }
+
+    if(!notice?.id){
+      const direct=await createNoticeDirect(payload);
+      if(direct.__timeout||direct.error){
+        directError=direct.error||direct;
+        throw new Error('RPC: '+errMsg(rpcError)+' / 직접등록: '+errMsg(directError));
+      }
+      notice=direct.data;
+    }
+
+    const fi=g('n-file');
+    if(fi&&fi.files&&fi.files.length){
+      setNoticeStatus('첨부파일 업로드 중...','warn');
+      await uploadAtt(fi.files,'notice',notice.id);
+    }
+
+    setNoticeStatus('공지 등록 완료','ok');
+    toast('공지 등록 완료 ✓');
+    closeMo();
+    await loadNotices();
+    await loadBadges();
+  }catch(e){
+    console.error('submitNotice error:',e);
+    const msg=errMsg(e);
+    setNoticeStatus('공지 등록 오류: '+msg,'err');
+    alert('공지 작성 오류\n\n'+msg+'\n\n점검 순서:\n1) GCA_v4_29_NOTICE_CREATE_RPC.sql 실행 여부\n2) notices 테이블 RLS/insert 권한\n3) members.role=admin 여부\n4) 첨부파일이 있으면 Storage bucket/RLS 확인');
+  }finally{
+    load(false);
+    setNoticeBusy(false);
+    _actionLocks.delete('submitNotice');
+  }
 }
 async function delNotice(id){
   if(App.role!=='admin'){toast('관리자만 삭제할 수 있습니다');return;}
@@ -2150,7 +2236,7 @@ async function submitMember(){
 
 function openModal(type){
   const tpls={
-    notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitNotice()">등록</button></div>',
+    notice:'<div class="mot">📌 공지 작성</div><div class="ff"><label>제목</label><input id="n-title" placeholder="공지 제목"></div><div class="ff"><label>내용</label><textarea id="n-content" placeholder="공지 내용"></textarea></div><div class="ff" style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="n-pin"><label for="n-pin" style="text-transform:none;font-size:13px">상단 고정</label></div><div class="ff"><label>첨부파일 (선택)</label><input type="file" id="n-file" multiple></div><div class="form-status" id="n-status"></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" id="n-submit" onclick="submitNotice()">등록</button></div>',
     meeting:'<div class="mot">🎥 회의 등록</div><div class="ff"><label>회의명</label><input id="mt-title" placeholder="예: 7월 정기총회"></div><div class="ff"><label>날짜·시간</label><input type="datetime-local" id="mt-date"></div><div class="ff"><label>카카오 오픈채팅 링크</label><input id="mt-chat" placeholder="https://open.kakao.com/..."></div><div class="ff"><label>안건</label><textarea id="mt-agenda" placeholder="주요 안건"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMeeting()">등록</button></div>',
     minutes:'<div class="mot">📝 회의록 작성</div><input type="hidden" id="min-id"><div class="ff"><label>회의록 내용</label><textarea id="min-content" style="height:150px" placeholder="회의록을 입력하세요"></textarea></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMinutes()">저장</button></div>',
     proposal:'<div class="mot">✅ 예산안 등록</div><div style="background:var(--ab);border-radius:8px;padding:8px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">초안으로 저장 → 검토 후 투표 시작</div><div class="ff"><label>제목</label><input id="pr-title" placeholder="예: 하계 축제 운영비"></div><div class="ffrow"><div class="ff"><label>항목</label><select id="pr-cat"><option>행사·축제</option><option>안전관리</option><option>홍보·마케팅</option><option>운영·사무</option><option>기타</option></select></div><div class="ff"><label>예산 출처</label><select id="pr-src"><option>군지원금</option><option>협회비</option><option>기타</option></select></div></div><div class="ff"><label>금액 (원)</label><input type="text" inputmode="decimal" id="pr-amt" placeholder="예: 4,500,000 / 450만원 / 1억"><div id="pr-amt-help" style="font-size:11px;color:var(--mid);font-weight:700;margin-top:5px;line-height:1.5">숫자, 콤마, 만/억 단위 입력 가능 · 예: 4,500,000 / 450만원 / 1억</div></div><div class="ff"><label>승인 기준</label><select id="pr-rule"><option value="simple_majority">과반 찬성</option><option value="two_thirds">2/3 이상 찬성</option></select></div><div class="ff"><label>지출 사유 및 세부 계획</label><textarea id="pr-desc" style="height:110px" placeholder="금액 세부 내역, 사용 목적"></textarea></div><div class="ff"><label>증빙 서류 (견적서 등)</label><input type="file" id="pr-file" multiple></div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitProposal()">초안 저장</button></div>'
