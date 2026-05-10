@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.24-20260510-member-my">
+<meta name="app-version" content="gca-v4.25-20260510-my-docs-role-menu">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -231,6 +231,14 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .my-doc-row{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:end}
 .my-doc-row label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}
 .my-doc-row select,.my-doc-row input{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#fff;color:var(--ch);font-size:13px;outline:none}
+.my-doc-actions{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-top:9px}
+.my-doc-pick{border:1.5px solid var(--bdr);background:#fff;color:var(--ch);border-radius:13px;padding:12px 10px;font-size:13px;font-weight:900;cursor:pointer;text-align:center}
+.my-doc-pick.camera{background:#eefaf1;border-color:#bde4c8;color:var(--g)}
+.my-doc-pick.file{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.my-doc-selected{margin-top:8px;background:#fff;border:1px dashed var(--bdr);border-radius:12px;padding:9px 11px;font-size:12px;color:var(--mid);line-height:1.5}
+.my-doc-hidden-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+.my-doc-guide{font-size:11px;color:var(--mid);line-height:1.55;margin-top:8px}
+.role-hidden{display:none!important}
 .my-doc-list{display:grid;gap:7px}
 .my-doc-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--cd);border-radius:12px;padding:10px}
 .my-doc-item strong{font-size:13px;color:var(--ch);line-height:1.35}
@@ -238,7 +246,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .my-doc-type{display:inline-flex;background:var(--gp);color:var(--g);border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;margin-right:4px}
 .my-provider-schedule{display:grid;gap:8px}
 .my-role-note{background:#fff8e6;border:1px solid #f1d69a;color:#92400e;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.65;margin-bottom:12px}
-@media(max-width:700px){.my-summary-grid{grid-template-columns:repeat(2,1fr)}.my-support-grid{grid-template-columns:1fr}.my-doc-row{grid-template-columns:1fr}.my-doc-row .btn{width:100%;justify-content:center}}
+@media(max-width:700px){.my-summary-grid{grid-template-columns:repeat(2,1fr)}.my-support-grid{grid-template-columns:1fr}.my-doc-row{grid-template-columns:1fr}.my-doc-actions{grid-template-columns:1fr}.my-doc-row .btn{width:100%;justify-content:center}}
 
 
 
@@ -333,7 +341,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
     <div class="my-section" id="my-events-section">
       <div class="my-section-head">
         <div><div class="my-section-title">다가오는 행사</div><div class="my-section-sub">본인 캠핑장 기준 행사 일정입니다. 업체명을 누르면 정보 메뉴의 행사업체 정보로 이동합니다.</div></div>
-        <a href="#" onclick="nav('events');return false;" class="btn bo btn-sm">전체 행사 보기</a>
+        <a href="#" id="my-events-all-link" onclick="nav('events');return false;" class="btn bo btn-sm">전체 행사 보기</a>
       </div>
       <div id="my-events-list"><div class="loading">내 행사 불러오는 중...</div></div>
     </div>
@@ -375,9 +383,16 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
             <option value="정산자료">정산자료</option>
             <option value="기타">기타</option>
           </select></label>
-          <label>파일선택<input type="file" id="my-doc-file" multiple></label>
-          <button class="btn bp btn-sm" id="my-doc-upload-btn" onclick="submitMyDoc()">업로드</button>
         </div>
+        <input class="my-doc-hidden-input" type="file" id="my-doc-camera" accept="image/*" capture="environment" onchange="updateMyDocSelectedLabel('camera')">
+        <input class="my-doc-hidden-input" type="file" id="my-doc-file" multiple accept="image/*,.pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" onchange="updateMyDocSelectedLabel('file')">
+        <div class="my-doc-actions">
+          <button type="button" class="my-doc-pick camera" onclick="chooseMyDocCamera()">📷 사진 찍기</button>
+          <button type="button" class="my-doc-pick file" onclick="chooseMyDocFile()">📎 파일 업로드</button>
+          <button class="btn bp btn-sm" id="my-doc-upload-btn" onclick="submitMyDoc()">선택파일 저장</button>
+        </div>
+        <div class="my-doc-selected" id="my-doc-selected">선택된 파일 없음</div>
+        <div class="my-doc-guide">사진 찍기는 행사사진·영수증·지출증빙을 현장에서 바로 촬영할 때 사용하고, 파일 업로드는 사업계획서·견적서·업체자료·정산자료를 올릴 때 사용합니다.</div>
       </div>
       <div id="my-doc-list"><div class="loading">서류 목록 불러오는 중...</div></div>
     </div>
@@ -537,7 +552,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.24 · 2026.05.10 · 회원 MY 보조사업 실행판</div>
+<div class="version-mark" id="version-mark">GCA v4.25 · 2026.05.10 · MY 서류함/역할별 메뉴</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -548,7 +563,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.24 · 2026.05.10 · 회원 MY 보조사업 실행판';
+const APP_VERSION='GCA v4.25 · 2026.05.10 · MY 서류함/역할별 메뉴';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -906,23 +921,44 @@ async function logout(){
 }
 function setLerr(msg){const el=g('lerr');el.textContent=msg;el.style.display='block'}
 function showLogin(){g('login-screen').style.display='flex';g('app').style.display='none'}
+function rolePages(){
+  const role=App.role||'member';
+  if(role==='admin')return ['my','notices','budget','events','info'];
+  if(role==='provider')return ['my','notices','info'];
+  if(role==='county')return ['notices','events','info'];
+  return ['my','notices','budget','info'];
+}
+function defaultPageForRole(){
+  const pages=rolePages();
+  return pages.includes('my')?'my':pages[0]||'notices';
+}
+function canAccessPage(page){return rolePages().includes(page)}
+function applyRoleMenus(){
+  const pages=rolePages();
+  document.querySelectorAll('.bn[data-page]').forEach(el=>{
+    el.style.display=pages.includes(el.dataset.page)?'flex':'none';
+  });
+  const evLink=g('my-events-all-link');
+  if(evLink)evLink.style.display=canAccessPage('events')?'inline-flex':'none';
+}
 function showApp(){
   g('login-screen').style.display='none';g('app').style.display='block';
   const isAdmin=App.role==='admin';
-  const roleLabel={admin:'협회임원',member:'회원',county:'군청'};
+  const roleLabel={admin:'협회임원',member:'회원',provider:'업체',county:'군청'};
   g('uchip').textContent=(App.member?.camp_name||App.member?.name||'사용자')+' · '+(roleLabel[App.role]||App.role||'회원');
   ['btn-notice','btn-proposal'].forEach(id=>{const el=g(id);if(el)el.style.display=isAdmin?'inline-flex':'none';});
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
+  applyRoleMenus();
   initMC();
   const hash=(location.hash||'').replace('#','');
-  const allowed=['my','notices','budget','events','info'];
-  nav(allowed.includes(hash)?hash:'my',false);
+  nav(canAccessPage(hash)?hash:defaultPageForRole(),false);
   loadBadges();
 }
 function nav(page,push=true){
   const loaders={my:loadMyPage,notices:loadNotices,budget:loadBudget,events:loadEventsPage,info:loadInfoPage};
-  if(!loaders[page])page='notices';
+  if(!loaders[page]||!canAccessPage(page))page=defaultPageForRole();
   _currentPage=page;
+  applyRoleMenus();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
@@ -932,7 +968,7 @@ function nav(page,push=true){
   loaders[page]();
   if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
 }
-window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page,false);else nav('my',false);});
+window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page,false);else nav(defaultPageForRole(),false);});
 
 document.addEventListener('DOMContentLoaded',async()=>{
   console.log('GCA APP VERSION', APP_VERSION);
@@ -1711,7 +1747,7 @@ function renderMyEventList(rows,emptyText){
     const qty=eventQtyText(e);
     const dateBox='<div class="my-event-date '+(isTicket?'ticket':'')+'"><b>'+esc(isTicket?'수시':label.big)+'</b><span>'+esc(isTicket?'상시':label.sub)+'</span></div>';
     return '<div class="my-event-row">'+dateBox+'<div><div class="my-event-title">'+esc(e._program||'-')+'</div><div class="my-event-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat||'-')+' '+esc(e._catName||'기타')+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(qty?'<span>· '+esc(qty)+'</span>':'')+'</div><div class="my-event-provider">수행업체/강사: '+renderProviderInline(e._provider)+'</div></div></div>';
-  }).join('')+'</div>'+(rows.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(rows.length-30)+'건 더 있음 · 이벤트 메뉴에서 전체 확인</div>':'');
+  }).join('')+'</div>'+(rows.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(rows.length-30)+'건 더 있음 · MY 또는 전체 일정에서 확인</div>':'');
 }
 function myDocTargetId(){
   return App.member?.id || App.user?.id || 'unknown';
@@ -1720,17 +1756,43 @@ function myDocPrefix(){
   const camp=getMyCampName()||getMyProviderName()||App.member?.name||'MY';
   return camp.replace(/[^\w가-힣.-]/g,'_');
 }
+
+function chooseMyDocCamera(){
+  const cam=g('my-doc-camera'),file=g('my-doc-file');
+  if(file)file.value='';
+  if(cam)cam.click();
+}
+function chooseMyDocFile(){
+  const cam=g('my-doc-camera'),file=g('my-doc-file');
+  if(cam)cam.value='';
+  if(file)file.click();
+}
+function getMyDocFiles(){
+  const cam=g('my-doc-camera'),file=g('my-doc-file');
+  const camFiles=cam&&cam.files?[...cam.files]:[];
+  const fileFiles=file&&file.files?[...file.files]:[];
+  return camFiles.length?camFiles:fileFiles;
+}
+function updateMyDocSelectedLabel(source){
+  const el=g('my-doc-selected');
+  const files=getMyDocFiles();
+  if(!el)return;
+  if(!files.length){el.textContent='선택된 파일 없음';return;}
+  const type=source==='camera'?'사진 촬영':'파일 업로드';
+  el.innerHTML='<strong>'+type+' '+files.length+'개 선택</strong><br>'+files.slice(0,4).map(f=>esc(f.name)).join('<br>')+(files.length>4?'<br>외 '+(files.length-4)+'개':'');
+}
 async function submitMyDoc(){
   if(!App.member?.id){toast('회원 정보가 없어 업로드할 수 없습니다');return;}
-  const fi=g('my-doc-file'),sel=g('my-doc-type'),btn=g('my-doc-upload-btn');
-  if(!fi||!fi.files||!fi.files.length){toast('업로드할 파일을 선택하세요');return;}
+  const sel=g('my-doc-type'),btn=g('my-doc-upload-btn');
+  const selectedFiles=getMyDocFiles();
+  if(!selectedFiles.length){toast('사진 찍기 또는 파일 업로드로 자료를 선택하세요');return;}
   const docType=sel?.value||'기타';
   if(_actionLocks.has('myDocUpload'))return;
   _actionLocks.add('myDocUpload');
   if(btn){btn.disabled=true;btn.textContent='업로드 중...';}
   load(true);
   try{
-    const files=[...fi.files];
+    const files=selectedFiles;
     for(const file of files){
       if(!file||file.size>50*1024*1024){toast((file?.name||'파일')+': 50MB 초과');continue;}
       const safeName=file.name.replace(/[^a-zA-Z0-9가-힣._-]/g,'_');
@@ -1742,7 +1804,10 @@ async function submitMyDoc(){
       const {error:ie}=await db.from('attachments').insert(row);
       if(ie)throw ie;
     }
-    fi.value='';
+    const cam=g('my-doc-camera'),file=g('my-doc-file');
+    if(cam)cam.value='';
+    if(file)file.value='';
+    updateMyDocSelectedLabel();
     toast('보조사업 서류 업로드 완료');
     await renderMyDocs();
     loadInfoLibraryPreview();
