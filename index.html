@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.20-20260510-event-calendar-readability">
+<meta name="app-version" content="gca-v4.21-20260510-provider-link">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -129,6 +129,37 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .event-list-provider{margin-top:6px;font-size:11px;color:#1e40af;font-weight:800}
 .event-list-row.ticket .event-list-provider{color:#92400e}
 
+.provider-link{border:none;cursor:pointer;font:inherit;transition:all var(--tr)}
+.provider-link:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(24,33,26,.08)}
+.event-provider.provider-link{display:inline-flex;align-items:center;gap:3px}
+.event-list-provider .provider-link{background:#dbeafe;color:#1e40af;border:none;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900;cursor:pointer}
+.event-list-row.ticket .event-list-provider .provider-link{background:#fef3c7;color:#92400e}
+.provider-panel{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:18px;padding:15px;margin:12px 0;box-shadow:var(--s1)}
+.provider-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.provider-panel-title{font-family:var(--fh);font-size:17px;font-weight:900;letter-spacing:-.03em;color:var(--ch)}
+.provider-panel-sub{font-size:12px;color:var(--mid);line-height:1.55;margin-top:4px}
+.provider-reset{border:1px solid var(--cd);background:#f8fbf7;color:var(--g);border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
+.provider-selected{background:linear-gradient(135deg,#f4fbf5,#fff);border:1px solid #cfe3d4;border-radius:16px;padding:13px;margin-bottom:12px}
+.provider-selected h3{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--g);margin-bottom:5px}
+.provider-selected-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.provider-pill{display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--cd);border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;color:var(--mid)}
+.provider-related{display:grid;gap:6px;margin-top:8px}
+.provider-related-row{display:grid;grid-template-columns:74px 1fr;gap:9px;align-items:start;background:#fff;border:1px solid var(--cd);border-radius:12px;padding:9px}
+.provider-related-date{font-family:var(--fh);font-size:12px;font-weight:900;color:var(--g);text-align:center;background:var(--gp);border-radius:9px;padding:5px}
+.provider-related-main strong{display:block;font-size:13px;color:var(--ch);line-height:1.35}
+.provider-related-main span{display:block;font-size:11px;color:var(--mid);line-height:1.5;margin-top:2px}
+.provider-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.provider-card{border:1px solid var(--cd);background:#fff;border-radius:14px;padding:11px;text-align:left;cursor:pointer;transition:all var(--tr)}
+.provider-card:hover{background:#f8fbf7;transform:translateY(-1px)}
+.provider-card.active{border-color:var(--g);box-shadow:0 0 0 3px rgba(24,92,66,.10);background:#f5fbf6}
+.provider-card-name{font-size:14px;font-weight:900;color:var(--ch);line-height:1.35;margin-bottom:4px}
+.provider-card-meta{font-size:11px;color:var(--mid);line-height:1.5}
+.provider-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.provider-tag{font-size:10px;font-weight:900;border-radius:999px;padding:2px 7px;background:#eef3ee;color:var(--mid)}
+.provider-empty{border:1px dashed var(--bdr);border-radius:14px;padding:18px;text-align:center;color:var(--mid);font-size:13px}
+@media(max-width:700px){.provider-directory{grid-template-columns:1fr}.provider-panel-head{flex-direction:column}.provider-related-row{grid-template-columns:62px 1fr}}
+
+
 @media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
 
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}.info-kv{grid-template-columns:74px 1fr}.info-item{flex-direction:column}.info-item span{text-align:left}}
@@ -230,6 +261,17 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
       <div class="info-card"><h3>협회 자료</h3><p>사업계획서, 견적서, 회의자료, 정산 참고자료는 기존 자료실 첨부를 그대로 활용합니다.</p><div id="info-library-list" style="margin-top:10px"><div class="loading">자료 불러오는 중...</div></div></div>
       <div class="info-card"><h3>지도 구분</h3><p>회원 캠핑장은 초록색, 비회원·일반 등록 야영장은 회색으로 구분합니다. 비회원 데이터는 camps 테이블의 is_member=false 또는 membership_status=non_member 값을 사용합니다.</p><div class="member-legend"><span><i class="i-member"></i>협회 회원</span><span><i class="i-non"></i>비회원/일반</span><span><i class="i-selected"></i>선택/강조</span></div></div>
     </div>
+    <div class="provider-panel" id="provider-panel">
+      <div class="provider-panel-head">
+        <div>
+          <div class="provider-panel-title">행사업체 정보</div>
+          <div class="provider-panel-sub">이벤트 행사달력에서 업체/강사명을 누르면 해당 업체 정보와 관련 행사 일정이 여기로 연결됩니다.</div>
+        </div>
+        <button type="button" class="provider-reset" onclick="clearProviderSelection()">전체 업체 보기</button>
+      </div>
+      <div id="provider-selected-box"></div>
+      <div id="provider-directory"><div class="provider-empty">행사 데이터를 불러오면 업체 정보가 표시됩니다.</div></div>
+    </div>
     <div class="map-note">지도는 협회 회원 캠핑장과 비회원 캠핑장을 함께 표시할 수 있게 구성했습니다. 현재 DB에 비회원 데이터가 없으면 회원 캠핑장만 표시됩니다.</div>
     <div class="map-stats">
       <div class="map-stat"><div class="map-stat-n" id="stat-total">-</div><div class="map-stat-l">총 야영장</div></div>
@@ -260,7 +302,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.20 · 2026.05.10 · 행사달력 가독성 개선</div>
+<div class="version-mark" id="version-mark">GCA v4.21 · 2026.05.10 · 행사 업체 연결</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -271,7 +313,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.20 · 2026.05.10 · 행사달력 가독성 개선';
+const APP_VERSION='GCA v4.21 · 2026.05.10 · 행사 업체 연결';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -281,6 +323,7 @@ let _allEvents=[];
 let _evFilter='upcoming';
 let _evMonth='all';
 let _evCamp='all';
+let _selectedProvider='';
 const _actionLocks=new Set();
 let _currentPage='notices';
 let campLayer=null;
@@ -1349,6 +1392,8 @@ async function loadEventsPage(){
 }
 async function loadInfoPage(){
   loadInfoLibraryPreview();
+  await ensureEventsForInfo();
+  renderProviderDirectory();
   showAssocMap();
 }
 
@@ -1631,10 +1676,22 @@ function renderEventCalendar(events){
   }).join('');
   cal.innerHTML='<div class="event-calendar">'+html+'</div>'+(shownDays>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">일정이 많습니다. 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
+
+function renderProviderButton(provider, prefix){
+  const p=String(provider||'').trim();
+  if(!p)return '<span class="event-provider">업체 미지정</span>';
+  const label=(prefix||'업체 ')+p;
+  return '<button type="button" class="event-provider provider-link" onclick="openProviderInfo(\''+jsq(p)+'\');event.stopPropagation();">'+esc(label)+'</button>';
+}
+function renderProviderInline(provider){
+  const p=String(provider||'').trim();
+  if(!p)return '<span>미지정</span>';
+  return '<button type="button" class="provider-link" onclick="openProviderInfo(\''+jsq(p)+'\');event.stopPropagation();">'+esc(p)+'</button>';
+}
 function renderEventMini(e){
   const qty=eventQtyText(e);
   const cat=e._cat||'X';
-  return '<div class="event-mini"><div class="event-cat-badge event-cat-'+esc(cat)+'">'+esc(cat)+'</div><div><div class="event-mini-title-row"><span class="event-mini-title">'+esc(e._program)+'</span>'+(qty?'<span class="event-qty">'+esc(qty)+'</span>':'')+'</div><div class="event-mini-meta"><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'<span class="event-provider">업체 미지정</span>')+'</div></div></div>';
+  return '<div class="event-mini"><div class="event-cat-badge event-cat-'+esc(cat)+'">'+esc(cat)+'</div><div><div class="event-mini-title-row"><span class="event-mini-title">'+esc(e._program)+'</span>'+(qty?'<span class="event-qty">'+esc(qty)+'</span>':'')+'</div><div class="event-mini-meta"><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+renderProviderButton(e._provider,'업체 ')+'</div></div></div>';
 }
 function renderEventsList(events){
   const list=g('events-list');if(!list)return;
@@ -1646,8 +1703,84 @@ function renderEventsList(events){
     const isTicket=e.bundle_type==='ticket'||evDate==='수시';
     const label=eventDateLabel(evDate);
     const qty=eventQtyText(e);
-    return '<div class="event-list-row '+(isTicket?'ticket':'')+'"><div class="event-list-date '+(isTicket?'ticket':'')+'"><b>'+esc(isTicket?'수시':label.big)+'</b><span>'+esc(isTicket?'매수권':label.sub)+'</span></div><div class="event-list-body"><div class="event-list-title">'+esc(e._program)+'</div><div class="event-list-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat||'-')+' '+esc(e._catName||'기타')+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(qty?'<span>· '+esc(qty)+'</span>':'')+'</div><div class="event-list-provider">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div></div>';
+    return '<div class="event-list-row '+(isTicket?'ticket':'')+'"><div class="event-list-date '+(isTicket?'ticket':'')+'"><b>'+esc(isTicket?'수시':label.big)+'</b><span>'+esc(isTicket?'매수권':label.sub)+'</span></div><div class="event-list-body"><div class="event-list-title">'+esc(e._program)+'</div><div class="event-list-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat||'-')+' '+esc(e._catName||'기타')+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(qty?'<span>· '+esc(qty)+'</span>':'')+'</div><div class="event-list-provider">수행업체/강사: '+renderProviderInline(e._provider)+'</div></div></div>';
   }).join('')+'</div>'+(filtered.length>80?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-80)+'건 더 있음 · 월/캠핑장 필터로 좁혀보세요</div>':'');
+}
+async function ensureEventsForInfo(){
+  if(_allEvents&&_allEvents.length)return;
+  try{
+    const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true});
+    if(error){console.warn('provider event load error:',error.message);return;}
+    _allEvents=(data||[]).map(normalizeEventRow);
+  }catch(e){console.warn('provider event load exception:',e);}
+}
+function getProviderProgramMap(){
+  const map={};
+  Object.keys(EVENT_PROGRAM_META||{}).forEach(name=>{
+    const meta=EVENT_PROGRAM_META[name]||{};
+    const p=String(meta.provider||'').trim();
+    if(!p)return;
+    if(!map[p])map[p]={programs:new Set(),cats:new Set()};
+    map[p].programs.add(name);
+    if(meta.catName)map[p].cats.add(meta.catName);
+  });
+  return map;
+}
+function getProviderStats(){
+  const base=getProviderProgramMap();
+  const stats={};
+  Object.keys(base).forEach(p=>{stats[p]={provider:p,programs:new Set(base[p].programs),cats:new Set(base[p].cats),events:[],camps:new Set(),dates:new Set()};});
+  (_allEvents||[]).forEach(e=>{
+    const p=String(e._provider||'').trim();
+    if(!p)return;
+    if(!stats[p])stats[p]={provider:p,programs:new Set(),cats:new Set(),events:[],camps:new Set(),dates:new Set()};
+    stats[p].events.push(e);
+    if(e._program)stats[p].programs.add(e._program);
+    if(e._catName)stats[p].cats.add(e._catName);
+    if(e.camp_name)stats[p].camps.add(e.camp_name);
+    if(e.event_date)stats[p].dates.add(eventDateKey(e));
+  });
+  return Object.values(stats).sort((a,b)=>b.events.length-a.events.length||a.provider.localeCompare(b.provider,'ko'));
+}
+function providerDateText(e){
+  const k=eventDateKey(e);
+  if(k==='수시')return '수시';
+  const label=eventDateLabel(k);
+  return label.big+' '+label.sub.replace('요일','');
+}
+function renderProviderDirectory(){
+  const box=g('provider-directory'),selBox=g('provider-selected-box');
+  if(!box||!selBox)return;
+  const stats=getProviderStats();
+  if(!stats.length){box.innerHTML='<div class="provider-empty">표시할 행사업체 정보가 없습니다.</div>';selBox.innerHTML='';return;}
+  const selected=_selectedProvider||'';
+  const current=stats.find(s=>s.provider===selected);
+  if(current){
+    const evs=[...current.events].sort((a,b)=>eventSortValue(a).localeCompare(eventSortValue(b))||eventCategoryRank(a)-eventCategoryRank(b)||(a._program||'').localeCompare(b._program||'','ko'));
+    const upcoming=evs.filter(e=>!e.event_date||eventDateKey(e)>=todayLocalDate()).slice(0,10);
+    const list=(upcoming.length?upcoming:evs.slice(0,10)).map(e=>'<div class="provider-related-row"><div class="provider-related-date">'+esc(providerDateText(e))+'</div><div class="provider-related-main"><strong>'+esc(e._program||'-')+'</strong><span>🏕 '+esc(e.camp_name||'-')+' · '+esc(e._catName||'기타')+(Number(e.qty)>1?' · '+Number(e.qty)+'매':'')+'</span></div></div>').join('');
+    selBox.innerHTML='<div class="provider-selected" id="provider-selected-card"><h3>'+esc(current.provider)+'</h3><div class="provider-selected-meta"><span class="provider-pill">행사 '+current.events.length+'건</span><span class="provider-pill">캠핑장 '+current.camps.size+'곳</span><span class="provider-pill">콘텐츠 '+current.programs.size+'개</span><span class="provider-pill">'+esc([...current.cats].join(' · ')||'분류 없음')+'</span></div><div class="provider-panel-sub">담당 콘텐츠: '+esc([...current.programs].slice(0,12).join(', '))+(current.programs.size>12?' 외 '+(current.programs.size-12)+'개':'')+'</div><div class="provider-related">'+(list||'<div class="provider-empty">관련 행사 일정이 아직 없습니다.</div>')+'</div></div>';
+  }else{
+    selBox.innerHTML='<div class="provider-selected"><h3>행사업체 디렉토리</h3><div class="provider-panel-sub">업체명을 누르면 관련 행사 일정과 담당 콘텐츠가 표시됩니다. 이벤트 행사달력의 업체명에서도 바로 이동할 수 있습니다.</div></div>';
+  }
+  box.innerHTML='<div class="provider-directory">'+stats.map(s=>{
+    const active=s.provider===selected?' active':'';
+    const cats=[...s.cats].slice(0,3).map(c=>'<span class="provider-tag">'+esc(c)+'</span>').join('');
+    return '<button type="button" class="provider-card'+active+'" onclick="openProviderInfo(\''+jsq(s.provider)+'\')"><div class="provider-card-name">'+esc(s.provider)+'</div><div class="provider-card-meta">행사 '+s.events.length+'건 · 캠핑장 '+s.camps.size+'곳 · 콘텐츠 '+s.programs.size+'개</div><div class="provider-card-tags">'+cats+'</div></button>';
+  }).join('')+'</div>';
+}
+async function openProviderInfo(provider){
+  _selectedProvider=String(provider||'').trim();
+  if(!_selectedProvider)return;
+  if(_currentPage!=='info')nav('info');
+  await ensureEventsForInfo();
+  renderProviderDirectory();
+  setTimeout(()=>{const el=g('provider-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},180);
+}
+function clearProviderSelection(){
+  _selectedProvider='';
+  renderProviderDirectory();
+  setTimeout(()=>{const el=g('provider-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);
 }
 
 </script>
