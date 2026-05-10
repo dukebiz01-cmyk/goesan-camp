@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.19-20260510-event-filter-cleanup">
+<meta name="app-version" content="gca-v4.20-20260510-event-calendar-readability">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -86,7 +86,50 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .member-legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.member-legend span{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--cd);border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;color:var(--mid)}.member-legend i{width:10px;height:10px;border-radius:50%;display:inline-block}.i-member{background:var(--g)}.i-non{background:#9ca3af}.i-selected{background:#f59e0b}
 .event-hero{background:linear-gradient(135deg,#effaf2,#ffffff);border:1px solid rgba(24,92,66,.11);border-radius:18px;padding:14px 15px;margin-bottom:12px;box-shadow:var(--s1)}.event-hero strong{display:block;font-size:16px;font-weight:900;margin-bottom:4px}.event-hero p{font-size:12px;color:var(--mid);line-height:1.65;margin:0}
 
-.event-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.event-sum-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:14px;padding:12px;box-shadow:var(--s1)}.event-sum-card b{display:block;font-family:var(--fh);font-size:22px;line-height:1;color:var(--g);margin-bottom:5px}.event-sum-card span{font-size:11px;color:var(--mid);font-weight:800}.event-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:12px;margin:12px 0;box-shadow:var(--s1);display:grid;gap:10px}.event-select-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.event-select-row label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}.event-select-row select{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#f6f9f5;color:var(--ch);font-size:13px;outline:none}.event-calendar{display:grid;gap:10px;margin-top:10px}.event-day{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;overflow:hidden;box-shadow:var(--s1)}.event-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f4f8f4;padding:11px 13px;border-bottom:1px solid var(--cd)}.event-day-title{display:flex;align-items:baseline;gap:8px;font-weight:900}.event-day-title strong{font-family:var(--fh);font-size:18px;color:var(--ch)}.event-day-title span{font-size:12px;color:var(--mid);font-weight:800}.event-day-count{font-size:11px;color:var(--g);background:var(--gp);padding:4px 9px;border-radius:999px;font-weight:900}.event-day-body{padding:8px}.event-mini{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px;border-radius:12px;border:1px solid var(--cd);margin-bottom:7px;background:#fff}.event-mini:last-child{margin-bottom:0}.event-mini-title{font-size:14px;font-weight:900;line-height:1.35;margin-bottom:4px}.event-mini-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap}.event-provider{font-size:10px;color:#1e40af;background:#dbeafe;padding:2px 7px;border-radius:999px;font-weight:900}.event-camp{font-size:10px;color:var(--g);background:var(--gp);padding:2px 7px;border-radius:999px;font-weight:900}.event-calendar-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:16px;padding:24px;text-align:center;color:var(--mid);font-size:13px}.ev-section-title{font-family:var(--fh);font-weight:900;font-size:16px;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center}.ev-section-title small{font-size:11px;color:var(--mid);font-family:var(--fd);font-weight:700}.ev-card{grid-template-columns:auto 1fr auto}.ev-provider-line{font-size:11px;color:#1e40af;margin-top:4px;font-weight:800}.ev-card.ticket .ev-provider-line{color:#92400e}@media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
+.event-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}.event-sum-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:14px;padding:12px;box-shadow:var(--s1)}.event-sum-card b{display:block;font-family:var(--fh);font-size:22px;line-height:1;color:var(--g);margin-bottom:5px}.event-sum-card span{font-size:11px;color:var(--mid);font-weight:800}.event-toolbar{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:12px;margin:12px 0;box-shadow:var(--s1);display:grid;gap:10px}.event-select-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.event-select-row label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}.event-select-row select{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#f6f9f5;color:var(--ch);font-size:13px;outline:none}
+.event-calendar{display:grid;gap:14px;margin-top:10px}
+.event-month-block{background:transparent;border-radius:18px}
+.event-month-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 8px;padding:10px 12px;border-radius:14px;background:linear-gradient(90deg,#f0f6ef,#fff);border:1px solid rgba(24,92,66,.12)}
+.event-month-title{font-family:var(--fh);font-weight:900;font-size:17px;letter-spacing:-.03em;color:var(--ch)}
+.event-month-sub{font-size:11px;color:var(--mid);font-weight:800;background:#fff;border:1px solid var(--cd);border-radius:999px;padding:4px 9px}
+.event-day{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:18px;overflow:hidden;box-shadow:var(--s1);margin-bottom:10px}
+.event-day-head{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;background:#f8fbf7;padding:12px 14px;border-bottom:1px solid var(--cd)}
+.event-day-date{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:58px;border-right:1px solid var(--cd);padding-right:12px}
+.event-day-date strong{font-family:var(--fh);font-size:20px;line-height:1;font-weight:900;letter-spacing:-.04em;color:var(--ch)}
+.event-day-date span{font-size:11px;color:var(--mid);font-weight:900;margin-top:4px}
+.event-day-date span.sun{color:#b91c1c}.event-day-date span.sat{color:#1d4ed8}
+.event-day-main{min-width:0}
+.event-day-main-title{font-size:13px;font-weight:900;color:var(--ch);line-height:1.35}
+.event-day-cats{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.event-day-cat{font-size:10px;font-weight:900;border-radius:999px;padding:2px 7px;background:#eef3ee;color:var(--mid)}
+.event-day-count{font-size:11px;color:var(--g);background:var(--gp);padding:5px 10px;border-radius:999px;font-weight:900;white-space:nowrap}
+.event-day-body{padding:9px}
+.event-mini{display:grid;grid-template-columns:auto 1fr auto;gap:9px;padding:10px;border-radius:13px;border:1px solid var(--cd);margin-bottom:7px;background:#fff;align-items:start}
+.event-mini:last-child{margin-bottom:0}
+.event-mini:hover{background:#fbfdfb}
+.event-cat-badge{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:12px;font-weight:900;color:#fff;flex-shrink:0}
+.event-cat-A{background:#c8425a}.event-cat-B{background:#5a8c3f}.event-cat-C{background:#3d6dad}.event-cat-D{background:#a36b1f}.event-cat-X{background:#64748b}
+.event-mini-title-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.event-mini-title{font-size:14px;font-weight:900;line-height:1.35;color:var(--ch)}
+.event-mini-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;line-height:1.5}
+.event-provider{font-size:10px;color:#1e40af;background:#dbeafe;padding:2px 7px;border-radius:999px;font-weight:900}
+.event-camp{font-size:10px;color:var(--g);background:var(--gp);padding:2px 7px;border-radius:999px;font-weight:900}
+.event-qty{font-size:10px;color:#92400e;background:#fef3c7;padding:2px 7px;border-radius:999px;font-weight:900;white-space:nowrap}
+.event-calendar-empty{background:var(--w);border:1px dashed var(--bdr);border-radius:16px;padding:24px;text-align:center;color:var(--mid);font-size:13px}
+.ev-section-title{font-family:var(--fh);font-weight:900;font-size:16px;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.ev-section-title small{font-size:11px;color:var(--mid);font-family:var(--fd);font-weight:700}
+.event-list-clean{display:grid;gap:8px}
+.event-list-row{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:15px;padding:12px;display:grid;grid-template-columns:64px 1fr;gap:11px;box-shadow:var(--s1)}
+.event-list-date{background:#f3f8f3;border:1px solid var(--cd);border-radius:12px;padding:8px 6px;text-align:center;align-self:start}
+.event-list-date b{display:block;font-family:var(--fh);font-size:15px;line-height:1.1;color:var(--ch)}
+.event-list-date span{display:block;font-size:10px;font-weight:900;color:var(--mid);margin-top:3px}
+.event-list-date.ticket{background:#fff8e6;border-color:#f1d69a;color:#92400e}
+.event-list-title{font-size:15px;font-weight:900;line-height:1.35;color:var(--ch);margin-bottom:5px}
+.event-list-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;line-height:1.55}
+.event-list-provider{margin-top:6px;font-size:11px;color:#1e40af;font-weight:800}
+.event-list-row.ticket .event-list-provider{color:#92400e}
+
+@media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
 
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}.info-kv{grid-template-columns:74px 1fr}.info-item{flex-direction:column}.info-item span{text-align:left}}
 
@@ -217,7 +260,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.19 · 2026.05.10 · 이벤트 검토/확정 제거</div>
+<div class="version-mark" id="version-mark">GCA v4.20 · 2026.05.10 · 행사달력 가독성 개선</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -228,7 +271,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.19 · 2026.05.10 · 이벤트 검토/확정 제거';
+const APP_VERSION='GCA v4.20 · 2026.05.10 · 행사달력 가독성 개선';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -1471,6 +1514,17 @@ function eventDateLabel(k){
   const w=['일','월','화','수','목','금','토'][d.getDay()]||'';
   return {big:String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'),sub:w+'요일'};
 }
+
+function eventCategoryRank(e){
+  const order={A:1,B:2,C:3,D:4};
+  return order[e?._cat]||9;
+}
+function eventSortValue(e){
+  return e.event_date?String(e.event_date).slice(0,10):'9999-12-31';
+}
+function eventTicketRank(e){
+  return (e.bundle_type==='ticket'||!e.event_date)?1:0;
+}
 function getFilteredEvents(){
   const today=todayLocalDate();
   let filtered=[..._allEvents];
@@ -1479,9 +1533,12 @@ function getFilteredEvents(){
   if(_evMonth&&_evMonth!=='all')filtered=filtered.filter(e=>eventMonthKey(e)===_evMonth);
   if(_evCamp&&_evCamp!=='all')filtered=filtered.filter(e=>(e.camp_name||'')===_evCamp);
   filtered.sort((a,b)=>{
-    const da=a.event_date?String(a.event_date):'9999-12-31';
-    const db=b.event_date?String(b.event_date):'9999-12-31';
-    return da.localeCompare(db)||(a.camp_name||'').localeCompare(b.camp_name||'ko')||(a._program||'').localeCompare(b._program||'ko');
+    return eventSortValue(a).localeCompare(eventSortValue(b))
+      || eventTicketRank(a)-eventTicketRank(b)
+      || eventCategoryRank(a)-eventCategoryRank(b)
+      || (a._provider||'').localeCompare(b._provider||'','ko')
+      || (a._program||'').localeCompare(b._program||'','ko')
+      || (a.camp_name||'').localeCompare(b.camp_name||'','ko');
   });
   return filtered;
 }
@@ -1523,36 +1580,76 @@ function renderEventsSummary(filtered){
   if(g('ev-sum-camps'))g('ev-sum-camps').textContent=camps;
   if(g('ev-sum-month'))g('ev-sum-month').textContent=monthCount;
   const stats=g('events-stats');
-  if(stats)stats.innerHTML='표시 '+filtered.length+'건 · 전체 '+total+'건 · 다가오는 '+upcoming+'건';
+  if(stats)stats.innerHTML='표시 '+filtered.length+'건 · 날짜순 정렬 · 같은 날짜 안에서는 카테고리→업체→콘텐츠 순';
+}
+function eventDateKey(e){return e.event_date?String(e.event_date).slice(0,10):'수시'}
+function eventMonthKey(e){return e.event_date?String(e.event_date).slice(0,7):'수시'}
+function eventDateLabel(k){
+  if(k==='수시')return {big:'수시',sub:'매수권·상시',weekCls:''};
+  const d=new Date(k+'T00:00:00');
+  const w=['일','월','화','수','목','금','토'][d.getDay()]||'';
+  return {big:String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'),sub:w+'요일',weekCls:d.getDay()===0?'sun':d.getDay()===6?'sat':''};
+}
+function eventMonthLabel(k){
+  if(k==='수시')return '수시·매수권';
+  const parts=String(k).split('-');
+  return (parts[0]||'')+'년 '+(parts[1]||'')+'월';
+}
+function eventDaySummary(rows){
+  const map={};
+  rows.forEach(e=>{const name=e._catName||'기타';map[name]=(map[name]||0)+1;});
+  return Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>'<span class="event-day-cat">'+esc(k)+' '+v+'</span>').join('');
+}
+function eventQtyText(e){
+  const q=Number(e.qty)||1;
+  if(e.bundle_type==='ticket'||q>1)return q+'매';
+  return '';
 }
 function renderEventCalendar(events){
   const cal=g('events-calendar');if(!cal)return;
   if(!events.length){cal.innerHTML='<div class="event-calendar-empty">📭 해당 조건의 행사가 없습니다</div>';return;}
-  const groups={};
-  events.forEach(e=>{const k=eventDateKey(e);if(!groups[k])groups[k]=[];groups[k].push(e);});
-  const keys=Object.keys(groups).sort((a,b)=>a==='수시'?1:b==='수시'?-1:a.localeCompare(b));
-  cal.innerHTML='<div class="event-calendar">'+keys.slice(0,18).map(k=>{
-    const label=eventDateLabel(k),rows=groups[k];
-    return '<div class="event-day"><div class="event-day-head"><div class="event-day-title"><strong>'+esc(label.big)+'</strong><span>'+esc(label.sub)+'</span></div><div class="event-day-count">'+rows.length+'건</div></div><div class="event-day-body">'+rows.map(renderEventMini).join('')+'</div></div>';
-  }).join('')+'</div>'+(keys.length>18?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">날짜 그룹 '+(keys.length-18)+'개 더 있음 · 필터로 좁혀보세요</div>':'');
+  const monthGroups={};
+  events.forEach(e=>{
+    const mk=eventMonthKey(e);
+    const dk=eventDateKey(e);
+    if(!monthGroups[mk])monthGroups[mk]={};
+    if(!monthGroups[mk][dk])monthGroups[mk][dk]=[];
+    monthGroups[mk][dk].push(e);
+  });
+  const months=Object.keys(monthGroups).sort((a,b)=>a==='수시'?1:b==='수시'?-1:a.localeCompare(b));
+  let shownDays=0;
+  const html=months.map(m=>{
+    const days=Object.keys(monthGroups[m]).sort((a,b)=>a==='수시'?1:b==='수시'?-1:a.localeCompare(b));
+    const monthCount=days.reduce((s,d)=>s+monthGroups[m][d].length,0);
+    return '<div class="event-month-block"><div class="event-month-head"><div class="event-month-title">'+esc(eventMonthLabel(m))+'</div><div class="event-month-sub">'+monthCount+'건</div></div>'+
+      days.map(d=>{
+        shownDays++;
+        const rows=monthGroups[m][d].sort((a,b)=>eventCategoryRank(a)-eventCategoryRank(b)||(a._provider||'').localeCompare(b._provider||'','ko')||(a._program||'').localeCompare(b._program||'','ko')||(a.camp_name||'').localeCompare(b.camp_name||'','ko'));
+        const label=eventDateLabel(d);
+        return '<div class="event-day"><div class="event-day-head"><div class="event-day-date"><strong>'+esc(label.big)+'</strong><span class="'+esc(label.weekCls)+'">'+esc(label.sub)+'</span></div><div class="event-day-main"><div class="event-day-main-title">'+(d==='수시'?'상시 사용 매수권':'행사 일정')+'</div><div class="event-day-cats">'+eventDaySummary(rows)+'</div></div><div class="event-day-count">'+rows.length+'건</div></div><div class="event-day-body">'+rows.map(renderEventMini).join('')+'</div></div>';
+      }).join('')+'</div>';
+  }).join('');
+  cal.innerHTML='<div class="event-calendar">'+html+'</div>'+(shownDays>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">일정이 많습니다. 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
 function renderEventMini(e){
-  const qty=Number(e.qty)>1?' · '+Number(e.qty)+'매':'';
-  return '<div class="event-mini"><div><div class="event-mini-title">'+esc(e._program)+'</div><div class="event-mini-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'')+(qty?'<span>'+qty.replace(' · ','')+'</span>':'')+'</div></div></div>';
+  const qty=eventQtyText(e);
+  const cat=e._cat||'X';
+  return '<div class="event-mini"><div class="event-cat-badge event-cat-'+esc(cat)+'">'+esc(cat)+'</div><div><div class="event-mini-title-row"><span class="event-mini-title">'+esc(e._program)+'</span>'+(qty?'<span class="event-qty">'+esc(qty)+'</span>':'')+'</div><div class="event-mini-meta"><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'<span class="event-provider">업체 미지정</span>')+'</div></div></div>';
 }
 function renderEventsList(events){
   const list=g('events-list');if(!list)return;
   const filtered=Array.isArray(events)?events:getFilteredEvents();
   if(!filtered.length){list.innerHTML='<div class="ev-empty">📭 해당 조건의 일정이 없습니다</div>';return;}
-  const display=filtered.slice(0,60);
-  list.innerHTML=display.map(e=>{
+  const display=filtered.slice(0,80);
+  list.innerHTML='<div class="event-list-clean">'+display.map(e=>{
     const evDate=eventDateKey(e);
     const isTicket=e.bundle_type==='ticket'||evDate==='수시';
     const label=eventDateLabel(evDate);
-    const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+label.big.split('.')[0]+'월<span class="ev-d">'+label.big.split('.')[1]+'일</span></div>';
-    return '<div class="ev-card '+(isTicket?'ticket':'')+'">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e._program)+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div><div class="ev-provider-line">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div></div>';
-  }).join('')+(filtered.length>60?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-60)+'건 더 있음 · 월/캠핑장 필터로 좁혀보세요</div>':'');
+    const qty=eventQtyText(e);
+    return '<div class="event-list-row '+(isTicket?'ticket':'')+'"><div class="event-list-date '+(isTicket?'ticket':'')+'"><b>'+esc(isTicket?'수시':label.big)+'</b><span>'+esc(isTicket?'매수권':label.sub)+'</span></div><div class="event-list-body"><div class="event-list-title">'+esc(e._program)+'</div><div class="event-list-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat||'-')+' '+esc(e._catName||'기타')+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(qty?'<span>· '+esc(qty)+'</span>':'')+'</div><div class="event-list-provider">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div></div>';
+  }).join('')+'</div>'+(filtered.length>80?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-80)+'건 더 있음 · 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
+
 </script>
 </body>
 </html>
