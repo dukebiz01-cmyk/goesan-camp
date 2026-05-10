@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.30-20260510-agenda-provider-auth">
+<meta name="app-version" content="gca-v4.31-20260510-member-admin-map-places">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -302,6 +302,15 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
 .member-list-tools{display:flex;gap:6px;margin-bottom:8px}.member-list-tools input{flex:1;border:1.5px solid var(--bdr);border-radius:11px;padding:8px 10px;background:#f6f9f5;font-size:12px;outline:none}.member-list-tools button{border:1px solid var(--cd);background:#fff;color:var(--g);font-size:11px;font-weight:900;border-radius:11px;padding:8px 9px;cursor:pointer;white-space:nowrap}
 @media(max-width:760px){.member-register-grid{grid-template-columns:1fr}.member-card-list{max-height:45vh}}
 
+
+.member-card-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.member-card-actions button{border:1px solid var(--cd);background:#fff;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:900;cursor:pointer}
+.member-card-actions button.suspend{color:#92400e;background:#fffbeb;border-color:#fcd34d}
+.member-card-actions button.restore{color:#166534;background:#ecfdf5;border-color:#bbf7d0}
+.member-card-actions button.delete{color:#b91c1c;background:#fef2f2;border-color:#fecaca}
+.place-marker-core{width:28px;height:28px;border-radius:50%;background:#f59e0b;border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px}
+.place-chip{display:inline-block;margin:4px 0;padding:2px 7px;border-radius:999px;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:900}
+
 </style>
 </head>
 <body class="login-mode">
@@ -535,12 +544,12 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
     </div>
 
     <div class="info-section" id="info-map-section">
-      <div class="map-note">지도는 협회 회원 캠핑장과 비회원 캠핑장을 함께 표시할 수 있게 구성했습니다. 현재 DB에 비회원 데이터가 없으면 회원 캠핑장만 표시됩니다.</div>
+      <div class="map-note">지도는 괴산군 전체 캠핑장, 협회 회원/비회원 구분, 주요 관광지를 함께 표시합니다. camps 테이블에 비회원 캠핑장 데이터를 추가하면 전체 캠핑장이 자동 표시되고, tourist_spots 테이블이 있으면 관광지도 DB 기준으로 표시됩니다.</div>
       <div class="member-legend"><span><i class="i-member"></i>협회 회원</span><span><i class="i-non"></i>비회원/일반</span><span><i class="i-selected"></i>선택/강조</span></div>
       <div class="map-stats">
         <div class="map-stat"><div class="map-stat-n" id="stat-total">-</div><div class="map-stat-l">총 캠핑장</div></div>
-        <div class="map-stat"><div class="map-stat-n" id="stat-regions">-</div><div class="map-stat-l">면 단위 분포</div></div>
-        <div class="map-stat"><div class="map-stat-n" id="stat-main">-</div><div class="map-stat-l">최다 지역</div></div>
+        <div class="map-stat"><div class="map-stat-n" id="stat-regions">-</div><div class="map-stat-l">회원/비회원</div></div>
+        <div class="map-stat"><div class="map-stat-n" id="stat-main">-</div><div class="map-stat-l">관광지</div></div>
       </div>
       <div id="assoc-map"></div>
       <div class="region-legend" id="region-legend"><div class="region-legend-t">📍 면별 색상</div></div>
@@ -570,7 +579,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 안건 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.30 · 2026.05.10 · 안건/업체/로그인 보강</div>
+<div class="version-mark" id="version-mark">GCA v4.31 · 2026.05.10 · 회원관리/지도확장</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -588,12 +597,13 @@ const db=createClient(SUPA_URL,SUPA_KEY,{
   }
 });
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.30 · 2026.05.10 · 안건/업체/로그인 보강';
+const APP_VERSION='GCA v4.31 · 2026.05.10 · 회원관리/지도확장';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
 let assocMapInstance=null;
 let _mapCamps=[];
+let _touristSpots=[];
 let _allEvents=[];
 let _evFilter='upcoming';
 let _evMonth='all';
@@ -605,6 +615,7 @@ let _campInfoSearch='';
 const _actionLocks=new Set();
 let _currentPage='notices';
 let campLayer=null;
+let touristLayer=null;
 let _authBootDone=false;
 let _manualLoginInProgress=false;
 let _explicitLogoutInProgress=false;
@@ -751,6 +762,15 @@ const MEMBER_CAMPS=[
   {n:"화양숲노리",lat:36.6806848,lng:127.8139369,o:"조성문",e:"forest@camp.kr",a:"청천면 화양로 834-9",c:"청천"},
   {n:"캠프그린비",lat:36.6835767,lng:127.8035812,o:"양준호",e:"greenbi@camp.kr",a:"청천면 화양리 141-25",c:"청천"},
   {n:"북두칠성캠핑장",lat:36.7658995,lng:127.8445934,o:"지태훈",e:"bukdu@camp.kr",a:"칠성면 칠성로 10길27 (9조)",c:"칠성"}
+];
+
+const TOURIST_SPOTS_DEFAULT=[
+  {n:"산막이옛길",lat:36.7565,lng:127.8336,type:"관광지",a:"칠성면 산막이옛길 일원",memo:"괴산 대표 걷기 관광지"},
+  {n:"괴산호",lat:36.7601,lng:127.8352,type:"관광지",a:"칠성면 괴산호 일원",memo:"산막이옛길·수변 관광 연계"},
+  {n:"화양구곡",lat:36.6655,lng:127.8132,type:"계곡",a:"청천면 화양동 일원",memo:"청천권 대표 자연 관광지"},
+  {n:"쌍곡계곡",lat:36.7495,lng:127.8892,type:"계곡",a:"칠성면 쌍곡리 일원",memo:"칠성권 계곡 관광지"},
+  {n:"수옥폭포",lat:36.8326,lng:128.0312,type:"폭포",a:"연풍면 원풍리 일원",memo:"연풍권 관광지"},
+  {n:"문광저수지",lat:36.7890,lng:127.7810,type:"관광지",a:"문광면 양곡리 일원",memo:"은행나무길·저수지 관광지"}
 ];
 const REGION_COLORS={"청천":"#2563EB","칠성":"#059669","감물":"#F59E0B","괴산":"#DC2626","사리":"#7C3AED","장연":"#0891B2"};
 const EVENT_PROGRAM_META={"풍선쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"버블쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"마술쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"솜사탕쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"레이저쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"풍선매직쇼":{"cat":"A","catName":"공연","provider":"신태호","type":"program"},"통기타음악회":{"cat":"A","catName":"공연","provider":"통기타","type":"program"},"마술쇼 조동희(40분)":{"cat":"A","catName":"공연","provider":"조동희","type":"program"},"반려견 행동 토크쇼":{"cat":"A","catName":"공연","provider":"반려견","type":"program"},"사과오이소박이":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃떡퐁듀":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"감자핫도그만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일꼬치화채":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"시원한 허브꽃 모히또":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"허브솔트":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"보들꽃 증편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"건강 강정 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"추석 꽃송편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"단호박 꽃단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"깍두기 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃장식 딸기 모찌":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기청 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃 코디얼 빙수":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"호두정과":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기 고추장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"카네이션 바람떡":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"수레국화 양갱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"캐릭터김밥":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"연잎밥 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"오이 모듬피클":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"얼굴 카나페":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"모기퇴치 꽃스머지스틱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"인절미":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"K도넛 개성주악":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"발효초콜릿":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"곳감단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄향기 화전":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄꽃 코디얼":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기도둑 달래쌈장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"쑥버무리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃식초":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기 마리네이드":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일젤리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"4인 재료비 1매":{"cat":"B","catName":"먹거리","provider":"재료비","type":"ticket"},"페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"헤나":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"가족캐리커쳐":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"타로카드":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"할로윈 페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"캐릭터 솜사탕":{"cat":"C","catName":"체험","provider":"캐릭터솜사탕","type":"program"},"짚라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"슬랙라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"로켓스윙":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"승마체험":{"cat":"D","catName":"활동","provider":"승마","type":"program"},"사과따기 체험":{"cat":"D","catName":"활동","provider":"사과따기","type":"program"},"산막이 보트 1매":{"cat":"D","catName":"활동","provider":"보트","type":"ticket"},"모터보트 2인 1매":{"cat":"D","catName":"활동","provider":"모터보트","type":"ticket"},"소형유람선 1매":{"cat":"D","catName":"활동","provider":"유람선","type":"ticket"},"자체행사비":{"cat":"D","catName":"활동","provider":"자체","type":"program"}};
@@ -2153,16 +2173,19 @@ let _lastMemberCards=[];
 async function loadMemberCards(){
   const box=g('member-card-list');
   if(box)box.innerHTML='<div class="loading">회원 목록 불러오는 중...</div>';
-  let res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,provider_name,company_name,is_active,is_voter,created_at').order('created_at',{ascending:false}).limit(200),'회원 목록 조회');
+  let res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,provider_name,company_name,is_active,is_voter,created_at,deleted_at').order('created_at',{ascending:false}).limit(300),'회원 목록 조회');
+  if(res.error&&isMissingColumn(res.error,'deleted_at')){
+    res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,provider_name,company_name,is_active,is_voter,created_at').order('created_at',{ascending:false}).limit(300),'회원 목록 조회');
+  }
   if(res.error&&isMissingColumn(res.error,'created_at')){
-    res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter').order('name',{ascending:true}).limit(200),'회원 목록 조회');
+    res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter').order('name',{ascending:true}).limit(300),'회원 목록 조회');
   }
   if(res.error){
     if(box)box.innerHTML='<div class="errm" style="padding:12px;text-align:left">회원 목록 오류: '+esc(res.error.message)+'</div>';
     const cnt=g('member-list-count');if(cnt)cnt.textContent='오류';
     return;
   }
-  _lastMemberCards=res.data||[];
+  _lastMemberCards=(res.data||[]).filter(m=>!m.deleted_at);
   renderMemberCards(_lastMemberCards);
 }
 function renderMemberCards(rows){
@@ -2176,8 +2199,49 @@ function renderMemberCards(rows){
 function renderMemberCard(m){
   const role=m.role||'member';
   const active=m.is_active!==false;
-  const cls=role==='admin'?'is-admin':role==='county'?'is-county':'is-member';
-  return '<div class="member-card '+cls+(active?'':' inactive')+'"><div class="member-card-top"><div><div class="member-card-name">'+esc(m.name||'이름 없음')+'</div><div class="member-card-camp">🏕 '+esc(m.camp_name||'캠핑장 미지정')+'</div></div><div class="member-chip-row"><span class="member-chip '+esc(role)+'">'+esc(memberRoleLabel(role))+'</span></div></div><div class="member-card-meta">📧 '+esc(m.email||'-')+(m.phone?'<br>☎ '+esc(m.phone):'')+'</div><div class="member-chip-row"><span class="member-chip '+(m.is_voter?'member':'no')+'">투표권 '+(m.is_voter?'있음':'없음')+'</span><span class="member-chip '+(active?'member':'no')+'">'+(active?'활성':'비활성')+'</span></div></div>';
+  const cls=role==='admin'?'is-admin':role==='county'?'is-county':(role==='provider'||role==='vendor'||role==='instructor')?'is-county':'is-member';
+  const self=App.member&&String(App.member.id)===String(m.id);
+  const actionBtns=self?'<span style="font-size:10px;color:var(--mid);font-weight:800">현재 로그인 계정</span>':'<button type="button" class="'+(active?'suspend':'restore')+'" onclick="adminSetMemberActive(\''+jsq(m.id)+'\','+(active?'false':'true')+')">'+(active?'정지':'해제')+'</button><button type="button" class="delete" onclick="adminDeleteMember(\''+jsq(m.id)+'\')">삭제</button>';
+  return '<div class="member-card '+cls+(active?'':' inactive')+'"><div class="member-card-top"><div><div class="member-card-name">'+esc(m.name||'이름 없음')+'</div><div class="member-card-camp">🏕 '+esc(m.camp_name||'캠핑장 미지정')+'</div></div><div class="member-chip-row"><span class="member-chip '+esc(role)+'">'+esc(memberRoleLabel(role))+'</span></div></div><div class="member-card-meta">📧 '+esc(m.email||'-')+(m.phone?'<br>☎ '+esc(m.phone):'')+(m.provider_name?'<br>🎤 업체/강사: '+esc(m.provider_name):'')+(m.company_name?'<br>🏢 업체명: '+esc(m.company_name):'')+'</div><div class="member-chip-row"><span class="member-chip '+(m.is_voter?'member':'no')+'">투표권 '+(m.is_voter?'있음':'없음')+'</span><span class="member-chip '+(active?'member':'no')+'">'+(active?'활성':'정지')+'</span></div><div class="member-card-actions">'+actionBtns+'</div></div>';
+}
+async function adminSetMemberActive(memberId,isActive){
+  if(App.role!=='admin'){toast('관리자만 가능합니다');return;}
+  const msg=isActive?'정지 해제하시겠습니까?':'이 회원을 정지하시겠습니까? 정지하면 로그인 및 앱 사용이 제한됩니다.';
+  if(!confirm(msg))return;
+  load(true);
+  try{
+    let res=await withDbTimeout(db.rpc('set_member_active_admin_v4_31',{p_member_id:memberId,p_is_active:!!isActive}),'회원 정지/해제',12000);
+    if(res.error){
+      console.warn('set_member_active rpc fallback:',res.error.message);
+      res=await withDbTimeout(db.from('members').update({is_active:!!isActive}).eq('id',memberId).select('id').maybeSingle(),'회원 직접 정지/해제',12000);
+    }
+    if(res.error)throw res.error;
+    toast(isActive?'회원 정지 해제 완료':'회원 정지 완료');
+    await loadMemberCards();
+    initMC();
+  }catch(e){
+    console.error(e);
+    alert('회원 상태 변경 오류: '+errMsg(e));
+  }finally{load(false);}
+}
+async function adminDeleteMember(memberId){
+  if(App.role!=='admin'){toast('관리자만 가능합니다');return;}
+  if(!confirm('이 회원을 삭제 처리하시겠습니까?\n\n안전하게 삭제하기 위해 실제 DB 행은 보존하고 비활성/삭제 처리됩니다. 관련 작성 기록은 유지됩니다.'))return;
+  load(true);
+  try{
+    let res=await withDbTimeout(db.rpc('delete_member_admin_v4_31',{p_member_id:memberId}),'회원 삭제',12000);
+    if(res.error){
+      console.warn('delete_member rpc fallback:',res.error.message);
+      res=await withDbTimeout(db.from('members').update({is_active:false}).eq('id',memberId).select('id').maybeSingle(),'회원 직접 비활성 처리',12000);
+    }
+    if(res.error)throw res.error;
+    toast('회원 삭제 처리 완료');
+    await loadMemberCards();
+    initMC();
+  }catch(e){
+    console.error(e);
+    alert('회원 삭제 오류: '+errMsg(e));
+  }finally{load(false);}
 }
 async function createMemberViaRpc(payload){
   return await withDbTimeout(db.rpc('create_member_admin_v4_30',{
@@ -2248,25 +2312,53 @@ function openModal(type){
 }
 
 async function loadCampsFromDB(){
-  let res=await db.from('camps').select('*').eq('is_active',true);
-  if(res.error&&isMissingColumn(res.error,'is_active'))res=await db.from('camps').select('*');
-  if(res.error){console.error('camps error:',res.error.message);return MEMBER_CAMPS.map(c=>({...c,m:true}));}
-  if(!res.data||!res.data.length)return MEMBER_CAMPS.map(c=>({...c,m:true}));
-  const camps=res.data.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&Math.abs(c.lat)>0&&Math.abs(c.lng)>0&&c.n);
-  camps.sort((a,b)=>(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
+  let res=await db.from('camps').select('*').order('camp_name',{ascending:true});
+  if(res.error&&isMissingColumn(res.error,'camp_name'))res=await db.from('camps').select('*').order('name',{ascending:true});
+  if(res.error){
+    console.error('camps error:',res.error.message);
+    return MEMBER_CAMPS.map(c=>({...c,m:true}));
+  }
+  const rows=res.data||[];
+  const dbCamps=rows.map(normalizeCamp).filter(c=>Number.isFinite(c.lat)&&Number.isFinite(c.lng)&&Math.abs(c.lat)>0&&Math.abs(c.lng)>0&&c.n);
+  const keySet=new Set(dbCamps.map(c=>normalizeKey(c.n)));
+  const fallbackMembers=MEMBER_CAMPS.map(c=>({...c,m:true})).filter(c=>!keySet.has(normalizeKey(c.n)));
+  const camps=[...dbCamps,...fallbackMembers];
+  camps.sort((a,b)=>(a.m===false)-(b.m===false)||(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
   return camps.length?camps:MEMBER_CAMPS.map(c=>({...c,m:true}));
 }
-function updateMapStats(camps){
+function normalizeTouristSpot(row){
+  return {
+    n:row.spot_name||row.name||row.n||'',
+    lat:Number(row.lat??row.latitude),
+    lng:Number(row.lng??row.lon??row.longitude),
+    type:row.spot_type||row.type||row.category||'관광지',
+    a:row.address||row.addr||row.a||'',
+    memo:row.description||row.memo||row.note||'',
+    site:row.website||row.url||row.homepage||''
+  };
+}
+async function loadTouristSpotsFromDB(){
+  try{
+    const {data,error}=await db.from('tourist_spots').select('*').order('spot_name',{ascending:true});
+    if(error){console.warn('tourist_spots load fallback:',error.message);return TOURIST_SPOTS_DEFAULT;}
+    const spots=(data||[]).map(normalizeTouristSpot).filter(s=>s.n&&Number.isFinite(s.lat)&&Number.isFinite(s.lng));
+    return spots.length?spots:TOURIST_SPOTS_DEFAULT;
+  }catch(e){
+    console.warn('tourist_spots exception:',e);
+    return TOURIST_SPOTS_DEFAULT;
+  }
+}
+function updateMapStats(camps,spots=[]){
   const counts={};camps.forEach(c=>{const r=c.c||'기타';counts[r]=(counts[r]||0)+1});
   const regions=Object.keys(counts).sort((a,b)=>counts[b]-counts[a]||a.localeCompare(b,'ko'));
   const members=camps.filter(c=>c.m!==false).length;
   const nonmembers=camps.length-members;
   if(g('stat-total'))g('stat-total').textContent=camps.length;
-  if(g('stat-regions'))g('stat-regions').textContent=members;
-  if(g('stat-main'))g('stat-main').textContent=nonmembers;
+  if(g('stat-regions'))g('stat-regions').textContent=members+'/'+nonmembers;
+  if(g('stat-main'))g('stat-main').textContent=(spots||[]).length;
   const leg=g('region-legend');
   if(leg){
-    leg.innerHTML='<div class="region-legend-t">📍 지역/회원 구분</div><div class="region-row"><div class="region-dot" style="background:var(--g)"></div>협회 회원 ('+members+'곳)</div><div class="region-row"><div class="region-dot" style="background:#9ca3af"></div>비회원/일반 등록 야영장 ('+nonmembers+'곳)</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');
+    leg.innerHTML='<div class="region-legend-t">📍 지도 표시 구분</div><div class="region-row"><div class="region-dot" style="background:var(--g)"></div>협회 회원 ('+members+'곳)</div><div class="region-row"><div class="region-dot" style="background:#9ca3af"></div>비회원/일반 등록 야영장 ('+nonmembers+'곳)</div><div class="region-row"><div class="region-dot" style="background:#f59e0b"></div>관광지 ('+(spots||[]).length+'곳)</div>'+regions.map(r=>'<div class="region-row"><div class="region-dot" style="background:'+(REGION_COLORS[r]||'#185c42')+'"></div>'+esc(r)+(r==='기타'?'':'면')+' ('+counts[r]+'곳)</div>').join('');
   }
 }
 function loadLeafletCssOnce(){
@@ -2297,10 +2389,11 @@ async function ensureLeafletReady(){
   }
   return typeof L!=='undefined';
 }
-function renderStaticMapFallback(camps,msg){
+function renderStaticMapFallback(camps,msg,spots=[]){
   const mapEl=g('assoc-map');if(!mapEl)return;
   const rows=(camps||[]).map(c=>'<div class="map-fallback-card"><b>'+esc(c.n)+'</b><span style="display:inline-block;margin-bottom:4px;padding:2px 7px;border-radius:999px;background:'+(c.m===false?'#f3f4f6':'#dff1e7')+';color:'+(c.m===false?'#6b7280':'#185c42')+';font-weight:900;font-size:10px">'+(c.m===false?'일반 등록 야영장':'협회 회원')+'</span><br>📍 '+esc(c.a||'-')+'<br>👤 '+esc(c.o||'-')+(c.phone?'<br>☎ '+esc(c.phone):'')+'</div>').join('');
-  mapEl.innerHTML='<div class="map-fallback"><h3>지도 표시를 불러오지 못했습니다</h3><p>'+esc(msg||'지도 라이브러리 또는 지도 타일 로딩이 실패했습니다. 아래 목록으로 캠핑장 정보를 확인하세요.')+'</p><div class="map-fallback-list">'+rows+'</div></div>';
+  const placeRows=(spots||[]).map(s=>'<div class="map-fallback-card"><b>'+esc(s.n)+'</b><span class="place-chip">'+esc(s.type||'관광지')+'</span><br>📍 '+esc(s.a||'-')+(s.memo?'<br>'+esc(s.memo):'')+'</div>').join('');
+  mapEl.innerHTML='<div class="map-fallback"><h3>지도 표시를 불러오지 못했습니다</h3><p>'+esc(msg||'지도 라이브러리 또는 지도 타일 로딩이 실패했습니다. 아래 목록으로 캠핑장·관광지 정보를 확인하세요.')+'</p><div class="map-fallback-list">'+rows+placeRows+'</div></div>';
 }
 function renderCampMarkers(camps){
   if(!assocMapInstance||typeof L==='undefined')return;
@@ -2311,30 +2404,42 @@ function renderCampMarkers(camps){
     const icon=L.divIcon({className:'camp-marker',html:`<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-size:10px;font-weight:800;font-family:Manrope,sans-serif">${initial}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-26]});
     L.marker([c.lat,c.lng],{icon}).addTo(campLayer).bindPopup(`<b>${esc(c.n)}</b><span style="display:inline-block;margin:4px 0;padding:2px 7px;border-radius:999px;background:${c.m===false?'#f3f4f6':'#dff1e7'};color:${c.m===false?'#6b7280':'#185c42'};font-size:11px;font-weight:800">${c.m===false?'일반 등록 야영장':'협회 회원'}</span><br>👤 ${esc(c.o)}<br>📍 ${esc(c.a)}${c.phone?'<br>☎ '+esc(c.phone):''}${c.site?'<br>🔗 <a href="'+esc(c.site)+'" target="_blank">홈페이지/예약</a>':''}<br>📧 <span style="font-size:11px;color:#5e6d61">${esc(c.e)}</span>`);
   });
-  if(camps.length){const bounds=L.latLngBounds(camps.map(c=>[c.lat,c.lng]));assocMapInstance.fitBounds(bounds,{padding:[40,40]});}
+}
+
+function renderTouristMarkers(spots){
+  if(!assocMapInstance||typeof L==='undefined')return;
+  if(!touristLayer)touristLayer=L.layerGroup().addTo(assocMapInstance);else touristLayer.clearLayers();
+  (spots||[]).forEach(s=>{
+    const icon=L.divIcon({className:'place-marker',html:'<div class="place-marker-core">★</div>',iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14]});
+    L.marker([s.lat,s.lng],{icon}).addTo(touristLayer).bindPopup('<b>'+esc(s.n)+'</b><span class="place-chip">'+esc(s.type||'관광지')+'</span><br>📍 '+esc(s.a||'-')+(s.memo?'<br>'+esc(s.memo):'')+(s.site?'<br>🔗 <a href="'+esc(s.site)+'" target="_blank">관련 링크</a>':''));
+  });
 }
 async function showAssocMap(){
   const mapEl=g('assoc-map');
   if(!mapEl)return;
-  mapEl.innerHTML='<div class="map-status">지도 데이터 불러오는 중...</div>';
+  mapEl.innerHTML='<div class="map-status">괴산군 캠핑장·관광지 지도 데이터 불러오는 중...</div>';
   _mapCamps=await loadCampsFromDB();
-  updateMapStats(_mapCamps);
+  _touristSpots=await loadTouristSpotsFromDB();
+  updateMapStats(_mapCamps,_touristSpots);
   renderCampInfoList();
   updateInfoSummary();
   const ok=await ensureLeafletReady();
-  if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.');loadEventsList();return;}
+  if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.',_touristSpots);loadEventsList();return;}
   try{
-    if(assocMapInstance){try{assocMapInstance.remove();}catch(e){} assocMapInstance=null;campLayer=null;}
+    if(assocMapInstance){try{assocMapInstance.remove();}catch(e){} assocMapInstance=null;campLayer=null;touristLayer=null;}
     mapEl.innerHTML='';
     assocMapInstance=L.map(mapEl,{preferCanvas:true,zoomControl:true}).setView([36.76,127.83],11);
     const tile=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:18});
     tile.on('tileerror',()=>{console.warn('map tile load error')});
     tile.addTo(assocMapInstance);
     renderCampMarkers(_mapCamps);
+    renderTouristMarkers(_touristSpots);
+    const allPts=[..._mapCamps.map(c=>[c.lat,c.lng]),..._touristSpots.map(s=>[s.lat,s.lng])].filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1]));
+    if(allPts.length){try{assocMapInstance.fitBounds(L.latLngBounds(allPts),{padding:[40,40]});}catch(e){}}
     [80,220,500,900].forEach(ms=>setTimeout(()=>{try{assocMapInstance&&assocMapInstance.invalidateSize();}catch(e){}},ms));
   }catch(e){
     console.error('map init error:',e);
-    renderStaticMapFallback(_mapCamps,'지도 초기화 중 오류가 발생했습니다: '+errMsg(e));
+    renderStaticMapFallback(_mapCamps,'지도 초기화 중 오류가 발생했습니다: '+errMsg(e),_touristSpots);
   }
   loadEventsList();
 }
