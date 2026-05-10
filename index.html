@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.25-20260510-my-docs-role-menu">
+<meta name="app-version" content="gca-v4.26-20260510-contact-links">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -239,6 +239,18 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .my-doc-hidden-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 .my-doc-guide{font-size:11px;color:var(--mid);line-height:1.55;margin-top:8px}
 .role-hidden{display:none!important}
+.contact-actions{display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center;margin-left:2px}
+.contact-btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--cd);background:#fff;color:var(--g);border-radius:999px;padding:3px 8px;font-size:10px;font-weight:900;cursor:pointer;line-height:1.2;white-space:nowrap}
+.contact-btn:hover{background:var(--gp)}
+.contact-btn.phone{color:#047857;background:#ecfdf5;border-color:#bbf7d0}
+.contact-btn.sms{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe}
+.contact-btn.email{color:#7c3aed;background:#f5f3ff;border-color:#ddd6fe}
+.contact-btn.disabled{color:#9ca3af;background:#f3f4f6;border-color:#e5e7eb;cursor:not-allowed}
+.provider-contact-box{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 10px}
+.provider-contact-missing{font-size:11px;color:#92400e;background:#fff8e6;border:1px solid #f1d69a;border-radius:10px;padding:8px 10px;line-height:1.5;margin:6px 0}
+.camp-contact-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.event-list-provider{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.my-event-provider{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .my-doc-list{display:grid;gap:7px}
 .my-doc-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--cd);border-radius:12px;padding:10px}
 .my-doc-item strong{font-size:13px;color:var(--ch);line-height:1.35}
@@ -552,7 +564,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.25 · 2026.05.10 · MY 서류함/역할별 메뉴</div>
+<div class="version-mark" id="version-mark">GCA v4.26 · 2026.05.10 · 행사/업체 연락 연결</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -563,7 +575,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.25 · 2026.05.10 · MY 서류함/역할별 메뉴';
+const APP_VERSION='GCA v4.26 · 2026.05.10 · 행사/업체 연락 연결';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -612,6 +624,26 @@ const MEMBER_CAMPS=[
 ];
 const REGION_COLORS={"청천":"#2563EB","칠성":"#059669","감물":"#F59E0B","괴산":"#DC2626","사리":"#7C3AED","장연":"#0891B2"};
 const EVENT_PROGRAM_META={"풍선쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"버블쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"마술쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"솜사탕쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"레이저쇼":{"cat":"A","catName":"공연","provider":"백선일","type":"program"},"풍선매직쇼":{"cat":"A","catName":"공연","provider":"신태호","type":"program"},"통기타음악회":{"cat":"A","catName":"공연","provider":"통기타","type":"program"},"마술쇼 조동희(40분)":{"cat":"A","catName":"공연","provider":"조동희","type":"program"},"반려견 행동 토크쇼":{"cat":"A","catName":"공연","provider":"반려견","type":"program"},"사과오이소박이":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃떡퐁듀":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"감자핫도그만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일꼬치화채":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"시원한 허브꽃 모히또":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"허브솔트":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"보들꽃 증편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"건강 강정 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"추석 꽃송편":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"단호박 꽃단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"깍두기 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃장식 딸기 모찌":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기청 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃 코디얼 빙수":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"호두정과":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"딸기 고추장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"카네이션 바람떡":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"수레국화 양갱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"캐릭터김밥":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"연잎밥 만들기":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"오이 모듬피클":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"얼굴 카나페":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"모기퇴치 꽃스머지스틱":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"인절미":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"K도넛 개성주악":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"발효초콜릿":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"곳감단자":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄향기 화전":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"봄꽃 코디얼":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기도둑 달래쌈장":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"쑥버무리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"꽃식초":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"고기 마리네이드":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"과일젤리":{"cat":"B","catName":"먹거리","provider":"정미화","type":"program"},"4인 재료비 1매":{"cat":"B","catName":"먹거리","provider":"재료비","type":"ticket"},"페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"헤나":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"가족캐리커쳐":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"타로카드":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"할로윈 페이스페인팅":{"cat":"C","catName":"체험","provider":"이은희","type":"program"},"캐릭터 솜사탕":{"cat":"C","catName":"체험","provider":"캐릭터솜사탕","type":"program"},"짚라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"슬랙라인":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"로켓스윙":{"cat":"D","catName":"활동","provider":"이경희","type":"program"},"승마체험":{"cat":"D","catName":"활동","provider":"승마","type":"program"},"사과따기 체험":{"cat":"D","catName":"활동","provider":"사과따기","type":"program"},"산막이 보트 1매":{"cat":"D","catName":"활동","provider":"보트","type":"ticket"},"모터보트 2인 1매":{"cat":"D","catName":"활동","provider":"모터보트","type":"ticket"},"소형유람선 1매":{"cat":"D","catName":"활동","provider":"유람선","type":"ticket"},"자체행사비":{"cat":"D","catName":"활동","provider":"자체","type":"program"}};
+
+const STATIC_PROVIDER_CONTACTS={
+  "백선일":{company:"썬엔터테인먼트 문화공연팀",phone:"",email:"",memo:"공연 프로그램 담당"},
+  "신태호":{company:"링엔터테인먼트",phone:"",email:"",memo:"풍선매직쇼 담당"},
+  "통기타":{company:"통기타 공연팀",phone:"",email:"",memo:"통기타음악회 담당"},
+  "조동희":{company:"마술공연",phone:"",email:"",memo:"마술쇼 담당"},
+  "반려견":{company:"반려견 행동 토크쇼",phone:"",email:"",memo:"반려견 프로그램 담당"},
+  "정미화":{company:"아산꽃차문화원",phone:"",email:"",memo:"먹거리 체험 담당"},
+  "이은희":{company:"토탈아트",phone:"",email:"",memo:"페이스페인팅·캐리커쳐·헤나 담당"},
+  "캐릭터솜사탕":{company:"따봄 솜사탕",phone:"",email:"",memo:"캐릭터 솜사탕 담당"},
+  "이경희":{company:"산촌활성화종합지원센터",phone:"",email:"",memo:"짚라인·슬랙라인·로켓스윙 담당"},
+  "승마":{company:"승마체험",phone:"",email:"",memo:"승마체험 담당"},
+  "사과따기":{company:"사과따기 체험",phone:"",email:"",memo:"사과따기 체험 담당"},
+  "보트":{company:"산막이 보트",phone:"",email:"",memo:"산막이 보트 매수권"},
+  "모터보트":{company:"모터보트",phone:"",email:"",memo:"모터보트 매수권"},
+  "유람선":{company:"소형유람선",phone:"",email:"",memo:"소형유람선 매수권"},
+  "자체":{company:"자체행사",phone:"",email:"",memo:"캠핑장 자체행사"}
+};
+let _providerContactMap={};
+let _providerContactsLoaded=false;
 
 function g(id){return document.getElementById(id)}
 function v(id){const el=g(id);return el&&typeof el.value==='string'?el.value.trim():''}
@@ -1854,6 +1886,7 @@ async function renderMyDocs(){
 async function loadInfoPage(){
   loadInfoLibraryPreview();
   await ensureEventsForInfo();
+  await loadProviderContacts();
   bindInfoControls();
   renderProviderDirectory();
   renderCampInfoList();
@@ -2111,6 +2144,8 @@ async function loadEventsList(){
       return;
     }
     _allEvents=(data||[]).map(normalizeEventRow);
+    loadProviderContacts().catch(e=>console.warn('provider contacts load skipped',e));
+    loadProviderContacts().catch(e=>console.warn('provider contacts load skipped',e));
     bindEventsFilter();
     buildEventControls();
     renderEventsPage();
@@ -2256,11 +2291,96 @@ function renderEventCalendar(events){
   cal.innerHTML='<div class="event-calendar">'+html+'</div>'+(shownDays>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">일정이 많습니다. 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
 
+
+function normalizeKey(s){return String(s||'').replace(/\s+/g,'').replace(/캠핑장|야영장/g,'').trim().toLowerCase();}
+async function loadProviderContacts(){
+  if(_providerContactsLoaded)return _providerContactMap;
+  _providerContactsLoaded=true;
+  _providerContactMap={...STATIC_PROVIDER_CONTACTS};
+  try{
+    const {data,error}=await db.from('members').select('*').eq('is_active',true);
+    if(error){console.warn('members provider contacts error:',error.message);return _providerContactMap;}
+    (data||[]).forEach(m=>{
+      const role=String(m.role||'').toLowerCase();
+      if(!['provider','vendor','instructor','업체'].includes(role))return;
+      const key=String(m.provider_name||m.provider||m.name||m.camp_name||'').trim();
+      if(!key)return;
+      _providerContactMap[key]={...(STATIC_PROVIDER_CONTACTS[key]||{}),company:m.company_name||m.company||m.camp_name||STATIC_PROVIDER_CONTACTS[key]?.company||key,phone:m.phone||m.mobile||m.tel||'',email:m.email||'',memo:m.memo||STATIC_PROVIDER_CONTACTS[key]?.memo||'',member_id:m.id||null};
+    });
+  }catch(e){console.warn('loadProviderContacts exception:',e);}
+  return _providerContactMap;
+}
+function getProviderContact(provider){
+  const p=String(provider||'').trim();
+  if(!p)return {};
+  return _providerContactMap[p]||STATIC_PROVIDER_CONTACTS[p]||{company:p,phone:'',email:'',memo:''};
+}
+function formatPhoneHref(phone){return String(phone||'').replace(/[^\d+]/g,'');}
+async function contactProvider(provider,mode){
+  await loadProviderContacts();
+  const p=String(provider||'').trim();
+  const c=getProviderContact(p);
+  if(!p){toast('업체 정보가 없습니다');return;}
+  if(mode==='phone'){
+    if(c.phone){location.href='tel:'+formatPhoneHref(c.phone);return;}
+  }else if(mode==='sms'){
+    if(c.phone){location.href='sms:'+formatPhoneHref(c.phone)+'?body='+encodeURIComponent('[괴산캠핑장협회] '+p+' 담당 행사 관련 문의드립니다.');return;}
+  }else if(mode==='email'){
+    if(c.email){location.href='mailto:'+c.email+'?subject='+encodeURIComponent('[괴산캠핑장협회] 행사 관련 문의')+'&body='+encodeURIComponent(p+' 담당 행사 관련 문의드립니다.');return;}
+  }
+  alert('연락처가 아직 등록되지 않았습니다.\n\n업체/강사: '+p+'\n정보 메뉴의 행사업체 카드에서 연락처 등록 여부를 확인하거나 관리자에게 업체 연락처 등록을 요청하세요.');
+}
+function renderProviderContactActions(provider){
+  const p=String(provider||'').trim();
+  if(!p)return '';
+  const c=getProviderContact(p);
+  const hasPhone=!!c.phone, hasEmail=!!c.email;
+  return '<span class="contact-actions">'+
+    '<button type="button" class="contact-btn phone '+(hasPhone?'':'disabled')+'" onclick="contactProvider(\''+jsq(p)+'\',\'phone\');event.stopPropagation();">전화</button>'+
+    '<button type="button" class="contact-btn sms '+(hasPhone?'':'disabled')+'" onclick="contactProvider(\''+jsq(p)+'\',\'sms\');event.stopPropagation();">문자</button>'+
+    '<button type="button" class="contact-btn email '+(hasEmail?'':'disabled')+'" onclick="contactProvider(\''+jsq(p)+'\',\'email\');event.stopPropagation();">메일</button>'+
+    '</span>';
+}
+async function getCampContact(campName){
+  const name=String(campName||'').trim();
+  if(!name)return {};
+  if(!_mapCamps||!_mapCamps.length){
+    try{_mapCamps=await loadCampsFromDB();}catch(e){_mapCamps=MEMBER_CAMPS.map(c=>({...c,m:true}));}
+  }
+  const key=normalizeKey(name);
+  const found=[...(_mapCamps||[]),...MEMBER_CAMPS.map(c=>({...c,m:true}))].find(c=>normalizeKey(c.n)===key||normalizeKey(c.camp_name)===key);
+  return found||{n:name,phone:'',e:'',a:'',site:''};
+}
+async function contactCamp(campName,mode){
+  const c=await getCampContact(campName);
+  const name=c.n||campName||'캠핑장';
+  if(mode==='phone'){
+    if(c.phone){location.href='tel:'+formatPhoneHref(c.phone);return;}
+  }else if(mode==='sms'){
+    if(c.phone){location.href='sms:'+formatPhoneHref(c.phone)+'?body='+encodeURIComponent('[괴산캠핑장협회] '+name+' 행사 관련 문의드립니다.');return;}
+  }else if(mode==='email'){
+    if(c.e){location.href='mailto:'+c.e+'?subject='+encodeURIComponent('[괴산캠핑장협회] 행사 관련 문의')+'&body='+encodeURIComponent(name+' 행사 관련 문의드립니다.');return;}
+    if(c.email){location.href='mailto:'+c.email+'?subject='+encodeURIComponent('[괴산캠핑장협회] 행사 관련 문의')+'&body='+encodeURIComponent(name+' 행사 관련 문의드립니다.');return;}
+  }else if(mode==='map'){
+    if(c.lat&&c.lng){window.open('https://map.kakao.com/link/map/'+encodeURIComponent(name)+','+c.lat+','+c.lng,'_blank');return;}
+  }
+  alert('캠핑장 연락처가 아직 등록되지 않았습니다.\n\n캠핑장: '+name+'\n주소: '+(c.a||'미등록')+'\n이메일: '+(c.e||c.email||'미등록')+'\n전화번호/주소 정보를 camps 테이블에 등록하면 바로 연결됩니다.');
+}
+function renderCampContactActions(campName){
+  const n=String(campName||'').trim();
+  if(!n)return '';
+  return '<div class="camp-contact-actions">'+
+    '<button type="button" class="contact-btn phone" onclick="contactCamp(\''+jsq(n)+'\',\'phone\');event.stopPropagation();">캠핑장 전화</button>'+
+    '<button type="button" class="contact-btn sms" onclick="contactCamp(\''+jsq(n)+'\',\'sms\');event.stopPropagation();">문자</button>'+
+    '<button type="button" class="contact-btn email" onclick="contactCamp(\''+jsq(n)+'\',\'email\');event.stopPropagation();">메일</button>'+
+    '<button type="button" class="contact-btn" onclick="contactCamp(\''+jsq(n)+'\',\'map\');event.stopPropagation();">지도</button>'+
+    '</div>';
+}
 function renderProviderButton(provider, prefix){
   const p=String(provider||'').trim();
   if(!p)return '<span class="event-provider">업체 미지정</span>';
   const label=(prefix||'업체 ')+p;
-  return '<button type="button" class="event-provider provider-link" onclick="openProviderInfo(\''+jsq(p)+'\');event.stopPropagation();">'+esc(label)+'</button>';
+  return '<span class="contact-actions"><button type="button" class="event-provider provider-link" onclick="openProviderInfo(\''+jsq(p)+'\');event.stopPropagation();">'+esc(label)+'</button>'+renderProviderContactActions(p)+'</span>';
 }
 function renderProviderInline(provider){
   const p=String(provider||'').trim();
@@ -2291,6 +2411,7 @@ async function ensureEventsForInfo(){
     const {data,error}=await db.from('camp_events').select('*').order('event_date',{ascending:true,nullsFirst:false}).order('created_at',{ascending:true});
     if(error){console.warn('provider event load error:',error.message);return;}
     _allEvents=(data||[]).map(normalizeEventRow);
+    loadProviderContacts().catch(e=>console.warn('provider contacts load skipped',e));
   }catch(e){console.warn('provider event load exception:',e);}
 }
 function getProviderProgramMap(){
@@ -2338,6 +2459,16 @@ function getFilteredProviderStats(){
     return okQ&&okCat;
   });
 }
+
+function renderProviderContactPanel(provider){
+  const c=getProviderContact(provider);
+  const has=c.phone||c.email;
+  const info='<div class="provider-contact-box">'+renderProviderContactActions(provider)+'</div>';
+  if(has){
+    return info+'<div class="provider-panel-sub">'+(c.company?'업체명: '+esc(c.company)+' · ':'')+(c.phone?'전화: '+esc(c.phone)+' · ':'')+(c.email?'이메일: '+esc(c.email):'')+'</div>';
+  }
+  return info+'<div class="provider-contact-missing">연락처 미등록 상태입니다. members 테이블에 role=provider 계정의 phone/email 또는 추후 provider 연락처를 등록하면 전화·문자·메일 버튼이 바로 작동합니다.</div>';
+}
 function renderProviderDirectory(){
   const box=g('provider-directory'),selBox=g('provider-selected-box');
   if(!box||!selBox)return;
@@ -2350,8 +2481,8 @@ function renderProviderDirectory(){
   if(current){
     const evs=[...current.events].sort((a,b)=>eventSortValue(a).localeCompare(eventSortValue(b))||eventCategoryRank(a)-eventCategoryRank(b)||(a._program||'').localeCompare(b._program||'','ko'));
     const upcoming=evs.filter(e=>!e.event_date||eventDateKey(e)>=todayLocalDate()).slice(0,10);
-    const list=(upcoming.length?upcoming:evs.slice(0,10)).map(e=>'<div class="provider-related-row"><div class="provider-related-date">'+esc(providerDateText(e))+'</div><div class="provider-related-main"><strong>'+esc(e._program||'-')+'</strong><span>🏕 '+esc(e.camp_name||'-')+' · '+esc(e._catName||'기타')+(Number(e.qty)>1?' · '+Number(e.qty)+'매':'')+'</span></div></div>').join('');
-    selBox.innerHTML='<div class="provider-selected" id="provider-selected-card"><h3>'+esc(current.provider)+'</h3><div class="provider-selected-meta"><span class="provider-pill">행사 '+current.events.length+'건</span><span class="provider-pill">캠핑장 '+current.camps.size+'곳</span><span class="provider-pill">콘텐츠 '+current.programs.size+'개</span><span class="provider-pill">'+esc([...current.cats].join(' · ')||'분류 없음')+'</span></div><div class="provider-panel-sub">담당 콘텐츠: '+esc([...current.programs].slice(0,12).join(', '))+(current.programs.size>12?' 외 '+(current.programs.size-12)+'개':'')+'</div><div class="provider-related">'+(list||'<div class="provider-empty">관련 행사 일정이 아직 없습니다.</div>')+'</div></div>';
+    const list=(upcoming.length?upcoming:evs.slice(0,10)).map(e=>'<div class="provider-related-row"><div class="provider-related-date">'+esc(providerDateText(e))+'</div><div class="provider-related-main"><strong>'+esc(e._program||'-')+'</strong><span>🏕 '+esc(e.camp_name||'-')+' · '+esc(e._catName||'기타')+(Number(e.qty)>1?' · '+Number(e.qty)+'매':'')+'</span>'+renderCampContactActions(e.camp_name)+'</div></div>').join('');
+    selBox.innerHTML='<div class="provider-selected" id="provider-selected-card"><h3>'+esc(current.provider)+'</h3><div class="provider-selected-meta"><span class="provider-pill">행사 '+current.events.length+'건</span><span class="provider-pill">캠핑장 '+current.camps.size+'곳</span><span class="provider-pill">콘텐츠 '+current.programs.size+'개</span><span class="provider-pill">'+esc([...current.cats].join(' · ')||'분류 없음')+'</span></div>'+renderProviderContactPanel(current.provider)+'<div class="provider-panel-sub">담당 콘텐츠: '+esc([...current.programs].slice(0,12).join(', '))+(current.programs.size>12?' 외 '+(current.programs.size-12)+'개':'')+'</div><div class="provider-related">'+(list||'<div class="provider-empty">관련 행사 일정이 아직 없습니다.</div>')+'</div></div>';
   }else{
     selBox.innerHTML='<div class="provider-selected"><h3>행사업체 디렉토리</h3><div class="provider-panel-sub">업체명을 누르면 관련 행사 일정과 담당 콘텐츠가 표시됩니다. 이벤트 행사달력의 업체명에서도 바로 이동할 수 있습니다.</div></div>';
   }
@@ -2410,7 +2541,7 @@ function renderCampInfoList(){
   box.innerHTML='<div class="camp-directory">'+rows.map(c=>{
     const cls=c.m===false?'nonmember':'member';
     const badge=c.m===false?'<span class="camp-badge nonmember">일반 등록 야영장</span>':'<span class="camp-badge member">협회 회원</span>';
-    return '<div class="camp-info-card '+cls+'"><div class="camp-info-name">'+esc(c.n||'-')+'</div><div>'+badge+'<span class="provider-tag">'+esc(c.c||'지역 미지정')+'</span></div><div class="camp-info-meta">대표/담당: '+esc(c.o||'-')+'<br>주소: '+esc(c.a||'-')+(c.phone?'<br>전화: '+esc(c.phone):'')+(c.e?'<br>이메일: '+esc(c.e):'')+(c.site?'<br><a href="'+esc(c.site)+'" target="_blank" style="color:var(--g);font-weight:900">홈페이지/예약</a>':'')+'</div></div>';
+    return '<div class="camp-info-card '+cls+'"><div class="camp-info-name">'+esc(c.n||'-')+'</div><div>'+badge+'<span class="provider-tag">'+esc(c.c||'지역 미지정')+'</span></div><div class="camp-info-meta">대표/담당: '+esc(c.o||'-')+'<br>주소: '+esc(c.a||'-')+(c.phone?'<br>전화: '+esc(c.phone):'')+(c.e?'<br>이메일: '+esc(c.e):'') +(c.site?'<br><a href="'+esc(c.site)+'" target="_blank" style="color:var(--g);font-weight:900">홈페이지/예약</a>':'')+'</div>'+renderCampContactActions(c.n)+'</div>';
   }).join('')+'</div>';
 }
 function updateInfoSummary(){
