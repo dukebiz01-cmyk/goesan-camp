@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.18-20260510-event-menu-cleanup">
+<meta name="app-version" content="gca-v4.19-20260510-event-filter-cleanup">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -166,7 +166,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
       <div class="event-sum-card"><b id="ev-sum-month">-</b><span>이번 달 행사</span></div>
     </div>
     <div class="event-toolbar">
-      <div class="events-filter"><button class="active" data-evf="upcoming">다가오는</button><button data-evf="all">전체</button><button data-evf="locked">확정</button><button data-evf="A">공연</button><button data-evf="B">먹거리</button><button data-evf="C">체험</button><button data-evf="D">활동</button></div>
+      <div class="events-filter"><button class="active" data-evf="upcoming">다가오는</button><button data-evf="all">전체</button><button data-evf="A">공연</button><button data-evf="B">먹거리</button><button data-evf="C">체험</button><button data-evf="D">활동</button></div>
       <div class="event-select-row">
         <label>행사월<select id="ev-month"><option value="all">전체 월</option></select></label>
         <label>캠핑장<select id="ev-camp"><option value="all">전체 캠핑장</option></select></label>
@@ -217,7 +217,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.18 · 2026.05.10 · 이벤트 메뉴 정리</div>
+<div class="version-mark" id="version-mark">GCA v4.19 · 2026.05.10 · 이벤트 검토/확정 제거</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -228,7 +228,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.18 · 2026.05.10 · 이벤트 메뉴 정리';
+const APP_VERSION='GCA v4.19 · 2026.05.10 · 이벤트 검토/확정 제거';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -1475,7 +1475,6 @@ function getFilteredEvents(){
   const today=todayLocalDate();
   let filtered=[..._allEvents];
   if(_evFilter==='upcoming')filtered=filtered.filter(e=>!e.event_date||String(e.event_date).slice(0,10)>=today);
-  else if(_evFilter==='locked')filtered=filtered.filter(e=>!!e.finalized);
   else if(['A','B','C','D'].includes(_evFilter))filtered=filtered.filter(e=>e._cat===_evFilter);
   if(_evMonth&&_evMonth!=='all')filtered=filtered.filter(e=>eventMonthKey(e)===_evMonth);
   if(_evCamp&&_evCamp!=='all')filtered=filtered.filter(e=>(e.camp_name||'')===_evCamp);
@@ -1523,9 +1522,8 @@ function renderEventsSummary(filtered){
   if(g('ev-sum-upcoming'))g('ev-sum-upcoming').textContent=upcoming;
   if(g('ev-sum-camps'))g('ev-sum-camps').textContent=camps;
   if(g('ev-sum-month'))g('ev-sum-month').textContent=monthCount;
-  const locked=_allEvents.filter(e=>!!e.finalized).length;
   const stats=g('events-stats');
-  if(stats)stats.innerHTML='표시 '+filtered.length+'건 · 전체 '+total+'건 · 다가오는 '+upcoming+'건 · 확정 '+locked+'건';
+  if(stats)stats.innerHTML='표시 '+filtered.length+'건 · 전체 '+total+'건 · 다가오는 '+upcoming+'건';
 }
 function renderEventCalendar(events){
   const cal=g('events-calendar');if(!cal)return;
@@ -1539,9 +1537,8 @@ function renderEventCalendar(events){
   }).join('')+'</div>'+(keys.length>18?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">날짜 그룹 '+(keys.length-18)+'개 더 있음 · 필터로 좁혀보세요</div>':'');
 }
 function renderEventMini(e){
-  const status=e.finalized?'<span class="ev-status ev-locked">확정</span>':'<span class="ev-status ev-pending">검토</span>';
   const qty=Number(e.qty)>1?' · '+Number(e.qty)+'매':'';
-  return '<div class="event-mini"><div><div class="event-mini-title">'+esc(e._program)+'</div><div class="event-mini-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'')+(qty?'<span>'+qty.replace(' · ','')+'</span>':'')+'</div></div>'+status+'</div>';
+  return '<div class="event-mini"><div><div class="event-mini-title">'+esc(e._program)+'</div><div class="event-mini-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span class="event-camp">🏕 '+esc(e.camp_name||'-')+'</span>'+(e._provider?'<span class="event-provider">업체 '+esc(e._provider)+'</span>':'')+(qty?'<span>'+qty.replace(' · ','')+'</span>':'')+'</div></div></div>';
 }
 function renderEventsList(events){
   const list=g('events-list');if(!list)return;
@@ -1553,8 +1550,7 @@ function renderEventsList(events){
     const isTicket=e.bundle_type==='ticket'||evDate==='수시';
     const label=eventDateLabel(evDate);
     const dateBox=isTicket?'<div class="ev-date ticket"><span class="ev-d">수시</span>매</div>':'<div class="ev-date">'+label.big.split('.')[0]+'월<span class="ev-d">'+label.big.split('.')[1]+'일</span></div>';
-    const status=e.finalized?'<span class="ev-status ev-locked">🔒 확정</span>':'<span class="ev-status ev-pending">⏳ 검토</span>';
-    return '<div class="ev-card '+(isTicket?'ticket':'')+'">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e._program)+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div><div class="ev-provider-line">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div>'+status+'</div>';
+    return '<div class="ev-card '+(isTicket?'ticket':'')+'">'+dateBox+'<div class="ev-main"><div class="ev-title">'+esc(e._program)+'</div><div class="ev-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat)+' '+esc(e._catName)+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(Number(e.qty)>1?'<span>· '+Number(e.qty)+'매</span>':'')+'</div><div class="ev-provider-line">수행업체/강사: '+esc(e._provider||'미지정')+'</div></div></div>';
   }).join('')+(filtered.length>60?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(filtered.length-60)+'건 더 있음 · 월/캠핑장 필터로 좁혀보세요</div>':'');
 }
 </script>
