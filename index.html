@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.22-20260510-info-hub">
+<meta name="app-version" content="gca-v4.23-20260510-member-register-fix">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -215,6 +215,24 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 #assoc-map{position:relative;background:#eef3ec}
 
 @media(max-width:700px){.ffrow,.vbtns{grid-template-columns:1fr}.ph{align-items:flex-start}.ph-title{font-size:22px}.uchip{display:none}#assoc-map{height:440px}.bn-lb{font-size:9px}.bn-inner{padding:9px 4px}}
+
+.member-register-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:14px;align-items:start}
+.member-form-box,.member-list-box{background:#fff;border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:13px;box-shadow:var(--s1)}
+.member-box-title{font-size:13px;font-weight:900;color:var(--ch);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.member-box-title small{font-size:10px;font-weight:800;color:var(--mid)}
+.member-register-status{display:none;border-radius:10px;padding:8px 10px;font-size:11px;line-height:1.5;margin:8px 0;font-weight:800}
+.member-register-status.show{display:block}.member-register-status.ok{background:var(--gb);color:var(--green)}.member-register-status.warn{background:var(--ab);color:var(--amber)}.member-register-status.err{background:var(--rb);color:var(--red)}
+.member-card-list{display:grid;gap:8px;max-height:52vh;overflow:auto;padding-right:2px}
+.member-card{border:1px solid var(--cd);border-radius:14px;background:#fbfdfb;padding:10px 11px;display:grid;gap:6px}
+.member-card.is-admin{border-left:4px solid var(--amber)}.member-card.is-member{border-left:4px solid var(--g)}.member-card.is-county{border-left:4px solid var(--blue)}.member-card.inactive{opacity:.55;background:#f4f4f4}
+.member-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.member-card-name{font-size:14px;font-weight:900;color:var(--ch);line-height:1.35}
+.member-card-camp{font-size:11px;color:var(--mid);font-weight:800;margin-top:1px}
+.member-card-meta{font-size:11px;color:var(--mid);line-height:1.5;word-break:break-all}
+.member-chip-row{display:flex;gap:5px;flex-wrap:wrap}.member-chip{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;background:#eef3ee;color:var(--mid);font-size:10px;font-weight:900}.member-chip.admin{background:var(--ab);color:var(--amber)}.member-chip.member{background:var(--gb);color:var(--green)}.member-chip.county{background:var(--bb);color:var(--blue)}.member-chip.no{background:var(--rb);color:var(--red)}
+.member-list-tools{display:flex;gap:6px;margin-bottom:8px}.member-list-tools input{flex:1;border:1.5px solid var(--bdr);border-radius:11px;padding:8px 10px;background:#f6f9f5;font-size:12px;outline:none}.member-list-tools button{border:1px solid var(--cd);background:#fff;color:var(--g);font-size:11px;font-weight:900;border-radius:11px;padding:8px 9px;cursor:pointer;white-space:nowrap}
+@media(max-width:760px){.member-register-grid{grid-template-columns:1fr}.member-card-list{max-height:45vh}}
+
 </style>
 </head>
 <body>
@@ -404,7 +422,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.22 · 2026.05.10 · 정보 허브 강화</div>
+<div class="version-mark" id="version-mark">GCA v4.23 · 2026.05.10 · 회원등록 안정화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -415,7 +433,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.22 · 2026.05.10 · 정보 허브 강화';
+const APP_VERSION='GCA v4.23 · 2026.05.10 · 회원등록 안정화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -1505,25 +1523,138 @@ async function loadInfoPage(){
   showAssocMap();
 }
 
+
+function memberRoleLabel(role){return {admin:'협회임원',member:'회원',county:'군청'}[role]||role||'회원'}
+function normalizeEmail(s){return String(s||'').trim().toLowerCase()}
+function withDbTimeout(promise,label,ms=12000){
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise(resolve=>setTimeout(()=>resolve({data:null,error:{message:(label||'요청')+' 시간이 초과되었습니다. 네트워크/RLS/권한을 확인하세요.',code:'CLIENT_TIMEOUT'}}),ms))
+  ]);
+}
+function setMemberRegisterStatus(msg,type='warn'){
+  const el=g('member-register-status');
+  if(!el){toast(msg);return;}
+  el.className='member-register-status show '+type;
+  el.textContent=msg;
+}
+function setMemberSubmitBusy(on){
+  const btn=g('m-submit-btn');
+  if(btn){btn.disabled=!!on;btn.textContent=on?'등록 중...':'회원 등록';}
+}
 function openMemberModal(){
   if(App.role!=='admin'){toast('관리자만 회원을 등록할 수 있습니다');return;}
-  g('mo-body').innerHTML='<div class="mot">👤 회원 등록</div><div class="ff"><label>이름</label><input id="m-name" placeholder="회원 이름"></div><div class="ff"><label>캠핑장명</label><input id="m-camp" placeholder="캠핑장명"></div><div class="ff"><label>이메일</label><input id="m-email" type="email" placeholder="로그인 이메일 또는 카카오 이메일"></div><div class="ff"><label>연락처</label><input id="m-phone" placeholder="010-0000-0000"></div><div class="ffrow"><div class="ff"><label>권한</label><select id="m-role"><option value="member">회원</option><option value="admin">협회임원</option><option value="county">군청</option></select></div><div class="ff"><label>투표권</label><select id="m-voter"><option value="true">있음</option><option value="false">없음</option></select></div></div><div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:12px">회원의 로그인 이메일과 동일하게 입력해야 자동 연결됩니다.</div><div class="moa"><button class="btn bo" onclick="closeMo()">취소</button><button class="btn bp" onclick="submitMember()">등록</button></div>';
+  g('mo-body').innerHTML=`
+    <div class="mot">👤 회원 등록 · 회원 박스 생성</div>
+    <div class="member-register-grid">
+      <div class="member-form-box">
+        <div class="member-box-title">회원 정보 입력 <small>등록 후 오른쪽에 박스 생성</small></div>
+        <div class="ff"><label>이름</label><input id="m-name" placeholder="회원 이름"></div>
+        <div class="ff"><label>캠핑장명</label><input id="m-camp" placeholder="캠핑장명"></div>
+        <div class="ff"><label>이메일</label><input id="m-email" type="email" placeholder="로그인 이메일 또는 카카오 이메일"></div>
+        <div class="ff"><label>연락처</label><input id="m-phone" placeholder="010-0000-0000"></div>
+        <div class="ffrow">
+          <div class="ff"><label>권한</label><select id="m-role"><option value="member">회원</option><option value="admin">협회임원</option><option value="county">군청</option></select></div>
+          <div class="ff"><label>투표권</label><select id="m-voter"><option value="true">있음</option><option value="false">없음</option></select></div>
+        </div>
+        <div style="background:var(--ab);border-radius:10px;padding:9px 11px;font-size:11px;color:var(--amber);font-weight:700;margin-bottom:8px;line-height:1.55">회원의 로그인 이메일과 동일하게 입력해야 자동 연결됩니다. 등록 성공 시 오른쪽 회원 목록에 카드 박스가 생성됩니다.</div>
+        <div id="member-register-status" class="member-register-status"></div>
+        <div class="moa"><button class="btn bo" onclick="closeMo()">닫기</button><button class="btn bp" id="m-submit-btn" onclick="submitMember()">회원 등록</button></div>
+      </div>
+      <div class="member-list-box">
+        <div class="member-box-title">등록된 회원 박스 <small id="member-list-count">-</small></div>
+        <div class="member-list-tools"><input id="member-list-search" placeholder="회원명·캠핑장·이메일 검색"><button type="button" onclick="loadMemberCards()">새로고침</button></div>
+        <div id="member-card-list" class="member-card-list"><div class="loading">회원 목록 불러오는 중...</div></div>
+      </div>
+    </div>`;
   g('mover').classList.add('open');
+  const search=g('member-list-search');
+  if(search&&!search._bound){search._bound=1;search.addEventListener('input',()=>renderMemberCards(_lastMemberCards||[]));}
+  loadMemberCards();
+}
+let _lastMemberCards=[];
+async function loadMemberCards(){
+  const box=g('member-card-list');
+  if(box)box.innerHTML='<div class="loading">회원 목록 불러오는 중...</div>';
+  let res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter,created_at').order('created_at',{ascending:false}).limit(200),'회원 목록 조회');
+  if(res.error&&isMissingColumn(res.error,'created_at')){
+    res=await withDbTimeout(db.from('members').select('id,name,camp_name,email,phone,role,is_active,is_voter').order('name',{ascending:true}).limit(200),'회원 목록 조회');
+  }
+  if(res.error){
+    if(box)box.innerHTML='<div class="errm" style="padding:12px;text-align:left">회원 목록 오류: '+esc(res.error.message)+'</div>';
+    const cnt=g('member-list-count');if(cnt)cnt.textContent='오류';
+    return;
+  }
+  _lastMemberCards=res.data||[];
+  renderMemberCards(_lastMemberCards);
+}
+function renderMemberCards(rows){
+  const box=g('member-card-list');if(!box)return;
+  const q=String(g('member-list-search')?.value||'').trim().toLowerCase();
+  const filtered=(rows||[]).filter(m=>!q||[m.name,m.camp_name,m.email,m.phone,memberRoleLabel(m.role)].join(' ').toLowerCase().includes(q));
+  const cnt=g('member-list-count');if(cnt)cnt.textContent=filtered.length+'명';
+  if(!filtered.length){box.innerHTML='<div class="empty" style="padding:18px">표시할 회원이 없습니다</div>';return;}
+  box.innerHTML=filtered.map(m=>renderMemberCard(m)).join('');
+}
+function renderMemberCard(m){
+  const role=m.role||'member';
+  const active=m.is_active!==false;
+  const cls=role==='admin'?'is-admin':role==='county'?'is-county':'is-member';
+  return '<div class="member-card '+cls+(active?'':' inactive')+'"><div class="member-card-top"><div><div class="member-card-name">'+esc(m.name||'이름 없음')+'</div><div class="member-card-camp">🏕 '+esc(m.camp_name||'캠핑장 미지정')+'</div></div><div class="member-chip-row"><span class="member-chip '+esc(role)+'">'+esc(memberRoleLabel(role))+'</span></div></div><div class="member-card-meta">📧 '+esc(m.email||'-')+(m.phone?'<br>☎ '+esc(m.phone):'')+'</div><div class="member-chip-row"><span class="member-chip '+(m.is_voter?'member':'no')+'">투표권 '+(m.is_voter?'있음':'없음')+'</span><span class="member-chip '+(active?'member':'no')+'">'+(active?'활성':'비활성')+'</span></div></div>';
+}
+async function createMemberViaRpc(payload){
+  return await withDbTimeout(db.rpc('create_member_admin_v4_23',{
+    p_name:payload.name,
+    p_camp_name:payload.camp_name,
+    p_email:payload.email,
+    p_phone:payload.phone,
+    p_role:payload.role,
+    p_is_voter:payload.is_voter
+  }),'회원 등록 RPC');
+}
+async function createMemberDirect(payload){
+  return await withDbTimeout(db.from('members').insert(payload).select('id,name,camp_name,email,phone,role,is_active,is_voter,created_at').maybeSingle(),'회원 직접 등록');
 }
 async function submitMember(){
   if(App.role!=='admin'){toast('관리자만 회원을 등록할 수 있습니다');return;}
-  const role=v('m-role');
-  const email=v('m-email').toLowerCase();
+  if(_actionLocks.has('submitMember'))return;
+  const role=v('m-role')||'member';
+  const email=normalizeEmail(v('m-email'));
   const payload={name:v('m-name'),camp_name:v('m-camp')||null,email:email||null,phone:v('m-phone')||null,role:role,is_active:true,is_voter:role==='county'?false:v('m-voter')==='true'};
-  if(!payload.name){toast('회원 이름을 입력하세요');return;}
-  if(!payload.email){toast('이메일을 입력하세요. 로그인 연결에 필요합니다');return;}
+  if(!payload.name){setMemberRegisterStatus('회원 이름을 입력하세요','err');return;}
+  if(!payload.email){setMemberRegisterStatus('이메일을 입력하세요. 로그인 연결에 필요합니다','err');return;}
+  _actionLocks.add('submitMember');
+  setMemberSubmitBusy(true);
   load(true);
-  const existing=await db.from('members').select('id').ilike('email',payload.email).maybeSingle();
-  if(existing.data){load(false);toast('이미 등록된 이메일입니다');return;}
-  const {error}=await db.from('members').insert(payload);
-  load(false);
-  if(error){toast('회원 등록 오류: '+error.message);return;}
-  toast('회원 등록 완료 ✓');closeMo();initMC();
+  try{
+    setMemberRegisterStatus('중복 이메일 확인 중...','warn');
+    const existing=await withDbTimeout(db.from('members').select('id,email').ilike('email',payload.email).maybeSingle(),'중복 이메일 확인',9000);
+    if(existing.error&&existing.error.code!=='PGRST116'){
+      console.warn('member duplicate check error:',existing.error.message);
+    }
+    if(existing.data){setMemberRegisterStatus('이미 등록된 이메일입니다','err');return;}
+
+    setMemberRegisterStatus('회원 등록 중...','warn');
+    let res=await createMemberViaRpc(payload);
+    if(res.error){
+      console.warn('create_member_admin_v4_23 fallback:',res.error.message);
+      res=await createMemberDirect(payload);
+    }
+    if(res.error){setMemberRegisterStatus('회원 등록 오류: '+res.error.message,'err');return;}
+
+    setMemberRegisterStatus('회원 등록 완료. 회원 박스가 생성되었습니다.','ok');
+    toast('회원 등록 완료 ✓');
+    ['m-name','m-camp','m-email','m-phone'].forEach(id=>{const el=g(id);if(el)el.value='';});
+    await initMC();
+    await loadMemberCards();
+  }catch(e){
+    console.error('submitMember exception:',e);
+    setMemberRegisterStatus('회원 등록 중 예외 오류: '+errMsg(e),'err');
+  }finally{
+    load(false);
+    setMemberSubmitBusy(false);
+    _actionLocks.delete('submitMember');
+  }
 }
 
 function openModal(type){
