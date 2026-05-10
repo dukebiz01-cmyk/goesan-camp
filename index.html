@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="theme-color" content="#185c42" />
-  <meta name="app-version" content="gca-v5.0.1-event-rls-screen-fix" />
+  <meta name="app-version" content="gca-v5.0.2-member-map-fix" />
   <title>괴산캠핑장협회</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="./css/app.css" />
@@ -13,7 +13,7 @@
 <body class="login-mode">
   <div class="loader" id="loader"><div class="spin"></div></div>
   <div class="toast" id="toast"></div>
-  <div class="version-mark" id="version-mark">GCA v5.0.1 · 행사 RLS/화면 수정</div>
+  <div class="version-mark" id="version-mark">GCA v5.0.2 · 회원수/지도 복구</div>
 
   <section id="login-screen" class="login-screen">
     <div class="login-card">
@@ -66,6 +66,14 @@
       </div>
     </header>
 
+    <div class="member-strip" id="member-strip">
+      <div class="member-strip-main">
+        <strong id="member-count">-</strong>
+        <span>정회원</span>
+      </div>
+      <div class="member-strip-sub" id="member-breakdown">회원 현황 불러오는 중</div>
+    </div>
+
     <main>
       <section class="page active" id="page-my"></section>
       <section class="page" id="page-notices"></section>
@@ -92,6 +100,7 @@
     <div class="modal-body" id="modal-body"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="./js/router.js"></script>
 </body>
 </html>

@@ -71,6 +71,39 @@ export function showLogin() {
   $("app").style.display = "none";
 }
 
+
+async function loadMemberSummary() {
+  const countEl = document.getElementById("member-count");
+  const breakdownEl = document.getElementById("member-breakdown");
+  if (countEl) countEl.textContent = "-";
+  if (breakdownEl) breakdownEl.textContent = "회원 현황 확인 중";
+
+  try {
+    const res = await rpc("gca_member_summary_v5", {}, "회원 현황", 9000);
+    if (!res.error && res.data) {
+      const data = Array.isArray(res.data) ? res.data[0] : res.data;
+      const voters = Number(data.voters ?? data.active_voters ?? data.member_count ?? 0);
+      const active = Number(data.active_members ?? data.total_active ?? 0);
+      const providers = Number(data.providers ?? 0);
+      if (countEl) countEl.textContent = voters || active || 0;
+      if (breakdownEl) breakdownEl.textContent = `활성 ${active || 0}명 · 업체 ${providers || 0}곳`;
+      return;
+    }
+
+    console.warn("member summary rpc fallback:", res.error?.message);
+    const q = await withTimeout(db.from("members").select("id,role,is_voter,is_active", { count: "exact" }).eq("is_active", true), "회원수 조회", 9000);
+    const rows = q.data || [];
+    const voters = rows.filter((m) => m.is_voter).length || q.count || 0;
+    const providers = rows.filter((m) => ["provider","vendor","instructor"].includes(m.role)).length;
+    if (countEl) countEl.textContent = voters;
+    if (breakdownEl) breakdownEl.textContent = `활성 ${rows.length || q.count || 0}명 · 업체 ${providers}곳`;
+  } catch (e) {
+    console.warn("member summary error:", e);
+    if (countEl) countEl.textContent = "-";
+    if (breakdownEl) breakdownEl.textContent = "회원수 조회 권한 확인 필요";
+  }
+}
+
 export function showApp() {
   document.body.classList.add("app-mode");
   document.body.classList.remove("login-mode");
@@ -82,6 +115,7 @@ export function showApp() {
   if (topSub) topSub.textContent = KAKAO_OPENCHAT_URL && KAKAO_CHANNEL_URL ? "협회 운영 시스템" : "괴산캠핑장협회";
 
   applyRoleMenus();
+  loadMemberSummary();
   const hash = location.hash.replace("#", "");
   navigate(allowedPages().includes(hash) ? hash : defaultPage(), false);
 }

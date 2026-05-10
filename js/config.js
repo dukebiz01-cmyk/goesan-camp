@@ -1,4 +1,4 @@
-export const APP_VERSION = "GCA v5.0.1 · 행사 RLS/화면 수정";
+export const APP_VERSION = "GCA v5.0.2 · 회원수/지도 복구";
 
 export const SUPABASE_URL = "https://zzglzlbxslgojntcofez.supabase.co";
 export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ";
