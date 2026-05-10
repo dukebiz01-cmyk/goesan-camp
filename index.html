@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.21-20260510-provider-link">
+<meta name="app-version" content="gca-v4.22-20260510-info-hub">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -159,6 +159,46 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .provider-empty{border:1px dashed var(--bdr);border-radius:14px;padding:18px;text-align:center;color:var(--mid);font-size:13px}
 @media(max-width:700px){.provider-directory{grid-template-columns:1fr}.provider-panel-head{flex-direction:column}.provider-related-row{grid-template-columns:62px 1fr}}
 
+.info-hero{background:linear-gradient(135deg,#0f172a,#185c42);color:#fff;border-radius:20px;padding:17px 16px;margin-bottom:12px;box-shadow:var(--s2)}
+.info-hero strong{font-family:var(--fh);font-size:19px;font-weight:900;letter-spacing:-.03em;display:block;margin-bottom:5px}
+.info-hero p{font-size:12px;line-height:1.65;opacity:.88;margin:0}
+.info-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.info-summary-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:15px;padding:12px 10px;box-shadow:var(--s1)}
+.info-summary-card b{font-family:var(--fh);font-size:20px;font-weight:900;color:var(--g);display:block;line-height:1}
+.info-summary-card span{font-size:10px;color:var(--mid);font-weight:900;margin-top:5px;display:block}
+.info-anchor-row{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px}
+.info-anchor{flex:0 0 auto;border:1px solid var(--cd);background:#fff;color:var(--mid);border-radius:999px;padding:8px 11px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.info-anchor:hover{background:var(--gp);color:var(--g)}
+.info-section{scroll-margin-top:86px}
+.fund-box{background:#fff;border:1px solid rgba(24,33,26,.08);border-radius:16px;padding:14px;box-shadow:var(--s1);margin-bottom:12px}
+.fund-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fund-item{border:1px solid var(--cd);border-radius:13px;padding:11px;background:#f8fbf7}
+.fund-item b{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--ch);display:block}
+.fund-item span{font-size:11px;color:var(--mid);font-weight:800;line-height:1.45}
+.camp-info-panel{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:18px;padding:15px;margin:12px 0;box-shadow:var(--s1)}
+.camp-info-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.camp-info-title{font-family:var(--fh);font-size:17px;font-weight:900;color:var(--ch);letter-spacing:-.03em}
+.camp-search{display:flex;align-items:center;gap:6px;background:#f6f9f5;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 11px;min-width:220px}
+.camp-search input{border:0;background:transparent;outline:0;width:100%;font-size:13px;color:var(--ch)}
+.camp-directory{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.camp-info-card{border:1px solid var(--cd);background:#fff;border-radius:14px;padding:11px;display:grid;gap:6px}
+.camp-info-card.member{border-left:4px solid var(--g)}
+.camp-info-card.nonmember{border-left:4px solid #9ca3af;background:#fafafa}
+.camp-info-name{font-size:14px;font-weight:900;color:var(--ch);line-height:1.35}
+.camp-info-meta{font-size:11px;color:var(--mid);line-height:1.5}
+.camp-badge{display:inline-flex;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:900;margin-right:4px}
+.camp-badge.member{background:var(--gp);color:var(--g)}
+.camp-badge.nonmember{background:#e5e7eb;color:#6b7280}
+.provider-tools{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.provider-search{display:flex;align-items:center;gap:6px;background:#f6f9f5;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 11px;flex:1;min-width:180px}
+.provider-search input{border:0;background:transparent;outline:0;width:100%;font-size:13px;color:var(--ch)}
+.provider-filter{display:flex;gap:5px;flex-wrap:wrap}
+.provider-filter button{border:1px solid var(--cd);background:#fff;color:var(--mid);border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer}
+.provider-filter button.active{background:var(--g);color:#fff;border-color:var(--g)}
+.provider-stats-line{font-size:11px;color:var(--mid);font-weight:800;margin-bottom:8px}
+@media(max-width:700px){.info-summary-grid{grid-template-columns:repeat(2,1fr)}.fund-grid{grid-template-columns:1fr}.camp-info-head{flex-direction:column}.camp-search{width:100%}.camp-directory{grid-template-columns:1fr}}
+
+
 
 @media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
 
@@ -254,14 +294,41 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <div class="page" id="page-info">
-    <div class="ph"><div><div class="ph-title">정보</div><div class="ph-sub">캠핑장 지도 · 국가지원금 · 행사업체 정보 · 협회 자료</div></div></div>
-    <div class="info-grid">
-      <div class="info-card"><h3>국가지원금 안내</h3><p>야영장 활성화 프로그램 관련 국비·군비·자부담 기준과 신청자료를 정리합니다.</p><div class="info-kv"><b>기본 구조</b><span>국비 40% · 군비 30% · 자부담 30%</span><b>운영 기준</b><span>공고·지침 확정 시 세부 기준 반영</span></div></div>
-      <div class="info-card"><h3>행사업체 정보</h3><p>공연, 먹거리, 체험, 활동 프로그램을 수행하는 업체·강사 정보를 모아둡니다.</p><div class="info-list"><div class="info-item"><strong>공연</strong><span>썬엔터테인먼트 / 링엔터테인먼트</span></div><div class="info-item"><strong>체험</strong><span>토탈아트 / 따봄 솜사탕 / 산촌활성화지원센터</span></div><div class="info-item"><strong>먹거리</strong><span>아산꽃차문화원 등</span></div></div></div>
-      <div class="info-card"><h3>협회 자료</h3><p>사업계획서, 견적서, 회의자료, 정산 참고자료는 기존 자료실 첨부를 그대로 활용합니다.</p><div id="info-library-list" style="margin-top:10px"><div class="loading">자료 불러오는 중...</div></div></div>
-      <div class="info-card"><h3>지도 구분</h3><p>회원 캠핑장은 초록색, 비회원·일반 등록 야영장은 회색으로 구분합니다. 비회원 데이터는 camps 테이블의 is_member=false 또는 membership_status=non_member 값을 사용합니다.</p><div class="member-legend"><span><i class="i-member"></i>협회 회원</span><span><i class="i-non"></i>비회원/일반</span><span><i class="i-selected"></i>선택/강조</span></div></div>
+    <div class="ph"><div><div class="ph-title">정보</div><div class="ph-sub">회원 캠핑장 · 지도 · 국가지원금 · 행사업체 · 협회자료를 한 곳에서 확인합니다</div></div></div>
+
+    <div class="info-hero">
+      <strong>괴산캠핑장협회 정보 허브</strong>
+      <p>이벤트에서 업체명을 누르면 이 화면의 행사업체 정보로 연결됩니다. 지도, 지원금 기준, 업체 디렉토리, 협회 자료를 분리해 캠핑협회 홈페이지처럼 정리했습니다.</p>
     </div>
-    <div class="provider-panel" id="provider-panel">
+
+    <div class="info-summary-grid">
+      <div class="info-summary-card"><b id="info-sum-member">-</b><span>회원 캠핑장</span></div>
+      <div class="info-summary-card"><b id="info-sum-nonmember">-</b><span>비회원/일반</span></div>
+      <div class="info-summary-card"><b id="info-sum-provider">-</b><span>행사업체·강사</span></div>
+      <div class="info-summary-card"><b id="info-sum-files">-</b><span>협회 자료</span></div>
+    </div>
+
+    <div class="info-anchor-row">
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('info-map-section')">지도</button>
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('info-camp-section')">캠핑장 목록</button>
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('info-fund-section')">국가지원금</button>
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('provider-panel')">행사업체</button>
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('info-library-section')">협회 자료</button>
+    </div>
+
+    <div class="info-section" id="info-fund-section">
+      <div class="fund-box">
+        <div class="camp-info-title">국가지원금 안내</div>
+        <p style="font-size:12px;color:var(--mid);line-height:1.65;margin-top:5px">야영장 활성화 프로그램의 기본 재원 구조와 운영 참고사항입니다. 실제 신청·정산 기준은 군청 공고 및 지침 확정본을 우선합니다.</p>
+        <div class="fund-grid">
+          <div class="fund-item"><b>국비 40%</b><span>정부 지원분. 사업 목적과 집행 기준에 맞춰 사용</span></div>
+          <div class="fund-item"><b>군비 30%</b><span>괴산군 지원분. 지역 관광 활성화 취지 반영</span></div>
+          <div class="fund-item"><b>자부담 30%</b><span>사업체 부담분. 정산자료와 증빙 관리 필요</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section provider-panel" id="provider-panel">
       <div class="provider-panel-head">
         <div>
           <div class="provider-panel-title">행사업체 정보</div>
@@ -269,17 +336,52 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
         </div>
         <button type="button" class="provider-reset" onclick="clearProviderSelection()">전체 업체 보기</button>
       </div>
+      <div class="provider-tools">
+        <label class="provider-search">🔎 <input id="provider-search" type="search" placeholder="업체명·콘텐츠 검색"></label>
+        <div class="provider-filter" id="provider-filter">
+          <button type="button" class="active" data-provider-cat="all">전체</button>
+          <button type="button" data-provider-cat="공연">공연</button>
+          <button type="button" data-provider-cat="먹거리">먹거리</button>
+          <button type="button" data-provider-cat="체험">체험</button>
+          <button type="button" data-provider-cat="활동">활동</button>
+        </div>
+      </div>
+      <div class="provider-stats-line" id="provider-stats-line">업체 정보 로딩 중</div>
       <div id="provider-selected-box"></div>
       <div id="provider-directory"><div class="provider-empty">행사 데이터를 불러오면 업체 정보가 표시됩니다.</div></div>
     </div>
-    <div class="map-note">지도는 협회 회원 캠핑장과 비회원 캠핑장을 함께 표시할 수 있게 구성했습니다. 현재 DB에 비회원 데이터가 없으면 회원 캠핑장만 표시됩니다.</div>
-    <div class="map-stats">
-      <div class="map-stat"><div class="map-stat-n" id="stat-total">-</div><div class="map-stat-l">총 야영장</div></div>
-      <div class="map-stat"><div class="map-stat-n" id="stat-regions">-</div><div class="map-stat-l">회원 캠핑장</div></div>
-      <div class="map-stat"><div class="map-stat-n" id="stat-main">-</div><div class="map-stat-l">비회원 캠핑장</div></div>
+
+    <div class="info-section camp-info-panel" id="info-camp-section">
+      <div class="camp-info-head">
+        <div>
+          <div class="camp-info-title">캠핑장 목록</div>
+          <div class="provider-panel-sub">회원 캠핑장과 비회원·일반 등록 야영장을 구분해서 표시합니다.</div>
+        </div>
+        <label class="camp-search">🔎 <input id="camp-info-search" type="search" placeholder="캠핑장명·지역·주소 검색"></label>
+      </div>
+      <div id="camp-info-list"><div class="provider-empty">캠핑장 데이터를 불러오는 중입니다.</div></div>
     </div>
-    <div id="assoc-map"></div>
-    <div class="region-legend" id="region-legend"><div class="region-legend-t">📍 지역/회원 구분</div></div>
+
+    <div class="info-section" id="info-library-section">
+      <div class="info-card" style="margin-bottom:12px">
+        <h3>협회 자료</h3>
+        <p>사업계획서, 견적서, 회의자료, 정산 참고자료는 기존 첨부자료를 그대로 활용합니다.</p>
+        <div id="info-library-list" style="margin-top:10px"><div class="loading">자료 불러오는 중...</div></div>
+      </div>
+    </div>
+
+    <div class="info-section" id="info-map-section">
+      <div class="map-note">지도는 협회 회원 캠핑장과 비회원 캠핑장을 함께 표시할 수 있게 구성했습니다. 현재 DB에 비회원 데이터가 없으면 회원 캠핑장만 표시됩니다.</div>
+      <div class="member-legend"><span><i class="i-member"></i>협회 회원</span><span><i class="i-non"></i>비회원/일반</span><span><i class="i-selected"></i>선택/강조</span></div>
+      <div class="map-stats">
+        <div class="map-stat"><div class="map-stat-n" id="stat-total">-</div><div class="map-stat-l">총 캠핑장</div></div>
+        <div class="map-stat"><div class="map-stat-n" id="stat-regions">-</div><div class="map-stat-l">면 단위 분포</div></div>
+        <div class="map-stat"><div class="map-stat-n" id="stat-main">-</div><div class="map-stat-l">최다 지역</div></div>
+      </div>
+      <div id="assoc-map"></div>
+      <div class="region-legend" id="region-legend"><div class="region-legend-t">📍 면별 색상</div></div>
+      <div id="map-fallback-list"></div>
+    </div>
   </div>
 
   <nav class="bnav">
@@ -302,7 +404,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.21 · 2026.05.10 · 행사 업체 연결</div>
+<div class="version-mark" id="version-mark">GCA v4.22 · 2026.05.10 · 정보 허브 강화</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -313,7 +415,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.21 · 2026.05.10 · 행사 업체 연결';
+const APP_VERSION='GCA v4.22 · 2026.05.10 · 정보 허브 강화';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -324,6 +426,9 @@ let _evFilter='upcoming';
 let _evMonth='all';
 let _evCamp='all';
 let _selectedProvider='';
+let _providerSearch='';
+let _providerCat='all';
+let _campInfoSearch='';
 const _actionLocks=new Set();
 let _currentPage='notices';
 let campLayer=null;
@@ -1383,7 +1488,7 @@ async function loadInfoLibraryPreview(){
     if(error){box.innerHTML='<div class="errm" style="padding:8px;text-align:left">자료 연결 확인 필요: '+esc(error.message)+'</div>';return;}
     if(!data||!data.length){box.innerHTML='<div style="font-size:12px;color:var(--mid)">등록된 첨부자료가 없습니다.</div>';return;}
     const rows=await Promise.all(data.map(async f=>{const url=await getAttachmentUrl(f);return '<div class="info-item"><strong>'+esc(f.file_name)+'</strong><span>'+esc(f.target_type||'자료')+' · '+fd(f.created_at)+'<br><a href="'+esc(url)+'" target="_blank" style="color:var(--g);font-weight:800">열기</a></span></div>';}));
-    box.innerHTML='<div class="info-list">'+rows.join('')+'</div>';
+    box.innerHTML='<div class="info-list">'+rows.join('')+'</div>'; if(g('info-sum-files'))g('info-sum-files').textContent=files.length;
   }catch(e){box.innerHTML='<div class="errm" style="padding:8px;text-align:left">자료 로딩 오류</div>';}
 }
 async function loadEventsPage(){
@@ -1393,7 +1498,10 @@ async function loadEventsPage(){
 async function loadInfoPage(){
   loadInfoLibraryPreview();
   await ensureEventsForInfo();
+  bindInfoControls();
   renderProviderDirectory();
+  renderCampInfoList();
+  updateInfoSummary();
   showAssocMap();
 }
 
@@ -1501,6 +1609,8 @@ async function showAssocMap(){
   mapEl.innerHTML='<div class="map-status">지도 데이터 불러오는 중...</div>';
   _mapCamps=await loadCampsFromDB();
   updateMapStats(_mapCamps);
+  renderCampInfoList();
+  updateInfoSummary();
   const ok=await ensureLeafletReady();
   if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.');loadEventsList();return;}
   try{
@@ -1748,13 +1858,26 @@ function providerDateText(e){
   const label=eventDateLabel(k);
   return label.big+' '+label.sub.replace('요일','');
 }
+
+function getFilteredProviderStats(){
+  const q=String(_providerSearch||'').trim().toLowerCase();
+  const cat=_providerCat||'all';
+  return getProviderStats().filter(s=>{
+    const hay=[s.provider,[...s.programs].join(' '),[...s.cats].join(' ')].join(' ').toLowerCase();
+    const okQ=!q||hay.includes(q);
+    const okCat=cat==='all'||s.cats.has(cat);
+    return okQ&&okCat;
+  });
+}
 function renderProviderDirectory(){
   const box=g('provider-directory'),selBox=g('provider-selected-box');
   if(!box||!selBox)return;
-  const stats=getProviderStats();
-  if(!stats.length){box.innerHTML='<div class="provider-empty">표시할 행사업체 정보가 없습니다.</div>';selBox.innerHTML='';return;}
+  const allStats=getProviderStats();
+  const stats=getFilteredProviderStats();
+  if(g('provider-stats-line'))g('provider-stats-line').textContent='전체 업체 '+allStats.length+'곳 · 표시 '+stats.length+'곳 · 행사 데이터 기준 자동 생성';
+  if(!allStats.length){box.innerHTML='<div class="provider-empty">표시할 행사업체 정보가 없습니다.</div>';selBox.innerHTML='';return;}
   const selected=_selectedProvider||'';
-  const current=stats.find(s=>s.provider===selected);
+  const current=allStats.find(s=>s.provider===selected);
   if(current){
     const evs=[...current.events].sort((a,b)=>eventSortValue(a).localeCompare(eventSortValue(b))||eventCategoryRank(a)-eventCategoryRank(b)||(a._program||'').localeCompare(b._program||'','ko'));
     const upcoming=evs.filter(e=>!e.event_date||eventDateKey(e)>=todayLocalDate()).slice(0,10);
@@ -1763,6 +1886,7 @@ function renderProviderDirectory(){
   }else{
     selBox.innerHTML='<div class="provider-selected"><h3>행사업체 디렉토리</h3><div class="provider-panel-sub">업체명을 누르면 관련 행사 일정과 담당 콘텐츠가 표시됩니다. 이벤트 행사달력의 업체명에서도 바로 이동할 수 있습니다.</div></div>';
   }
+  if(!stats.length){box.innerHTML='<div class="provider-empty">검색 조건에 맞는 업체가 없습니다.</div>';return;}
   box.innerHTML='<div class="provider-directory">'+stats.map(s=>{
     const active=s.provider===selected?' active':'';
     const cats=[...s.cats].slice(0,3).map(c=>'<span class="provider-tag">'+esc(c)+'</span>').join('');
@@ -1775,12 +1899,59 @@ async function openProviderInfo(provider){
   if(_currentPage!=='info')nav('info');
   await ensureEventsForInfo();
   renderProviderDirectory();
+  updateInfoSummary();
   setTimeout(()=>{const el=g('provider-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},180);
 }
 function clearProviderSelection(){
   _selectedProvider='';
   renderProviderDirectory();
   setTimeout(()=>{const el=g('provider-panel');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+function bindInfoControls(){
+  const ps=g('provider-search');
+  if(ps&&!ps._bound){ps._bound=1;ps.addEventListener('input',()=>{_providerSearch=ps.value;renderProviderDirectory();});}
+  document.querySelectorAll('[data-provider-cat]').forEach(btn=>{
+    if(btn._bound)return;btn._bound=1;
+    btn.addEventListener('click',()=>{
+      _providerCat=btn.dataset.providerCat||'all';
+      document.querySelectorAll('[data-provider-cat]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderProviderDirectory();
+    });
+  });
+  const cs=g('camp-info-search');
+  if(cs&&!cs._bound){cs._bound=1;cs.addEventListener('input',()=>{_campInfoSearch=cs.value;renderCampInfoList();});}
+}
+function scrollInfoSection(id){
+  const el=g(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function getCampInfoRows(){
+  const camps=(_mapCamps&&_mapCamps.length?_mapCamps:MEMBER_CAMPS.map(c=>({...c,m:true})));
+  const q=String(_campInfoSearch||'').trim().toLowerCase();
+  return camps.filter(c=>{
+    const hay=[c.n,c.c,c.a,c.o,c.e,c.phone,c.site,c.m===false?'비회원 일반':'회원'].join(' ').toLowerCase();
+    return !q||hay.includes(q);
+  }).sort((a,b)=>(a.m===false)-(b.m===false)||(a.c||'').localeCompare(b.c||'ko')||(a.n||'').localeCompare(b.n||'ko'));
+}
+function renderCampInfoList(){
+  const box=g('camp-info-list');if(!box)return;
+  const rows=getCampInfoRows();
+  if(!rows.length){box.innerHTML='<div class="provider-empty">검색 조건에 맞는 캠핑장이 없습니다.</div>';return;}
+  box.innerHTML='<div class="camp-directory">'+rows.map(c=>{
+    const cls=c.m===false?'nonmember':'member';
+    const badge=c.m===false?'<span class="camp-badge nonmember">일반 등록 야영장</span>':'<span class="camp-badge member">협회 회원</span>';
+    return '<div class="camp-info-card '+cls+'"><div class="camp-info-name">'+esc(c.n||'-')+'</div><div>'+badge+'<span class="provider-tag">'+esc(c.c||'지역 미지정')+'</span></div><div class="camp-info-meta">대표/담당: '+esc(c.o||'-')+'<br>주소: '+esc(c.a||'-')+(c.phone?'<br>전화: '+esc(c.phone):'')+(c.e?'<br>이메일: '+esc(c.e):'')+(c.site?'<br><a href="'+esc(c.site)+'" target="_blank" style="color:var(--g);font-weight:900">홈페이지/예약</a>':'')+'</div></div>';
+  }).join('')+'</div>';
+}
+function updateInfoSummary(){
+  const camps=(_mapCamps&&_mapCamps.length?_mapCamps:MEMBER_CAMPS.map(c=>({...c,m:true})));
+  const member=camps.filter(c=>c.m!==false).length;
+  const non=camps.filter(c=>c.m===false).length;
+  const providers=getProviderStats().length;
+  if(g('info-sum-member'))g('info-sum-member').textContent=member;
+  if(g('info-sum-nonmember'))g('info-sum-nonmember').textContent=non;
+  if(g('info-sum-provider'))g('info-sum-provider').textContent=providers;
 }
 
 </script>
