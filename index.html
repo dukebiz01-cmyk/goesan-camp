@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.32-20260510-pc-info-upload">
+<meta name="app-version" content="gca-v4.33-20260510-goesan-travel-content">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -349,6 +349,45 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
   .info-upload-row .btn{width:100%;justify-content:center}
 }
 
+
+/* v4.33 Goesan travel content */
+.travel-panel{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:18px;padding:15px;margin:12px 0;box-shadow:var(--s1)}
+.travel-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.travel-title{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--ch);letter-spacing:-.03em}
+.travel-sub{font-size:12px;color:var(--mid);line-height:1.6;margin-top:4px}
+.travel-tools{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:10px}
+.travel-search{display:flex;align-items:center;gap:6px;background:#f6f9f5;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 11px}
+.travel-search input{border:0;background:transparent;outline:0;width:100%;font-size:13px;color:var(--ch)}
+.travel-filter{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.travel-filter button{border:1px solid var(--cd);background:#fff;color:var(--mid);border-radius:999px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer}
+.travel-filter button.active{background:var(--g);color:#fff;border-color:var(--g)}
+.travel-admin{display:none;background:#f8fbf7;border:1px solid var(--cd);border-radius:16px;padding:13px;margin:10px 0 12px}
+.travel-admin.show{display:block}
+.travel-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.travel-form-grid label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}
+.travel-form-grid input,.travel-form-grid select,.travel-form-grid textarea{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#fff;color:var(--ch);font-size:13px;outline:none}
+.travel-form-grid textarea{min-height:72px;resize:vertical}
+.travel-form-wide{grid-column:1/-1}
+.travel-form-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end;margin-top:9px;flex-wrap:wrap}
+.travel-status{display:none;margin-top:8px;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:800;line-height:1.5}
+.travel-status.show{display:block}.travel-status.ok{background:var(--gb);color:var(--green)}.travel-status.err{background:var(--rb);color:var(--red)}.travel-status.warn{background:var(--ab);color:var(--amber)}
+.travel-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.travel-card{background:#fff;border:1px solid var(--cd);border-radius:16px;overflow:hidden;box-shadow:var(--s1);display:grid;grid-template-columns:104px 1fr;min-height:122px}
+.travel-img{background:linear-gradient(135deg,#dff1e7,#f8fbf7);display:flex;align-items:center;justify-content:center;color:var(--g);font-family:var(--fh);font-weight:900;font-size:22px;min-height:122px;background-size:cover;background-position:center}
+.travel-body{padding:11px 12px;min-width:0}
+.travel-card-top{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.travel-chip{display:inline-flex;border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;background:var(--gp);color:var(--g)}
+.travel-chip.festival{background:#f3e8ff;color:#7e22ce}.travel-chip.food{background:#fee2e2;color:#b91c1c}.travel-chip.nature{background:#dcfce7;color:#15803d}.travel-chip.exp{background:#dbeafe;color:#1d4ed8}
+.travel-card-title{font-size:15px;font-weight:900;line-height:1.35;color:var(--ch);margin-bottom:5px;letter-spacing:-.02em}
+.travel-card-meta{font-size:11px;color:var(--mid);line-height:1.55}
+.travel-card-summary{font-size:12px;color:var(--ch);line-height:1.55;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.travel-card-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.travel-card-actions a,.travel-card-actions button{border:1px solid var(--cd);background:#fff;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:900;color:var(--g);text-decoration:none;cursor:pointer}
+.travel-empty{border:1px dashed var(--bdr);border-radius:14px;padding:20px;text-align:center;color:var(--mid);font-size:13px;line-height:1.6;background:#fff}
+.travel-ad-note{background:#fff8e6;border:1px solid #f1d69a;color:#92400e;border-radius:13px;padding:10px 12px;font-size:12px;line-height:1.6;margin:8px 0 10px}
+@media(max-width:700px){.travel-tools{grid-template-columns:1fr}.travel-form-grid{grid-template-columns:1fr}.travel-card-grid{grid-template-columns:1fr}.travel-card{grid-template-columns:86px 1fr}.travel-img{min-height:112px}}
+@media(min-width:900px){.travel-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.travel-form-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.travel-form-wide{grid-column:span 2}}
+
 </style>
 </head>
 <body class="login-mode">
@@ -516,6 +555,7 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
       <div class="info-summary-card"><b id="info-sum-member">-</b><span>회원 캠핑장</span></div>
       <div class="info-summary-card"><b id="info-sum-nonmember">-</b><span>비회원/일반</span></div>
       <div class="info-summary-card"><b id="info-sum-provider">-</b><span>행사업체·강사</span></div>
+      <div class="info-summary-card"><b id="info-sum-travel">-</b><span>괴산여행 콘텐츠</span></div>
       <div class="info-summary-card"><b id="info-sum-files">-</b><span>협회 자료</span></div>
     </div>
 
@@ -523,6 +563,7 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
       <button type="button" class="info-anchor" onclick="scrollInfoSection('info-map-section')">지도</button>
       <button type="button" class="info-anchor" onclick="scrollInfoSection('info-camp-section')">캠핑장 목록</button>
       <button type="button" class="info-anchor" onclick="scrollInfoSection('info-fund-section')">국가지원금</button>
+      <button type="button" class="info-anchor" onclick="scrollInfoSection('travel-panel')">괴산여행</button>
       <button type="button" class="info-anchor" onclick="scrollInfoSection('provider-panel')">행사업체</button>
       <button type="button" class="info-anchor" onclick="scrollInfoSection('info-library-section')">협회 자료</button>
     </div>
@@ -537,6 +578,67 @@ body.app-mode .version-mark{right:10px;bottom:calc(62px + env(safe-area-inset-bo
           <div class="fund-item"><b>자부담 30%</b><span>사업체 부담분. 정산자료와 증빙 관리 필요</span></div>
         </div>
       </div>
+    </div>
+
+    <div class="info-section travel-panel" id="travel-panel">
+      <div class="travel-panel-head">
+        <div>
+          <div class="travel-title">괴산여행 콘텐츠</div>
+          <div class="travel-sub">괴산군 축제·관광지·체험거리·맛집·특산품을 등록해 캠핑장 방문객에게 추천 노출합니다. 캠핑장 이용객을 괴산군 관광·상권으로 연결하는 협회형 홍보 허브입니다.</div>
+        </div>
+      </div>
+      <div class="travel-ad-note">운영 방향: 홈/MY/정보/지도에서 추천 카드로 노출하고, 관광지·축제 클릭 시 근처 캠핑장과 지도 위치를 함께 보여주는 구조로 확장합니다.</div>
+      <div class="travel-tools">
+        <label class="travel-search">🔎 <input id="travel-search" type="search" placeholder="축제·관광지·맛집·체험 검색"></label>
+        <button type="button" class="provider-reset" onclick="clearTravelFilters()">전체 보기</button>
+      </div>
+      <div class="travel-filter" id="travel-filter">
+        <button type="button" class="active" data-travel-cat="all">전체</button>
+        <button type="button" data-travel-cat="축제">축제</button>
+        <button type="button" data-travel-cat="관광지">관광지</button>
+        <button type="button" data-travel-cat="체험">체험</button>
+        <button type="button" data-travel-cat="맛집">맛집</button>
+        <button type="button" data-travel-cat="카페">카페</button>
+        <button type="button" data-travel-cat="특산품">특산품</button>
+        <button type="button" data-travel-cat="계곡·자연">계곡·자연</button>
+      </div>
+
+      <div class="travel-admin" id="travel-admin">
+        <div class="info-upload-title">관리자 관광콘텐츠 등록</div>
+        <div class="info-upload-sub">축제, 관광지, 체험, 맛집, 특산품을 등록하면 정보 메뉴와 지도에 노출됩니다.</div>
+        <div class="travel-form-grid">
+          <label>콘텐츠명<input id="travel-title-input" placeholder="예: 산막이옛길 주말 코스"></label>
+          <label>분류<select id="travel-category-input">
+            <option value="축제">축제</option>
+            <option value="관광지">관광지</option>
+            <option value="체험">체험</option>
+            <option value="맛집">맛집</option>
+            <option value="카페">카페</option>
+            <option value="특산품">특산품</option>
+            <option value="계곡·자연">계곡·자연</option>
+            <option value="상권">상권</option>
+            <option value="가족추천">가족추천</option>
+            <option value="반려견추천">반려견추천</option>
+          </select></label>
+          <label>지역<input id="travel-region-input" placeholder="예: 청천"></label>
+          <label>주소<input id="travel-address-input" placeholder="주소"></label>
+          <label>위도<input id="travel-lat-input" inputmode="decimal" placeholder="36.0000"></label>
+          <label>경도<input id="travel-lng-input" inputmode="decimal" placeholder="127.0000"></label>
+          <label>시작일<input id="travel-start-input" type="date"></label>
+          <label>종료일<input id="travel-end-input" type="date"></label>
+          <label class="travel-form-wide">한줄소개<input id="travel-summary-input" placeholder="캠핑장 방문객에게 보여줄 짧은 소개"></label>
+          <label>관련링크<input id="travel-link-input" placeholder="홈페이지 또는 예약 링크"></label>
+          <label>문의처<input id="travel-phone-input" placeholder="전화번호"></label>
+          <label>대표이미지<input id="travel-image-input" type="file" accept="image/*"></label>
+          <label class="travel-form-wide">상세설명<textarea id="travel-desc-input" placeholder="상세 설명, 추천 코스, 유의사항 등"></textarea></label>
+        </div>
+        <div class="travel-form-actions">
+          <button type="button" class="btn bo btn-sm" onclick="resetTravelForm()">초기화</button>
+          <button type="button" class="btn bp btn-sm" id="travel-save-btn" onclick="submitTravelContent()">콘텐츠 등록</button>
+        </div>
+        <div id="travel-status" class="travel-status"></div>
+      </div>
+      <div id="travel-list"><div class="loading">괴산여행 콘텐츠 불러오는 중...</div></div>
     </div>
 
     <div class="info-section provider-panel" id="provider-panel">
@@ -634,7 +736,7 @@ GCA v4.18 EVENT MENU CLEANUP
 범위: 로그인 / 공지 / 안건 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.32 · 2026.05.10 · PC반응형/정보자료업로드</div>
+<div class="version-mark" id="version-mark">GCA v4.33 · 2026.05.10 · 괴산여행 콘텐츠 관리</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -652,13 +754,16 @@ const db=createClient(SUPA_URL,SUPA_KEY,{
   }
 });
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.32 · 2026.05.10 · PC반응형/정보자료업로드';
+const APP_VERSION='GCA v4.33 · 2026.05.10 · 괴산여행 콘텐츠 관리';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
 let assocMapInstance=null;
 let _mapCamps=[];
 let _touristSpots=[];
+let _travelItems=[];
+let _travelCat='all';
+let _travelSearch='';
 let _allEvents=[];
 let _evFilter='upcoming';
 let _evMonth='all';
@@ -2220,11 +2325,215 @@ async function renderMyDocs(){
     box.innerHTML='<div class="errm">서류 목록 오류: '+esc(errMsg(e))+'</div>';
   }
 }
+
+const TRAVEL_CONTENT_DEFAULT=[
+  {id:'default-sanmaki',title:'산막이옛길',category:'관광지',region:'칠성',address:'칠성면 산막이옛길 일원',lat:36.7565,lng:127.8336,summary:'괴산 대표 걷기 관광지. 캠핑장 방문객에게 추천하기 좋은 수변 산책 코스입니다.',description:'괴산호와 함께 둘러보기 좋은 대표 관광지입니다.',link_url:'',phone:'',is_default:true},
+  {id:'default-goesanho',title:'괴산호',category:'계곡·자연',region:'칠성',address:'칠성면 괴산호 일원',lat:36.7601,lng:127.8352,summary:'산막이옛길과 연계 가능한 수변 관광지입니다.',description:'캠핑 후 가볍게 들르기 좋은 자연 관광 포인트입니다.',link_url:'',phone:'',is_default:true},
+  {id:'default-hwayang',title:'화양구곡',category:'계곡·자연',region:'청천',address:'청천면 화양동 일원',lat:36.6655,lng:127.8132,summary:'청천권 대표 자연 관광지. 계곡·숲·산책 코스와 연계하기 좋습니다.',description:'청천면 캠핑장 방문객에게 추천할 수 있는 자연 관광지입니다.',link_url:'',phone:'',is_default:true},
+  {id:'default-ssanggok',title:'쌍곡계곡',category:'계곡·자연',region:'칠성',address:'칠성면 쌍곡리 일원',lat:36.7495,lng:127.8892,summary:'칠성권 캠핑장과 함께 방문하기 좋은 계곡 관광지입니다.',description:'물놀이·계곡 관광 수요와 캠핑장을 연결할 수 있습니다.',link_url:'',phone:'',is_default:true},
+  {id:'default-suoak',title:'수옥폭포',category:'관광지',region:'연풍',address:'연풍면 원풍리 일원',lat:36.8326,lng:128.0312,summary:'연풍권 대표 폭포 관광지입니다.',description:'자연경관 중심의 괴산 여행 코스로 활용 가능합니다.',link_url:'',phone:'',is_default:true},
+  {id:'default-mungwang',title:'문광저수지',category:'관광지',region:'문광',address:'문광면 양곡리 일원',lat:36.7890,lng:127.7810,summary:'저수지와 산책 코스를 중심으로 한 괴산 관광 포인트입니다.',description:'계절별 사진·산책 코스로 추천할 수 있습니다.',link_url:'',phone:'',is_default:true}
+];
+function normalizeTravel(row){
+  return {
+    id:row.id||row.content_id||row.title,
+    title:row.title||row.content_name||row.name||'',
+    category:row.category||row.content_type||'관광지',
+    region:row.region||row.area||'',
+    address:row.address||row.addr||'',
+    lat:Number(row.lat??row.latitude),
+    lng:Number(row.lng??row.lon??row.longitude),
+    start_date:row.start_date||row.event_start||null,
+    end_date:row.end_date||row.event_end||null,
+    summary:row.summary||row.short_description||row.description||'',
+    description:row.description||'',
+    link_url:row.link_url||row.url||row.website||'',
+    phone:row.phone||row.tel||'',
+    image_url:row.image_url||'',
+    image_bucket:row.image_bucket||row.bucket||'',
+    image_path:row.image_path||row.file_path||'',
+    is_featured:row.is_featured||false,
+    display_order:Number(row.display_order||0),
+    is_default:row.is_default||false
+  };
+}
+async function loadTravelContents(){
+  try{
+    const {data,error}=await db.from('travel_contents').select('*').eq('is_active',true).order('display_order',{ascending:true}).order('created_at',{ascending:false});
+    if(error){console.warn('travel_contents fallback:',error.message);_travelItems=TRAVEL_CONTENT_DEFAULT.map(normalizeTravel);return _travelItems;}
+    const rows=(data||[]).map(normalizeTravel);
+    _travelItems=rows.length?rows:TRAVEL_CONTENT_DEFAULT.map(normalizeTravel);
+  }catch(e){
+    console.warn('travel_contents exception:',e);
+    _travelItems=TRAVEL_CONTENT_DEFAULT.map(normalizeTravel);
+  }
+  return _travelItems;
+}
+function bindTravelControls(){
+  const search=g('travel-search');
+  if(search&&!search._bound){search._bound=1;search.addEventListener('input',()=>{_travelSearch=search.value;renderTravelSection();});}
+  document.querySelectorAll('[data-travel-cat]').forEach(btn=>{
+    if(btn._bound)return;btn._bound=1;
+    btn.addEventListener('click',()=>{
+      _travelCat=btn.dataset.travelCat||'all';
+      document.querySelectorAll('[data-travel-cat]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTravelSection();
+    });
+  });
+}
+function clearTravelFilters(){
+  _travelCat='all';_travelSearch='';
+  const s=g('travel-search');if(s)s.value='';
+  document.querySelectorAll('[data-travel-cat]').forEach(b=>b.classList.toggle('active',b.dataset.travelCat==='all'));
+  renderTravelSection();
+}
+function getFilteredTravel(){
+  const q=String(_travelSearch||'').trim().toLowerCase();
+  const cat=_travelCat||'all';
+  return (_travelItems||[]).filter(item=>{
+    const okCat=cat==='all'||item.category===cat;
+    const hay=[item.title,item.category,item.region,item.address,item.summary,item.description].join(' ').toLowerCase();
+    const okQ=!q||hay.includes(q);
+    return okCat&&okQ;
+  }).sort((a,b)=>(b.is_featured?1:0)-(a.is_featured?1:0)||a.display_order-b.display_order||(a.title||'').localeCompare(b.title||'','ko'));
+}
+function travelCategoryClass(cat){
+  if(cat==='축제')return 'festival';
+  if(cat==='맛집'||cat==='카페'||cat==='특산품')return 'food';
+  if(cat==='계곡·자연'||cat==='관광지')return 'nature';
+  if(cat==='체험')return 'exp';
+  return '';
+}
+function travelDateLabel(item){
+  if(item.start_date&&item.end_date&&item.start_date!==item.end_date)return String(item.start_date).slice(0,10)+' ~ '+String(item.end_date).slice(0,10);
+  if(item.start_date)return String(item.start_date).slice(0,10);
+  return '상시';
+}
+async function travelImageStyle(item){
+  if(item.image_url)return "background-image:url('"+esc(item.image_url)+"')";
+  if(item.image_path){
+    try{
+      const {data,error}=await db.storage.from(item.image_bucket||STORAGE_BUCKET).createSignedUrl(item.image_path,60*10);
+      if(!error&&data?.signedUrl)return "background-image:url('"+esc(data.signedUrl)+"')";
+    }catch(e){}
+  }
+  return '';
+}
+function openTravelMap(title,lat,lng){
+  if(Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))){
+    window.open('https://map.kakao.com/link/map/'+encodeURIComponent(title||'괴산여행')+','+lat+','+lng,'_blank');
+  }
+}
+async function renderTravelSection(){
+  const adminBox=g('travel-admin');if(adminBox)adminBox.classList.toggle('show',App.role==='admin');
+  const box=g('travel-list');if(!box)return;
+  const items=getFilteredTravel();
+  if(g('info-sum-travel'))g('info-sum-travel').textContent=(_travelItems||[]).length;
+  if(!items.length){box.innerHTML='<div class="travel-empty">표시할 괴산여행 콘텐츠가 없습니다.</div>';return;}
+  const cards=await Promise.all(items.map(async item=>{
+    const style=await travelImageStyle(item);
+    const chipClass=travelCategoryClass(item.category);
+    const img=style?'<div class="travel-img" style="'+style+'"></div>':'<div class="travel-img">'+esc((item.category||'관').charAt(0))+'</div>';
+    const mapBtn=(Number.isFinite(item.lat)&&Number.isFinite(item.lng))?'<button type="button" onclick="openTravelMap(\''+jsq(item.title)+'\','+item.lat+','+item.lng+')">지도</button>':'';
+    const linkBtn=item.link_url?'<a href="'+esc(item.link_url)+'" target="_blank">링크</a>':'';
+    const delBtn=(App.role==='admin'&&!item.is_default)?'<button type="button" onclick="deleteTravelContent(\''+jsq(item.id)+'\')">삭제</button>':'';
+    return '<div class="travel-card">'+img+'<div class="travel-body"><div class="travel-card-top"><span class="travel-chip '+chipClass+'">'+esc(item.category||'관광지')+'</span><span class="travel-chip">'+esc(item.region||'괴산')+'</span><span class="travel-chip">'+esc(travelDateLabel(item))+'</span></div><div class="travel-card-title">'+esc(item.title)+'</div><div class="travel-card-meta">📍 '+esc(item.address||'-')+(item.phone?'<br>☎ '+esc(item.phone):'')+'</div><div class="travel-card-summary">'+esc(item.summary||item.description||'설명이 없습니다')+'</div><div class="travel-card-actions">'+mapBtn+linkBtn+delBtn+'</div></div></div>';
+  }));
+  box.innerHTML='<div class="travel-card-grid">'+cards.join('')+'</div>';
+}
+function setTravelStatus(msg,type='warn'){
+  const el=g('travel-status');if(!el){toast(msg);return;}
+  el.className='travel-status show '+type;el.textContent=msg;
+}
+function resetTravelForm(){
+  ['travel-title-input','travel-region-input','travel-address-input','travel-lat-input','travel-lng-input','travel-start-input','travel-end-input','travel-summary-input','travel-link-input','travel-phone-input','travel-desc-input'].forEach(id=>{const el=g(id);if(el)el.value='';});
+  const cat=g('travel-category-input');if(cat)cat.value='축제';
+  const img=g('travel-image-input');if(img)img.value='';
+  const st=g('travel-status');if(st)st.className='travel-status';
+}
+async function submitTravelContent(){
+  if(App.role!=='admin'){toast('관리자만 등록할 수 있습니다');return;}
+  const title=v('travel-title-input');
+  if(!title){setTravelStatus('콘텐츠명을 입력하세요','err');return;}
+  const btn=g('travel-save-btn'),img=g('travel-image-input');
+  if(_actionLocks.has('travelSave'))return;
+  _actionLocks.add('travelSave');
+  if(btn){btn.disabled=true;btn.textContent='등록 중...';}
+  load(true);
+  try{
+    setTravelStatus('콘텐츠 저장 중...','warn');
+    let image_path=null,image_bucket=null;
+    const file=img&&img.files&&img.files[0]?img.files[0]:null;
+    if(file){
+      if(file.size>15*1024*1024)throw new Error('대표이미지는 15MB 이하만 업로드하세요');
+      const safeName=file.name.replace(/[^a-zA-Z0-9가-힣._-]/g,'_');
+      const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(16).slice(2));
+      image_path='travel/'+uid+'_'+safeName;
+      image_bucket=STORAGE_BUCKET;
+      const {error:ue}=await db.storage.from(STORAGE_BUCKET).upload(image_path,file,{cacheControl:'3600',upsert:false});
+      if(ue)throw ue;
+    }
+    const payload={
+      title,
+      category:v('travel-category-input')||'관광지',
+      region:v('travel-region-input')||null,
+      address:v('travel-address-input')||null,
+      lat:v('travel-lat-input')?Number(v('travel-lat-input')):null,
+      lng:v('travel-lng-input')?Number(v('travel-lng-input')):null,
+      start_date:v('travel-start-input')||null,
+      end_date:v('travel-end-input')||null,
+      summary:v('travel-summary-input')||null,
+      description:v('travel-desc-input')||null,
+      link_url:v('travel-link-input')||null,
+      phone:v('travel-phone-input')||null,
+      image_bucket,
+      image_path,
+      is_featured:false,
+      is_active:true,
+      created_by:App.member?.id||null
+    };
+    const {data,error}=await db.from('travel_contents').insert(payload).select('*').maybeSingle();
+    if(error)throw error;
+    setTravelStatus('괴산여행 콘텐츠 등록 완료','ok');
+    resetTravelForm();
+    await loadTravelContents();
+    renderTravelSection();
+    showAssocMap();
+    toast('괴산여행 콘텐츠 등록 완료');
+  }catch(e){
+    console.error('travel save error',e);
+    setTravelStatus('등록 오류: '+errMsg(e),'err');
+    alert('괴산여행 콘텐츠 등록 오류: '+errMsg(e)+'\\n\\ntravel_contents 테이블 SQL을 먼저 실행했는지 확인하세요.');
+  }finally{
+    load(false);
+    _actionLocks.delete('travelSave');
+    if(btn){btn.disabled=false;btn.textContent='콘텐츠 등록';}
+  }
+}
+async function deleteTravelContent(id){
+  if(App.role!=='admin'){toast('관리자만 삭제할 수 있습니다');return;}
+  if(!confirm('이 괴산여행 콘텐츠를 숨김 처리하시겠습니까?'))return;
+  load(true);
+  try{
+    const {error}=await db.from('travel_contents').update({is_active:false}).eq('id',id);
+    if(error)throw error;
+    await loadTravelContents();
+    renderTravelSection();
+    showAssocMap();
+    toast('콘텐츠 숨김 처리 완료');
+  }catch(e){
+    alert('콘텐츠 삭제 오류: '+errMsg(e));
+  }finally{load(false);}
+}
 async function loadInfoPage(){
   loadInfoLibraryPreview();
   await ensureEventsForInfo();
   await loadProviderContacts(true);
+  await loadTravelContents();
   bindInfoControls();
+  bindTravelControls();
+  renderTravelSection();
   renderProviderDirectory();
   renderCampInfoList();
   updateInfoSummary();
@@ -2531,11 +2840,14 @@ async function showAssocMap(){
   mapEl.innerHTML='<div class="map-status">괴산군 캠핑장·관광지 지도 데이터 불러오는 중...</div>';
   _mapCamps=await loadCampsFromDB();
   _touristSpots=await loadTouristSpotsFromDB();
-  updateMapStats(_mapCamps,_touristSpots);
+  if(!_travelItems||!_travelItems.length)await loadTravelContents();
+  const travelSpots=(_travelItems||[]).filter(t=>Number.isFinite(t.lat)&&Number.isFinite(t.lng)).map(t=>({n:t.title,lat:t.lat,lng:t.lng,type:t.category||'괴산여행',a:t.address||'',memo:t.summary||'',site:t.link_url||''}));
+  const mapSpots=[..._touristSpots,...travelSpots];
+  updateMapStats(_mapCamps,mapSpots);
   renderCampInfoList();
   updateInfoSummary();
   const ok=await ensureLeafletReady();
-  if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.',_touristSpots);loadEventsList();return;}
+  if(!ok){renderStaticMapFallback(_mapCamps,'Leaflet 지도 라이브러리를 불러오지 못했습니다. 인터넷 연결, CDN 차단, 브라우저 보안 설정을 확인하세요.',mapSpots);loadEventsList();return;}
   try{
     if(assocMapInstance){try{assocMapInstance.remove();}catch(e){} assocMapInstance=null;campLayer=null;touristLayer=null;}
     mapEl.innerHTML='';
@@ -2544,13 +2856,13 @@ async function showAssocMap(){
     tile.on('tileerror',()=>{console.warn('map tile load error')});
     tile.addTo(assocMapInstance);
     renderCampMarkers(_mapCamps);
-    renderTouristMarkers(_touristSpots);
-    const allPts=[..._mapCamps.map(c=>[c.lat,c.lng]),..._touristSpots.map(s=>[s.lat,s.lng])].filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1]));
+    renderTouristMarkers(mapSpots);
+    const allPts=[..._mapCamps.map(c=>[c.lat,c.lng]),...mapSpots.map(s=>[s.lat,s.lng])].filter(p=>Number.isFinite(p[0])&&Number.isFinite(p[1]));
     if(allPts.length){try{assocMapInstance.fitBounds(L.latLngBounds(allPts),{padding:[40,40]});}catch(e){}}
     [80,220,500,900].forEach(ms=>setTimeout(()=>{try{assocMapInstance&&assocMapInstance.invalidateSize();}catch(e){}},ms));
   }catch(e){
     console.error('map init error:',e);
-    renderStaticMapFallback(_mapCamps,'지도 초기화 중 오류가 발생했습니다: '+errMsg(e),_touristSpots);
+    renderStaticMapFallback(_mapCamps,'지도 초기화 중 오류가 발생했습니다: '+errMsg(e),mapSpots);
   }
   loadEventsList();
 }
@@ -2978,6 +3290,7 @@ function updateInfoSummary(){
   if(g('info-sum-member'))g('info-sum-member').textContent=member;
   if(g('info-sum-nonmember'))g('info-sum-nonmember').textContent=non;
   if(g('info-sum-provider'))g('info-sum-provider').textContent=providers;
+  if(g('info-sum-travel'))g('info-sum-travel').textContent=(_travelItems||[]).length;
 }
 
 </script>
