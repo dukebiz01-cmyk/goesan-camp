@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="괴산캠핑장">
 <meta name="mobile-web-app-capable" content="yes">
 <title>괴산캠핑장협회</title>
-<meta name="app-version" content="gca-v4.23-20260510-member-register-fix">
+<meta name="app-version" content="gca-v4.24-20260510-member-my">
 <script>
 !function(){
   var c=document.createElement('canvas');c.width=c.height=192;
@@ -198,6 +198,49 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 .provider-stats-line{font-size:11px;color:var(--mid);font-weight:800;margin-bottom:8px}
 @media(max-width:700px){.info-summary-grid{grid-template-columns:repeat(2,1fr)}.fund-grid{grid-template-columns:1fr}.camp-info-head{flex-direction:column}.camp-search{width:100%}.camp-directory{grid-template-columns:1fr}}
 
+.my-hero{background:linear-gradient(135deg,#185c42,#0f172a);color:#fff;border-radius:20px;padding:18px 16px;margin-bottom:12px;box-shadow:var(--s2)}
+.my-hero strong{font-family:var(--fh);font-size:20px;font-weight:900;letter-spacing:-.03em;display:block;margin-bottom:5px}
+.my-hero p{font-size:12px;line-height:1.65;opacity:.88;margin:0}
+.my-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.my-summary-card{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:15px;padding:12px 10px;box-shadow:var(--s1)}
+.my-summary-card b{font-family:var(--fh);font-size:20px;font-weight:900;color:var(--g);display:block;line-height:1}
+.my-summary-card span{font-size:10px;color:var(--mid);font-weight:900;margin-top:5px;display:block}
+.my-section{background:var(--w);border:1px solid rgba(24,33,26,.08);border-radius:18px;padding:15px;margin-bottom:12px;box-shadow:var(--s1)}
+.my-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.my-section-title{font-family:var(--fh);font-size:17px;font-weight:900;letter-spacing:-.03em;color:var(--ch)}
+.my-section-sub{font-size:12px;color:var(--mid);line-height:1.55;margin-top:3px}
+.my-event-list{display:grid;gap:8px}
+.my-event-row{display:grid;grid-template-columns:68px 1fr;gap:10px;background:#fff;border:1px solid var(--cd);border-radius:14px;padding:10px;align-items:start}
+.my-event-date{background:#f3f8f3;border:1px solid var(--cd);border-radius:12px;padding:8px 6px;text-align:center}
+.my-event-date b{display:block;font-family:var(--fh);font-size:15px;line-height:1.1;color:var(--ch)}
+.my-event-date span{display:block;font-size:10px;font-weight:900;color:var(--mid);margin-top:3px}
+.my-event-date.ticket{background:#fff8e6;border-color:#f1d69a;color:#92400e}
+.my-event-title{font-size:15px;font-weight:900;line-height:1.35;color:var(--ch);margin-bottom:5px}
+.my-event-meta{font-size:11px;color:var(--mid);display:flex;gap:6px;flex-wrap:wrap;line-height:1.55}
+.my-event-provider{margin-top:6px;font-size:11px;color:#1e40af;font-weight:800}
+.my-empty{border:1px dashed var(--bdr);border-radius:14px;padding:22px;text-align:center;color:var(--mid);font-size:13px;line-height:1.6;background:#fff}
+.my-support-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:10px}
+.my-enara-card{background:#f8fbff;border:1px solid #bfdbfe;border-radius:16px;padding:14px}
+.my-enara-card h3{font-size:15px;font-weight:900;color:#1e40af;margin-bottom:7px}
+.my-enara-card p{font-size:12px;line-height:1.65;color:#475569;margin-bottom:9px}
+.my-link-btn{display:inline-flex;align-items:center;gap:6px;background:#1d4ed8;color:#fff;border:none;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:900;text-decoration:none}
+.my-checklist{display:grid;gap:6px;margin-top:10px}
+.my-checkitem{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--ch);line-height:1.5;background:#fff;border:1px solid var(--cd);border-radius:10px;padding:8px}
+.my-checkitem i{width:18px;height:18px;border-radius:50%;background:var(--gp);color:var(--g);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;font-weight:900;flex-shrink:0}
+.my-doc-form{background:#f8fbf7;border:1px solid var(--cd);border-radius:14px;padding:12px;margin-bottom:10px}
+.my-doc-row{display:grid;grid-template-columns:150px 1fr auto;gap:8px;align-items:end}
+.my-doc-row label{display:flex;flex-direction:column;gap:5px;font-size:10px;font-weight:900;color:var(--mid);letter-spacing:.05em;text-transform:uppercase}
+.my-doc-row select,.my-doc-row input{width:100%;border:1.5px solid var(--bdr);border-radius:12px;padding:9px 10px;background:#fff;color:var(--ch);font-size:13px;outline:none}
+.my-doc-list{display:grid;gap:7px}
+.my-doc-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid var(--cd);border-radius:12px;padding:10px}
+.my-doc-item strong{font-size:13px;color:var(--ch);line-height:1.35}
+.my-doc-item span{display:block;font-size:11px;color:var(--mid);line-height:1.5;margin-top:2px}
+.my-doc-type{display:inline-flex;background:var(--gp);color:var(--g);border-radius:999px;padding:2px 7px;font-size:10px;font-weight:900;margin-right:4px}
+.my-provider-schedule{display:grid;gap:8px}
+.my-role-note{background:#fff8e6;border:1px solid #f1d69a;color:#92400e;border-radius:14px;padding:11px 13px;font-size:12px;line-height:1.65;margin-bottom:12px}
+@media(max-width:700px){.my-summary-grid{grid-template-columns:repeat(2,1fr)}.my-support-grid{grid-template-columns:1fr}.my-doc-row{grid-template-columns:1fr}.my-doc-row .btn{width:100%;justify-content:center}}
+
+
 
 
 @media(max-width:700px){.event-summary-grid{grid-template-columns:repeat(2,1fr)}.event-select-row{grid-template-columns:1fr}.event-mini{grid-template-columns:1fr}.event-mini .ev-status{justify-self:flex-start}}
@@ -270,7 +313,77 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
     </button>
   </div>
 
-  <div class="page active" id="page-notices">
+  <div class="page active" id="page-my">
+    <div class="ph"><div><div class="ph-title">MY</div><div class="ph-sub">내 캠핑장 행사 · 보조사업 서류함 · e나라도움 등록 지원</div></div></div>
+
+    <div class="my-hero">
+      <strong id="my-hero-title">내 보조사업 실행판</strong>
+      <p id="my-hero-sub">회원은 본인 캠핑장 행사와 제출서류를 확인하고, e나라도움 등록에 필요한 자료를 정리할 수 있습니다.</p>
+    </div>
+
+    <div class="my-summary-grid">
+      <div class="my-summary-card"><b id="my-sum-events">-</b><span>내 행사</span></div>
+      <div class="my-summary-card"><b id="my-sum-upcoming">-</b><span>다가오는 행사</span></div>
+      <div class="my-summary-card"><b id="my-sum-docs">-</b><span>업로드 서류</span></div>
+      <div class="my-summary-card"><b id="my-sum-role">-</b><span>계정 역할</span></div>
+    </div>
+
+    <div id="my-role-note"></div>
+
+    <div class="my-section" id="my-events-section">
+      <div class="my-section-head">
+        <div><div class="my-section-title">다가오는 행사</div><div class="my-section-sub">본인 캠핑장 기준 행사 일정입니다. 업체명을 누르면 정보 메뉴의 행사업체 정보로 이동합니다.</div></div>
+        <a href="#" onclick="nav('events');return false;" class="btn bo btn-sm">전체 행사 보기</a>
+      </div>
+      <div id="my-events-list"><div class="loading">내 행사 불러오는 중...</div></div>
+    </div>
+
+    <div class="my-section">
+      <div class="my-section-head">
+        <div><div class="my-section-title">e나라도움 등록 지원</div><div class="my-section-sub">자동 등록이 아니라, 제출자료를 정리해서 e나라도움에 직접 등록할 수 있게 돕는 영역입니다.</div></div>
+      </div>
+      <div class="my-support-grid">
+        <div class="my-enara-card">
+          <h3>e나라도움 바로가기</h3>
+          <p>국고보조금 관련 등록·집행·정산 업무는 e나라도움에서 진행합니다. 아래 버튼으로 공식 사이트를 열고, 이 페이지의 서류함에서 필요한 자료를 확인하세요.</p>
+          <a class="my-link-btn" href="https://www.gosims.go.kr" target="_blank" rel="noopener">e나라도움 열기</a>
+        </div>
+        <div class="my-enara-card">
+          <h3>등록 전 체크리스트</h3>
+          <div class="my-checklist">
+            <div class="my-checkitem"><i>1</i><span>사업계획서 또는 행사계획안 준비</span></div>
+            <div class="my-checkitem"><i>2</i><span>견적서·업체자료·통장사본 등 증빙자료 확인</span></div>
+            <div class="my-checkitem"><i>3</i><span>행사 사진·결과자료·지출증빙은 행사 후 추가 업로드</span></div>
+            <div class="my-checkitem"><i>4</i><span>최종 등록 전 협회 관리자에게 검토 요청</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="my-section" id="my-doc-section">
+      <div class="my-section-head">
+        <div><div class="my-section-title">보조사업 서류함</div><div class="my-section-sub">사업계획서, 견적서, 업체자료, 행사사진, 지출증빙, 정산자료를 캠핑장별로 올려두는 공간입니다.</div></div>
+      </div>
+      <div class="my-doc-form">
+        <div class="my-doc-row">
+          <label>서류종류<select id="my-doc-type">
+            <option value="사업계획서">사업계획서</option>
+            <option value="견적서">견적서</option>
+            <option value="업체자료">업체자료</option>
+            <option value="행사사진">행사사진</option>
+            <option value="지출증빙">지출증빙</option>
+            <option value="정산자료">정산자료</option>
+            <option value="기타">기타</option>
+          </select></label>
+          <label>파일선택<input type="file" id="my-doc-file" multiple></label>
+          <button class="btn bp btn-sm" id="my-doc-upload-btn" onclick="submitMyDoc()">업로드</button>
+        </div>
+      </div>
+      <div id="my-doc-list"><div class="loading">서류 목록 불러오는 중...</div></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-notices">
     <div class="ph"><div><div class="ph-title">공지</div><div class="ph-sub">협회 공식 알림 · 회의 안내 · 첨부자료를 한 곳에서 확인합니다</div></div><button class="btn bp btn-sm" id="btn-notice" style="display:none" onclick="openModal('notice')">+ 작성</button></div>
     <div style="display:flex;gap:7px;margin-bottom:12px"><a id="kk-oc" href="#" target="_blank" class="btn bk btn-sm">💬 오픈채팅</a><a id="kk-ch" href="#" target="_blank" class="btn bk btn-sm">📣 협회채널</a></div>
     <div id="notice-list"><div class="loading">불러오는 중...</div></div>
@@ -403,7 +516,9 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
   </div>
 
   <nav class="bnav">
-    <div class="bn active" data-page="notices" onclick="nav('notices')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><span class="bn-lb">공지</span></div><div class="bnb" id="bdg-n" style="display:none"></div></div>
+    <div class="bn active" data-page="my" onclick="nav('my')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="bn-lb">MY</span></div></div>
+
+    <div class="bn" data-page="notices" onclick="nav('notices')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><span class="bn-lb">공지</span></div><div class="bnb" id="bdg-n" style="display:none"></div></div>
     <div class="bn" data-page="budget" onclick="nav('budget')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><span class="bn-lb">투표</span></div><div class="bnb" id="bdg-b" style="display:none"></div></div>
     <div class="bn" data-page="events" onclick="nav('events')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="bn-lb">이벤트</span></div></div>
     <div class="bn" data-page="info" onclick="nav('info')"><div class="bn-inner"><div class="bni"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><span class="bn-lb">정보</span></div></div>
@@ -418,11 +533,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{
 <!--
 GCA v4.18 EVENT MENU CLEANUP
 기준: v4.13 캠핑협회 클린 재시작
-방향: 공지 / 투표 / 이벤트 / 정보 4메뉴 구조 + 이벤트 일정 집중 정리
+방향: MY / 공지 / 투표 / 이벤트 / 정보 5메뉴 구조 + 회원 보조사업 실행판
 범위: 로그인 / 공지 / 예산안 투표 / 행사 일정 / 지도 / 지원금·업체 정보
 주의: 예산 정산·보고서 기능은 앱에서 제외하고 별도 문서 작업으로 분리
 -->
-<div class="version-mark" id="version-mark">GCA v4.23 · 2026.05.10 · 회원등록 안정화</div>
+<div class="version-mark" id="version-mark">GCA v4.24 · 2026.05.10 · 회원 MY 보조사업 실행판</div>
 
 <script>
 const SUPA_URL='https://zzglzlbxslgojntcofez.supabase.co';
@@ -433,7 +548,7 @@ const KK_CH='http://pf.kakao.com/_XXXXXX';
 const {createClient}=supabase;
 const db=createClient(SUPA_URL,SUPA_KEY);
 const App={user:null,member:null,role:null};
-const APP_VERSION='GCA v4.23 · 2026.05.10 · 회원등록 안정화';
+const APP_VERSION='GCA v4.24 · 2026.05.10 · 회원 MY 보조사업 실행판';
 try{localStorage.removeItem('gca_mc');}catch(e){}
 let _tt=null;
 let _bFilter='all';
@@ -800,24 +915,24 @@ function showApp(){
   const joinBtn=document.querySelector('.mc-join');if(joinBtn)joinBtn.style.display=isAdmin?'flex':'none';
   initMC();
   const hash=(location.hash||'').replace('#','');
-  const allowed=['notices','budget','events','info'];
-  nav(allowed.includes(hash)?hash:'notices',false);
+  const allowed=['my','notices','budget','events','info'];
+  nav(allowed.includes(hash)?hash:'my',false);
   loadBadges();
 }
 function nav(page,push=true){
-  const loaders={notices:loadNotices,budget:loadBudget,events:loadEventsPage,info:loadInfoPage};
+  const loaders={my:loadMyPage,notices:loadNotices,budget:loadBudget,events:loadEventsPage,info:loadInfoPage};
   if(!loaders[page])page='notices';
   _currentPage=page;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(n=>n.classList.remove('active'));
   const pg=g('page-'+page);if(!pg)return;pg.classList.add('active');
   const bn=document.querySelector('.bn[data-page="'+page+'"]');if(bn)bn.classList.add('active');
-  const titles={notices:'공지',budget:'투표',events:'이벤트',info:'정보'};
+  const titles={my:'MY',notices:'공지',budget:'투표',events:'이벤트',info:'정보'};
   g('tb-title').textContent=titles[page]||'괴산캠핑장협회';
   loaders[page]();
   if(push&&location.hash!=='#'+page)history.pushState({page},'','#'+page);
 }
-window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page,false);else nav('notices',false);});
+window.addEventListener('popstate',e=>{if(e.state&&e.state.page)nav(e.state.page,false);else nav('my',false);});
 
 document.addEventListener('DOMContentLoaded',async()=>{
   console.log('GCA APP VERSION', APP_VERSION);
@@ -1512,6 +1627,164 @@ async function loadInfoLibraryPreview(){
 async function loadEventsPage(){
   _evFilter=_evFilter||'upcoming';
   loadEventsList();
+}
+
+function getMyCampName(){
+  return App.member?.camp_name || (App.role==='member'?App.member?.name:'') || '';
+}
+function getMyProviderName(){
+  return App.member?.provider_name || App.member?.provider || (App.role==='provider'?App.member?.name:'') || '';
+}
+function roleLabelText(){
+  return {admin:'관리자',member:'회원',provider:'업체',county:'군청'}[App.role]||App.role||'회원';
+}
+async function loadMyPage(){
+  await ensureEventsForInfo();
+  renderMyPageSkeleton();
+  await renderMyDocs();
+}
+function renderMyPageSkeleton(){
+  const role=App.role||'member';
+  const roleText=roleLabelText();
+  if(g('my-sum-role'))g('my-sum-role').textContent=roleText;
+  if(role==='provider'||getMyProviderName()){
+    renderProviderMyPage();
+  }else if(role==='admin'){
+    renderAdminMyPage();
+  }else{
+    renderMemberMyPage();
+  }
+}
+function getMyRowsForCamp(camp){
+  if(!camp)return [];
+  return (_allEvents||[]).filter(e=>(e.camp_name||'')===camp).sort((a,b)=>eventSortValue(a).localeCompare(eventSortValue(b))||eventCategoryRank(a)-eventCategoryRank(b)||(a._program||'').localeCompare(b._program||'','ko'));
+}
+function renderMemberMyPage(){
+  const camp=getMyCampName();
+  const rows=getMyRowsForCamp(camp);
+  const today=todayLocalDate();
+  const upcoming=rows.filter(e=>!e.event_date||eventDateKey(e)>=today);
+  if(g('my-hero-title'))g('my-hero-title').textContent=(camp||'내 캠핑장')+' MY';
+  if(g('my-hero-sub'))g('my-hero-sub').textContent='내 캠핑장 행사 일정과 보조사업 제출서류를 한 곳에서 관리합니다.';
+  if(g('my-sum-events'))g('my-sum-events').textContent=rows.length;
+  if(g('my-sum-upcoming'))g('my-sum-upcoming').textContent=upcoming.length;
+  const note=g('my-role-note');
+  if(note)note.innerHTML=camp?'':'<div class="my-role-note">회원 정보에 캠핑장명이 연결되어 있지 않습니다. 관리자에게 회원의 camp_name 값을 확인해달라고 요청하세요.</div>';
+  renderMyEventList(upcoming.length?upcoming:rows, camp?'다가오는 행사가 없습니다. 전체 등록 행사도 아직 없습니다.':'캠핑장 연결 후 내 행사가 표시됩니다.');
+}
+function renderAdminMyPage(){
+  const today=todayLocalDate();
+  const total=(_allEvents||[]).length;
+  const upcoming=(_allEvents||[]).filter(e=>!e.event_date||eventDateKey(e)>=today).length;
+  const camps=new Set((_allEvents||[]).map(e=>e.camp_name).filter(Boolean)).size;
+  if(g('my-hero-title'))g('my-hero-title').textContent='관리자 MY';
+  if(g('my-hero-sub'))g('my-hero-sub').textContent='전체 행사와 보조사업 서류 업로드 상태를 빠르게 확인합니다.';
+  if(g('my-sum-events'))g('my-sum-events').textContent=total;
+  if(g('my-sum-upcoming'))g('my-sum-upcoming').textContent=upcoming;
+  if(g('my-sum-role'))g('my-sum-role').textContent='관리자';
+  const note=g('my-role-note');
+  if(note)note.innerHTML='<div class="my-role-note">관리자는 전체 행사를 확인할 수 있습니다. 회원별 서류 취합 기능은 다음 단계에서 관리자 취합 화면으로 확장하는 것이 안전합니다.</div>';
+  const display=(_allEvents||[]).filter(e=>!e.event_date||eventDateKey(e)>=today).slice(0,20);
+  renderMyEventList(display,'다가오는 전체 행사가 없습니다.');
+}
+function renderProviderMyPage(){
+  const provider=getMyProviderName();
+  const rows=(_allEvents||[]).filter(e=>String(e._provider||'').trim()===String(provider||'').trim()).sort((a,b)=>eventSortValue(a).localeCompare(eventSortValue(b))||(a.camp_name||'').localeCompare(b.camp_name||'ko'));
+  const today=todayLocalDate();
+  const upcoming=rows.filter(e=>!e.event_date||eventDateKey(e)>=today);
+  if(g('my-hero-title'))g('my-hero-title').textContent=(provider||'업체')+' MY';
+  if(g('my-hero-sub'))g('my-hero-sub').textContent='내 담당 행사 일정과 방문 캠핑장을 확인하는 업체 전용 화면입니다.';
+  if(g('my-sum-events'))g('my-sum-events').textContent=rows.length;
+  if(g('my-sum-upcoming'))g('my-sum-upcoming').textContent=upcoming.length;
+  if(g('my-sum-role'))g('my-sum-role').textContent='업체';
+  const note=g('my-role-note');
+  if(note)note.innerHTML='<div class="my-role-note">업체 계정은 조회 중심으로 운영하는 것이 안전합니다. 일정 수정·삭제 권한은 관리자에게만 두는 것을 권장합니다.</div>';
+  renderMyEventList(upcoming.length?upcoming:rows,provider?'담당 행사 일정이 없습니다.':'업체명이 연결되어 있지 않습니다.');
+}
+function renderMyEventList(rows,emptyText){
+  const box=g('my-events-list');if(!box)return;
+  if(!rows||!rows.length){box.innerHTML='<div class="my-empty">'+esc(emptyText||'표시할 행사가 없습니다')+'</div>';return;}
+  box.innerHTML='<div class="my-event-list">'+rows.slice(0,30).map(e=>{
+    const evDate=eventDateKey(e);
+    const isTicket=e.bundle_type==='ticket'||evDate==='수시';
+    const label=eventDateLabel(evDate);
+    const qty=eventQtyText(e);
+    const dateBox='<div class="my-event-date '+(isTicket?'ticket':'')+'"><b>'+esc(isTicket?'수시':label.big)+'</b><span>'+esc(isTicket?'상시':label.sub)+'</span></div>';
+    return '<div class="my-event-row">'+dateBox+'<div><div class="my-event-title">'+esc(e._program||'-')+'</div><div class="my-event-meta"><span class="ev-cat ev-cat-'+esc(e._cat)+'">'+esc(e._cat||'-')+' '+esc(e._catName||'기타')+'</span><span>🏕 '+esc(e.camp_name||'-')+'</span>'+(qty?'<span>· '+esc(qty)+'</span>':'')+'</div><div class="my-event-provider">수행업체/강사: '+renderProviderInline(e._provider)+'</div></div></div>';
+  }).join('')+'</div>'+(rows.length>30?'<div style="text-align:center;font-size:11px;color:var(--mid);padding:10px">외 '+(rows.length-30)+'건 더 있음 · 이벤트 메뉴에서 전체 확인</div>':'');
+}
+function myDocTargetId(){
+  return App.member?.id || App.user?.id || 'unknown';
+}
+function myDocPrefix(){
+  const camp=getMyCampName()||getMyProviderName()||App.member?.name||'MY';
+  return camp.replace(/[^\w가-힣.-]/g,'_');
+}
+async function submitMyDoc(){
+  if(!App.member?.id){toast('회원 정보가 없어 업로드할 수 없습니다');return;}
+  const fi=g('my-doc-file'),sel=g('my-doc-type'),btn=g('my-doc-upload-btn');
+  if(!fi||!fi.files||!fi.files.length){toast('업로드할 파일을 선택하세요');return;}
+  const docType=sel?.value||'기타';
+  if(_actionLocks.has('myDocUpload'))return;
+  _actionLocks.add('myDocUpload');
+  if(btn){btn.disabled=true;btn.textContent='업로드 중...';}
+  load(true);
+  try{
+    const files=[...fi.files];
+    for(const file of files){
+      if(!file||file.size>50*1024*1024){toast((file?.name||'파일')+': 50MB 초과');continue;}
+      const safeName=file.name.replace(/[^a-zA-Z0-9가-힣._-]/g,'_');
+      const uid=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+'_'+Math.random().toString(16).slice(2));
+      const path='mydocs/'+myDocTargetId()+'/'+docType+'/'+uid+'_'+safeName;
+      const {error:ue}=await db.storage.from(STORAGE_BUCKET).upload(path,file,{cacheControl:'3600',upsert:false});
+      if(ue)throw ue;
+      const row={target_type:'library',target_id:myDocTargetId(),proposal_id:null,uploaded_by:App.member.id,bucket:STORAGE_BUCKET,file_path:path,file_name:'['+docType+'] '+file.name,file_size:file.size,mime_type:file.type||null};
+      const {error:ie}=await db.from('attachments').insert(row);
+      if(ie)throw ie;
+    }
+    fi.value='';
+    toast('보조사업 서류 업로드 완료');
+    await renderMyDocs();
+    loadInfoLibraryPreview();
+  }catch(e){
+    console.error('my doc upload error',e);
+    alert('서류 업로드 오류: '+errMsg(e));
+  }finally{
+    load(false);
+    _actionLocks.delete('myDocUpload');
+    if(btn){btn.disabled=false;btn.textContent='업로드';}
+  }
+}
+async function getMyDocs(){
+  if(!App.member?.id)return [];
+  const target=myDocTargetId();
+  let q=db.from('attachments').select('*').eq('target_type','library').order('created_at',{ascending:false}).limit(50);
+  const {data,error}=await q;
+  if(error){console.warn('my docs load error',error.message);return [];}
+  return (data||[]).filter(f=>String(f.uploaded_by||'')===String(App.member.id)||String(f.target_id||'')===String(target)||String(f.file_path||'').includes('/'+target+'/'));
+}
+function parseDocType(fileName){
+  const m=String(fileName||'').match(/^\[([^\]]+)\]\s*/);
+  return m?m[1]:'자료';
+}
+async function renderMyDocs(){
+  const box=g('my-doc-list');if(!box)return;
+  box.innerHTML='<div class="loading">서류 목록 불러오는 중...</div>';
+  try{
+    const docs=await getMyDocs();
+    if(g('my-sum-docs'))g('my-sum-docs').textContent=docs.length;
+    if(!docs.length){box.innerHTML='<div class="my-empty">아직 업로드한 서류가 없습니다.<br>사업계획서·견적서·업체자료부터 올려두면 e나라도움 등록 준비가 쉬워집니다.</div>';return;}
+    const rows=await Promise.all(docs.map(async f=>{
+      const url=await getAttachmentUrl(f);
+      const type=parseDocType(f.file_name);
+      const clean=String(f.file_name||'').replace(/^\[[^\]]+\]\s*/,'');
+      return '<div class="my-doc-item"><div><strong><span class="my-doc-type">'+esc(type)+'</span>'+esc(clean)+'</strong><span>'+fd(f.created_at)+' · '+(f.file_size?Math.round(Number(f.file_size)/1024).toLocaleString()+'KB':'용량 미상')+'</span></div><a href="'+esc(url)+'" target="_blank" class="btn bo btn-sm">열기</a></div>';
+    }));
+    box.innerHTML='<div class="my-doc-list">'+rows.join('')+'</div>';
+  }catch(e){
+    console.error(e);
+    box.innerHTML='<div class="errm">서류 목록 오류: '+esc(errMsg(e))+'</div>';
+  }
 }
 async function loadInfoPage(){
   loadInfoLibraryPreview();
