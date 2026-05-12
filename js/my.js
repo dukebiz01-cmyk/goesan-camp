@@ -84,20 +84,20 @@ async function renderMy() {
   const camp = effectiveCamp();
   const camps = state.camps || [];
 
-  // 헤더 카피
+  // 헤더 카피 — 어르신 친화 (쉬운 말)
   let title, sub;
   if (role === "admin") {
-    title = "관리자 MY";
-    sub = "전체 행사·예산 현황 · 캠프 선택해서 박제·일정 관리";
+    title = "관리자 화면";
+    sub = "전체 캠핑장 행사·예산을 확인하고 관리합니다";
   } else if (["provider", "vendor", "instructor"].includes(role)) {
-    title = `${myProviderName() || "업체"} MY`;
-    sub = "내가 출장 가야 할 캠핑장과 일정";
+    title = `${myProviderName() || "업체"} 일정`;
+    sub = "출장가실 캠핑장과 행사 일정";
   } else if (role === "county") {
-    title = "군청 / 확인 계정";
-    sub = "보기 전용 · 전체 행사 현황 확인";
+    title = "군청·확인용";
+    sub = "전체 행사 현황 (보기 전용)";
   } else {
-    title = `${myCampName() || "내 캠핑장"} MY`;
-    sub = `최종 한도 ${won(CAMP_BUDGET)} · 박제·묶음 할인·합류 기회`;
+    title = `${myCampName() || "내 캠핑장"}`;
+    sub = `예산 한도 ${won(CAMP_BUDGET)} · 함께 신청하면 가격이 더 내려갑니다`;
   }
 
   $("page-my").innerHTML = `
@@ -150,9 +150,9 @@ async function renderMy() {
   let matchHelp = "";
   if (role !== "admin" && role !== "county" && visibleEvents.length === 0) {
     if (["provider", "vendor", "instructor"].includes(role)) {
-      matchHelp = `<div class="status warn">담당 행사 0건. members.provider_name/name 값이 행사 _provider 값과 매칭되는지 확인.<br>현재 업체명: <b>${esc(myProviderName() || "-")}</b></div>`;
+      matchHelp = `<div class="status warn">담당 행사가 0건입니다.<br>업체명 등록 정보가 행사 자료와 다를 수 있어요. 협회 사무국에 확인 요청하세요.<br>현재 업체명: <b>${esc(myProviderName() || "-")}</b></div>`;
     } else {
-      matchHelp = `<div class="status warn">내 캠핑장 행사 0건. members.camp_name 값과 camp_events.camp_name 매칭 확인.<br>현재 캠프: <b>${esc(myCampName() || "-")}</b></div>`;
+      matchHelp = `<div class="status warn">우리 캠핑장 행사가 아직 없어요.<br>"+ 새 행사 신청하기" 버튼으로 시작해보세요.<br>등록된 캠핑장명: <b>${esc(myCampName() || "-")}</b></div>`;
     }
   }
 
@@ -195,7 +195,7 @@ async function renderMy() {
   if (showAddBtn) {
     html += `
       <div class="card">
-        <button class="primary full" id="btn-add-event">＋ 새 행사 추가</button>
+        <button class="primary full" id="btn-add-event">＋ 새 행사 신청하기</button>
       </div>
     `;
   }
@@ -212,18 +212,19 @@ async function renderMy() {
   if (role !== "county") {
     html += `
       <div class="card">
-        <h3>e나라도움 등록 지원</h3>
-        <p class="muted">자동 등록이 아니라, 제출자료를 정리해서 e나라도움에 직접 등록할 수 있게 돕습니다.</p>
-        <p><a class="primary" href="${ENARA_URL}" target="_blank">e나라도움 열기</a></p>
-        <div class="chips">
+        <h3>e나라도움 등록 도우미</h3>
+        <p class="muted">자동 등록이 아닙니다. 서류를 준비해두면 e나라도움 사이트에 직접 등록할 수 있도록 도와드립니다.</p>
+        <p style="margin-top:14px"><a class="primary" href="${ENARA_URL}" target="_blank">e나라도움 사이트 열기</a></p>
+        <div class="chips" style="margin-top:14px">
           <span class="chip">사업계획서</span><span class="chip">견적서</span><span class="chip">업체자료</span>
           <span class="chip">행사사진</span><span class="chip">지출증빙</span><span class="chip">정산자료</span>
         </div>
       </div>
       <div class="card">
-        <h3>보조사업 서류함</h3>
+        <h3>보조사업 서류 보관함</h3>
+        <p class="muted">사진을 찍거나 파일을 올려두면 나중에 사용할 수 있어요.</p>
         ${docUploadBoxHtml()}
-        <div id="my-doc-list" class="list"></div>
+        <div id="my-doc-list" class="list" style="margin-top:14px"></div>
       </div>
     `;
   }
@@ -248,8 +249,8 @@ function renderBudgetCard(camp) {
   if (forfeited) {
     return `
       <div class="card">
-        <h3>${esc(camp)} · 예산권 포기</h3>
-        <p class="muted">신청 불가 · 포기 업체</p>
+        <h3>${esc(camp)} · 예산 미사용</h3>
+        <p class="muted">이 캠핑장은 예산 신청을 하지 않습니다.</p>
       </div>
     `;
   }
@@ -262,15 +263,16 @@ function renderBudgetCard(camp) {
     <div class="card">
       <h3>${esc(camp)} · 예산 현황</h3>
       <div class="grid three">
-        <div class="metric"><b>${won(spent)}</b><span>사용</span></div>
-        <div class="metric"><b>${won(Math.abs(remain))}</b><span>${remain < 0 ? "초과" : "잔액"}</span></div>
-        <div class="metric"><b>${pct}%</b><span>사용률</span></div>
+        <div class="metric"><b>${won(spent)}</b><span>지금까지 쓴 금액</span></div>
+        <div class="metric"><b>${won(Math.abs(remain))}</b><span>${remain < 0 ? "초과 사용" : "남은 금액"}</span></div>
+        <div class="metric"><b>${pct}%</b><span>사용 비율</span></div>
       </div>
-      <div style="height:10px;background:#f1f5f9;border-radius:5px;overflow:hidden;margin:10px 0">
+      <div style="height:14px;background:#f1f5f9;border-radius:7px;overflow:hidden;margin:14px 0">
         <div style="height:100%;width:${pct}%;background:${remain<0?'var(--red)':pct>=90?'var(--amber)':'var(--green)'};transition:width .4s"></div>
       </div>
       <div class="status ${remainCls}" style="margin:0">
-        최종 한도 ${won(limit)} = 기본 ${won(BUDGET_BREAKDOWN.base)} + 포기분 ${won(BUDGET_BREAKDOWN.forfeit_extra)} + 해밀턴 차액 ${won(BUDGET_BREAKDOWN.hamilton_extra)}
+        예산 한도 ${won(limit)}<br>
+        <span style="font-weight:600;font-size:14px">= 기본 ${won(BUDGET_BREAKDOWN.base)} + 포기분 추가 ${won(BUDGET_BREAKDOWN.forfeit_extra)} + 해밀턴 차액 ${won(BUDGET_BREAKDOWN.hamilton_extra)}</span>
       </div>
     </div>
   `;
@@ -282,22 +284,27 @@ function renderBudgetCard(camp) {
 function renderJoinOpportunitiesCard(opps) {
   const total = opps.reduce((s, o) => s + o.savings, 0);
   return `
-    <div class="card" style="border:1px solid #fbbf24;background:#fffbeb">
-      <h3>🎁 합류 기회 ${opps.length}건 · 최대 ${won(total)} 절감 가능</h3>
+    <div class="card" style="border:2px solid #f59e0b;background:#fffbeb">
+      <h3>🎁 함께 신청하면 할인 ${opps.length}건</h3>
+      <p class="muted" style="margin-bottom:14px">
+        다른 캠핑장이 신청한 행사에 같이 신청하면<br>
+        <b style="color:#92400e;font-size:17px">최대 ${won(total)}</b> 아낄 수 있어요
+      </p>
       <div class="list">
         ${opps.slice(0, 8).map((o) => {
-          const dStr = o.date ? `${parseInt(o.date.slice(5, 7))}/${parseInt(o.date.slice(8, 10))}` : "수시";
+          const dStr = o.date ? `${parseInt(o.date.slice(5, 7))}월 ${parseInt(o.date.slice(8, 10))}일` : "수시";
           const urgent = o.daysLeft >= 0 && o.daysLeft <= 14;
           const dayBadge = o.daysLeft < 0 ? "" :
-            o.daysLeft <= 7 ? `<span class="chip red">D-${o.daysLeft}</span>` :
-            o.daysLeft <= 14 ? `<span class="chip amber">D-${o.daysLeft}</span>` :
-            `<span class="chip gray">D-${o.daysLeft}</span>`;
+            o.daysLeft <= 7 ? `<span class="chip red">${o.daysLeft}일 남음</span>` :
+            o.daysLeft <= 14 ? `<span class="chip amber">${o.daysLeft}일 남음</span>` :
+            `<span class="chip gray">${o.daysLeft}일 남음</span>`;
           return `
-            <div class="item" style="cursor:pointer;${urgent?'border-color:#dc2626':''}" data-join-program="${esc(o.name)}" data-join-date="${esc(o.date)}" data-join-cat="${esc(o.cat)}">
-              <div class="item-title">${dStr} · ${esc(o.name)} ${dayBadge}</div>
-              <div class="item-meta">현재 ${o.camps.length}곳: ${esc(o.camps.join(", "))} · ${o.need}곳 더 필요</div>
-              <div class="chips">
-                <span class="chip">합류시 본인 ${won(o.newPrice)} (${won(o.savings)} 절감)</span>
+            <div class="item" style="cursor:pointer;${urgent?'border-color:#dc2626;border-width:2px':''}" data-join-program="${esc(o.name)}" data-join-date="${esc(o.date)}" data-join-cat="${esc(o.cat)}">
+              <div class="item-title">${dStr} · ${esc(o.name)}</div>
+              <div class="item-meta">
+                ${dayBadge}<br>
+                지금 ${o.camps.length}곳 신청함: ${esc(o.camps.join(", "))}<br>
+                <b style="color:var(--green-dark);font-size:15px">함께 신청 시 ${won(o.newPrice)} (${won(o.savings)} 절약)</b>
               </div>
             </div>
           `;
@@ -311,10 +318,10 @@ function renderJoinOpportunitiesCard(opps) {
 // 행사 리스트
 // ============================================================
 function renderEventList(rows, currentCamp, role) {
-  if (!rows.length) return `<div class="item">표시할 행사가 없습니다.</div>`;
+  if (!rows.length) return `<div class="item"><div class="item-title">아직 신청한 행사가 없습니다</div></div>`;
   return rows.slice(0, 60).map((e) => {
     const provider = e._provider || "미지정";
-    const dStr = e.event_date ? fmtDateShort(e.event_date) : "수시";
+    const dStr = e.event_date ? `${parseInt(e.event_date.slice(5, 7))}월 ${parseInt(e.event_date.slice(8, 10))}일` : "수시";
     const wk = e.event_date ? fmtWeekday(e.event_date) : "";
     const editable = canEdit(e.camp_name);
     const price = getEventPrice(e);
@@ -323,33 +330,34 @@ function renderEventList(rows, currentCamp, role) {
     const bundle = findBundleForEvent(e);
     const cap = bundleCapacity(e.program_name);
 
-    // 상태 chip
+    // 상태 chip — 쉬운 말로
     let stChip = "";
     if (isTicket) {
       stChip = `<span class="chip blue">매수권 ${e.qty}매</span>`;
     } else if (isLocked) {
-      stChip = `<span class="chip">🔒 박제 ${bundle?.count || 1}/${cap}</span>`;
+      stChip = `<span class="chip">✅ 확정 (${bundle?.count || 1}곳)</span>`;
     } else if (bundle && bundle.complete) {
-      stChip = `<span class="chip">✅ 완성 ${bundle.count}/${cap}</span>`;
+      stChip = `<span class="chip">✅ 인원 다 모임 (${bundle.count}곳)</span>`;
     } else if (bundle) {
-      stChip = `<span class="chip amber">🔍 모집 ${bundle.count}/${cap}</span>`;
+      stChip = `<span class="chip amber">🔍 함께할 캠프 모집 중 (${bundle.count}/${cap})</span>`;
     }
 
     const showCampPrefix = role === "admin" || role === "county" || ["provider","vendor","instructor"].includes(role);
-    const campPrefix = showCampPrefix ? `🏕 ${esc(e.camp_name || "-")} · ` : "";
+    const campPrefix = showCampPrefix ? `<b>${esc(e.camp_name || "-")}</b> · ` : "";
 
     return `
       <div class="item">
         <div class="item-title">
-          ${dStr}${wk ? `(${wk})` : ""} · ${esc(e._program || e.program_name)}
+          ${dStr}${wk ? ` (${wk})` : ""} · ${esc(e._program || e.program_name)}
         </div>
         <div class="item-meta">
-          ${campPrefix}${esc(e._catName || CATEGORY_LABEL[e.category] || e.category || "기타")} · ${won(price)}
+          ${campPrefix}${esc(e._catName || CATEGORY_LABEL[e.category] || e.category || "기타")}<br>
+          <b style="color:var(--ink);font-size:16px">${won(price)}</b>
         </div>
         <div class="chips">
           ${stChip}
-          <button class="secondary small" data-provider="${esc(provider)}">업체: ${esc(provider)}</button>
-          ${editable ? `<button class="secondary small" data-del-event="${e.id}" style="color:#b91c1c">삭제</button>` : ""}
+          <button class="secondary small" data-provider="${esc(provider)}">업체 ${esc(provider)}</button>
+          ${editable ? `<button class="secondary small" data-del-event="${e.id}" style="color:var(--red);border-color:#fca5a5">삭제</button>` : ""}
         </div>
       </div>
     `;
@@ -362,7 +370,7 @@ function renderEventList(rows, currentCamp, role) {
 function docUploadBoxHtml() {
   return `
     <div class="file-box">
-      <label class="field">서류종류
+      <label class="field">서류 종류
         <select id="my-doc-type">
           <option>사업계획서</option><option>견적서</option><option>업체자료</option>
           <option>행사사진</option><option>지출증빙</option><option>정산자료</option><option>기타</option>
@@ -371,11 +379,11 @@ function docUploadBoxHtml() {
       <input id="my-doc-camera" type="file" accept="image/*" capture="environment" hidden />
       <input id="my-doc-file" type="file" multiple accept="image/*,.pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" hidden />
       <div class="file-actions">
-        <button class="camera" id="btn-doc-camera">📷 사진</button>
-        <button class="file" id="btn-doc-file">📎 파일</button>
-        <button class="primary" id="btn-doc-upload">저장</button>
+        <button class="camera" id="btn-doc-camera">📷 사진 찍기</button>
+        <button class="file" id="btn-doc-file">📎 파일 고르기</button>
+        <button class="primary" id="btn-doc-upload">저장하기</button>
       </div>
-      <div class="item-meta" id="my-doc-selected">선택된 파일 없음</div>
+      <div class="item-meta" id="my-doc-selected" style="margin-top:10px">선택된 파일 없음</div>
     </div>
   `;
 }
@@ -449,35 +457,37 @@ async function uploadMyDocs() {
 // ============================================================
 function openAddEventModal(prefill = {}) {
   const camp = effectiveCamp();
-  if (!camp) { toast("캠프를 먼저 선택하세요"); return; }
-  if (isForfeitedCampName(camp)) { toast("예산권 포기 캠프는 신청 불가"); return; }
-  if (!canEdit(camp)) { toast("본인 캠프만 추가 가능"); return; }
+  if (!camp) { toast("캠핑장을 먼저 선택하세요"); return; }
+  if (isForfeitedCampName(camp)) { toast("이 캠핑장은 예산 신청을 하지 않습니다"); return; }
+  if (!canEdit(camp)) { toast("우리 캠핑장만 신청할 수 있어요"); return; }
 
   modalForm = { cat: prefill.cat || "" };
 
   const html = `
-    <div class="status warn" style="margin-bottom:10px">
-      <b>대상 캠프:</b> ${esc(camp)} (${esc(getCampGroup(camp) || "조 미지정")})
+    <div class="status warn" style="margin-bottom:14px">
+      <b>대상 캠핑장:</b> ${esc(camp)} (${esc(getCampGroup(camp) || "조 미지정")})
     </div>
-    <label class="field">📅 날짜
+    <label class="field">📅 행사 날짜
       <input type="date" id="m-date" min="2026-04-01" max="2026-12-31" value="${esc(prefill.date || "")}">
     </label>
-    <label class="field">🎨 카테고리</label>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px" id="m-cat-pills">
+    <label class="field" style="margin-bottom:8px">🎨 분류 선택</label>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px" id="m-cat-pills">
       ${["A","B","C","D"].map((c)=>`
-        <button class="secondary small" data-cat="${c}" style="padding:11px 4px">${c} ${CATEGORY_LABEL[c]}</button>
+        <button class="secondary" data-cat="${c}" style="padding:16px 8px;min-height:64px;font-size:16px">
+          <div><b>${c}</b> ${CATEGORY_LABEL[c]}</div>
+        </button>
       `).join("")}
     </div>
-    <label class="field">🎯 프로그램
-      <select id="m-program"><option value="">먼저 카테고리 선택</option></select>
+    <label class="field">🎯 행사 선택
+      <select id="m-program"><option value="">먼저 분류를 선택하세요</option></select>
     </label>
     <div id="m-qty-row" style="display:none">
-      <label class="field">수량(매)<input type="number" id="m-qty" value="1" min="1"></label>
+      <label class="field">수량 (매)<input type="number" id="m-qty" value="1" min="1"></label>
     </div>
     <div id="m-preview"></div>
-    <button class="primary full" id="m-save" disabled style="margin-top:12px">행사 추가</button>
+    <button class="primary full" id="m-save" disabled style="margin-top:16px">행사 신청하기</button>
   `;
-  openModal("＋ 새 행사 추가", html);
+  openModal("새 행사 신청", html);
   bindModalEvents(camp, prefill);
   renderCategoryPills();
   renderProgramOptions(prefill.programName || "");
@@ -515,11 +525,11 @@ function renderProgramOptions(selectedName = "") {
   const sel = $("m-program");
   if (!sel) return;
   if (!modalForm.cat) {
-    sel.innerHTML = `<option value="">먼저 카테고리 선택</option>`;
+    sel.innerHTML = `<option value="">먼저 분류를 선택하세요</option>`;
     return;
   }
   const opts = PROGRAMS[modalForm.cat] || [];
-  sel.innerHTML = `<option value="">프로그램 선택</option>` +
+  sel.innerHTML = `<option value="">행사를 선택하세요</option>` +
     opts.map((p) => `<option value="${esc(p.n)}" ${selectedName === p.n ? "selected" : ""}>${esc(p.n)}</option>`).join("");
 }
 
@@ -544,12 +554,12 @@ function updateEventPreview(camp) {
   if (qtyRow) qtyRow.style.display = isTicket ? "block" : "none";
 
   if (!modalForm.cat || !p) {
-    pv.innerHTML = `<div class="status">카테고리와 프로그램을 선택하세요.</div>`;
+    pv.innerHTML = `<div class="status">분류와 행사를 선택해주세요</div>`;
     saveBtn.disabled = true;
     return;
   }
   if (!isTicket && !date) {
-    pv.innerHTML = `<div class="status warn">행사 날짜를 선택하세요.</div>`;
+    pv.innerHTML = `<div class="status warn">행사 날짜를 선택해주세요</div>`;
     saveBtn.disabled = true;
     return;
   }
@@ -558,7 +568,7 @@ function updateEventPreview(camp) {
     e.camp_name === camp && e.event_date === date && e.program_name === p.n && e.bundle_type !== "ticket"
   );
   if (dup) {
-    pv.innerHTML = `<div class="status err">❌ 이미 같은 날짜에 같은 프로그램이 등록되어 있습니다.</div>`;
+    pv.innerHTML = `<div class="status err">이미 같은 날짜에 같은 행사가 신청되어 있어요</div>`;
     saveBtn.disabled = true;
     return;
   }
@@ -567,7 +577,7 @@ function updateEventPreview(camp) {
   let details = "";
   if (isTicket) {
     price = ticketPrice(p.n, qty);
-    details = `<b>매수권</b> · 수량 ${qty}매 · 단가 ${won(p.p.ticket)}`;
+    details = `매수권 · 수량 <b>${qty}매</b> · 단가 <b>${won(p.p.ticket)}</b>`;
   } else {
     const bundles = getBundles(date, p.n);
     const open = bundles.find((b) => !b.complete && !b.finalized);
@@ -578,9 +588,9 @@ function updateEventPreview(camp) {
     const currentCamps = open ? open.events.map((e) => e.camp_name) : [];
     details = `
       날짜: <b>${esc(date)}</b><br>
-      같은 묶음: <b>${currentCamps.length}곳</b>${currentCamps.length ? ` (${esc(currentCamps.join(", "))})` : ""}<br>
-      추가 후: <b>${nextCount}/${cap}곳</b>${ap.warn ? ` · ${esc(ap.warn)}` : ""}<br>
-      강사/업체: <b>${esc(p.i || "-")}</b>
+      함께 신청한 캠핑장: <b>${currentCamps.length}곳</b>${currentCamps.length ? ` (${esc(currentCamps.join(", "))})` : ""}<br>
+      추가 후: <b>${nextCount}/${cap}곳</b>${ap.warn ? `<br>${esc(ap.warn)}` : ""}<br>
+      업체: <b>${esc(p.i.split("_")[1] || p.i)}</b>
     `;
   }
 
@@ -590,10 +600,10 @@ function updateEventPreview(camp) {
 
   pv.innerHTML = `
     <div class="status ${cls}">
-      <b>${remainAfter < 0 ? "⚠️ 예산 초과" : "✅ 추가 전 확인"}</b><br>
-      ${details}<br>
-      예상 금액: <b>${won(price)}</b><br>
-      추가 후 잔액: <b>${won(remainAfter)}</b>
+      <b>${remainAfter < 0 ? "⚠️ 예산 초과 주의" : "✅ 신청 가능"}</b><br><br>
+      ${details}<br><br>
+      <b style="font-size:18px">예상 금액 ${won(price)}</b><br>
+      신청 후 남은 금액: <b>${won(remainAfter)}</b>
     </div>
   `;
 
@@ -620,11 +630,11 @@ async function saveNewEvent(camp) {
       userId: state.user?.id || null,
     });
     closeModal();
-    toast(isTicket ? "✅ 매수권 등록" : "✅ 행사 추가");
+    toast(isTicket ? "✅ 매수권 등록 완료" : "✅ 행사 신청 완료");
     await renderMy();
   } catch (e) {
-    toast("❌ " + e.message);
-    btn.textContent = "행사 추가";
+    toast("저장 실패: " + e.message);
+    btn.textContent = "행사 신청하기";
     btn.disabled = false;
   }
 }

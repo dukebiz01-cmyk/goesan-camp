@@ -15,7 +15,7 @@ const loaders = {
   admin: loadAdminPage,
 };
 
-const titles = { my: "MY", notices: "공지", votes: "투표", info: "정보", admin: "관리" };
+const titles = { my: "우리 캠핑장", notices: "공지사항", votes: "투표", info: "정보", admin: "관리자" };
 
 export function allowedPages() {
   const role = state.role || "member";
