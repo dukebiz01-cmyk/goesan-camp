@@ -2,32 +2,36 @@ import { APP_VERSION, state } from "./config.js";
 import { $, toast } from "./utils.js";
 import { bootAuth, bindAuthUI } from "./auth.js";
 import { loadMyPage } from "./my.js";
+import { loadVendorsPage } from "./vendors.js";
 import { loadNoticesPage } from "./notices.js";
-import { loadVotesPage } from "./votes.js";
-import { loadInfoPage } from "./info.js";
+import { loadMorePage } from "./more.js";
 import { loadAdminPage } from "./admin.js";
 
 const loaders = {
   my: loadMyPage,
+  vendors: loadVendorsPage,
   notices: loadNoticesPage,
-  votes: loadVotesPage,
-  info: loadInfoPage,
+  more: loadMorePage,
   admin: loadAdminPage,
 };
 
-const titles = { my: "우리 캠핑장", notices: "공지사항", votes: "투표", info: "정보", admin: "관리자" };
+const titles = {
+  my: "일정",
+  vendors: "행사업체",
+  notices: "소식",
+  more: "더보기",
+  admin: "관리",
+};
 
 export function allowedPages() {
   const role = state.role || "member";
-  if (role === "admin") return ["my", "notices", "votes", "info", "admin"];
-  if (["provider", "vendor", "instructor"].includes(role)) return ["my", "notices", "info"];
-  if (role === "county") return ["notices", "info"];
-  return ["my", "notices", "votes", "info"];
+  if (role === "admin") return ["my", "vendors", "notices", "more", "admin"];
+  // member / provider / county 모두 동일 메뉴 (콘텐츠는 role별로 자동 분기)
+  return ["my", "vendors", "notices", "more"];
 }
 
 export function defaultPage() {
-  const pages = allowedPages();
-  return pages.includes("my") ? "my" : pages[0] || "notices";
+  return "my";
 }
 
 export function navigate(page, push = true) {
@@ -36,15 +40,19 @@ export function navigate(page, push = true) {
 
   state.page = page;
   document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
-  document.querySelectorAll("#bottom-nav button").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
+  document.querySelectorAll("#bottom-nav button").forEach((b) =>
+    b.classList.toggle("active", b.dataset.page === page)
+  );
 
   const pageEl = $(`page-${page}`);
   if (pageEl) pageEl.classList.add("active");
 
-  $("top-title").textContent = titles[page] || "괴산캠핑장협회";
+  if ($("top-title")) $("top-title").textContent = titles[page] || "괴산캠핑장협회";
   loaders[page]?.();
 
-  if (push && location.hash !== "#" + page) history.pushState({ page }, "", "#" + page);
+  if (push && location.hash !== "#" + page) {
+    history.pushState({ page }, "", "#" + page);
+  }
 }
 
 export function applyRoute() {
@@ -55,7 +63,7 @@ export function applyRoute() {
 window.addEventListener("popstate", () => applyRoute());
 
 document.addEventListener("DOMContentLoaded", async () => {
-  $("version-mark").textContent = APP_VERSION;
+  if ($("version-mark")) $("version-mark").textContent = APP_VERSION;
   bindAuthUI();
   document.querySelectorAll("#bottom-nav [data-page]").forEach((btn) => {
     btn.addEventListener("click", () => navigate(btn.dataset.page));
