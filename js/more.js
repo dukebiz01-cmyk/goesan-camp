@@ -1,10 +1,8 @@
-// js/more.js — 더보기 페이지
-// 지도 + 협회 자료실 + e나라도움 + 관리자 진입 + 로그아웃
+// js/more.js — v5.1.0 (지도 삭제·서류함 통합)
 import { db } from "./supabase.js";
 import { ENARA_URL, state } from "./config.js";
 import { $, esc, showLoader, toast, fileSize, fmtDate } from "./utils.js";
 import { uploadFiles, signedUrl } from "./uploads.js";
-import { loadMap } from "./map.js";
 import { logout } from "./auth.js";
 import { navigate } from "./router.js";
 
@@ -12,13 +10,13 @@ export async function loadMorePage() {
   const box = $("page-more");
   const role = state.role || "member";
   const isAdmin = role === "admin";
-  const isCounty = role === "county";
+  const showMyDocs = role !== "county"; // 군청 제외 모두
 
   box.innerHTML = `
     <div class="page-head">
       <div>
         <div class="page-title">더보기</div>
-        <div class="page-sub">지도 · 자료 · 설정</div>
+        <div class="page-sub">자료 · 서류 · 설정</div>
       </div>
     </div>
 
@@ -31,16 +29,19 @@ export async function loadMorePage() {
     ` : ""}
 
     <div class="card">
-      <h3>📍 캠핑장·관광지 지도</h3>
-      <div id="map" class="map"></div>
-      <div id="map-list"></div>
-    </div>
-
-    <div class="card">
       <h3>📚 협회 자료실</h3>
       ${isAdmin ? infoUploadBox() : ""}
       <div id="more-library-list" class="list" style="margin-top:10px"></div>
     </div>
+
+    ${showMyDocs ? `
+      <div class="card">
+        <h3>📁 보조사업 서류 보관함</h3>
+        <p class="muted">사진을 찍거나 파일을 올려두면 나중에 사용할 수 있어요.</p>
+        ${docUploadBoxHtml()}
+        <div id="more-doc-list" class="list" style="margin-top:14px"></div>
+      </div>
+    ` : ""}
 
     <div class="card">
       <h3>🔗 e나라도움</h3>
@@ -67,15 +68,31 @@ export async function loadMorePage() {
     </div>
   `;
 
-  // 지도 로드
-  await loadMap();
-  // 자료실 로드
-  await loadLibrary();
+  // 자료실 + 내 서류 로드
+  await Promise.all([
+    loadLibrary(),
+    showMyDocs ? loadMyDocs() : Promise.resolve(),
+  ]);
 
-  // 이벤트
+  // 이벤트 바인딩
   $("btn-go-admin")?.addEventListener("click", () => navigate("admin"));
   $("btn-more-logout")?.addEventListener("click", logout);
   $("btn-info-upload")?.addEventListener("click", uploadAssociationFile);
+
+  // 보조사업 서류 바인딩
+  if (showMyDocs) {
+    $("my-doc-camera")?.addEventListener("change", () => updateSelected("camera"));
+    $("my-doc-file")?.addEventListener("change", () => updateSelected("file"));
+    $("btn-doc-camera")?.addEventListener("click", () => {
+      if ($("my-doc-file")) $("my-doc-file").value = "";
+      $("my-doc-camera")?.click();
+    });
+    $("btn-doc-file")?.addEventListener("click", () => {
+      if ($("my-doc-camera")) $("my-doc-camera").value = "";
+      $("my-doc-file")?.click();
+    });
+    $("btn-doc-upload")?.addEventListener("click", uploadMyDocs);
+  }
 }
 
 function roleLabel(role) {
@@ -89,6 +106,9 @@ function roleLabel(role) {
   })[role] || role;
 }
 
+// ============================================================
+// 협회 자료실 (admin 업로드 + 모두 열람)
+// ============================================================
 function infoUploadBox() {
   return `
     <div class="file-box">
@@ -156,6 +176,99 @@ async function uploadAssociationFile() {
     });
     toast("자료 업로드 완료");
     await loadLibrary();
+  } catch (e) {
+    alert("업로드 오류: " + e.message);
+  } finally {
+    showLoader(false);
+  }
+}
+
+// ============================================================
+// 보조사업 서류 보관함 (회원 본인 파일)
+// ============================================================
+function docUploadBoxHtml() {
+  return `
+    <div class="file-box">
+      <label class="field">서류 종류
+        <select id="my-doc-type">
+          <option>사업계획서</option><option>견적서</option><option>업체자료</option>
+          <option>행사사진</option><option>지출증빙</option><option>정산자료</option><option>기타</option>
+        </select>
+      </label>
+      <input id="my-doc-camera" type="file" accept="image/*" capture="environment" hidden />
+      <input id="my-doc-file" type="file" multiple accept="image/*,.pdf,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip" hidden />
+      <div class="file-actions">
+        <button class="camera" id="btn-doc-camera">📷 사진 찍기</button>
+        <button class="file" id="btn-doc-file">📎 파일 고르기</button>
+        <button class="primary" id="btn-doc-upload">저장하기</button>
+      </div>
+      <div class="item-meta" id="my-doc-selected" style="margin-top:10px">선택된 파일 없음</div>
+    </div>
+  `;
+}
+
+function selectedFiles() {
+  const cam = $("my-doc-camera")?.files || [];
+  const file = $("my-doc-file")?.files || [];
+  return cam.length ? cam : file;
+}
+
+function updateSelected(type) {
+  const files = [...selectedFiles()];
+  const el = $("my-doc-selected");
+  if (!el) return;
+  el.innerHTML = files.length
+    ? `<b>${type === "camera" ? "사진" : "파일"} ${files.length}개</b><br>${files.slice(0, 4).map((f) => esc(f.name)).join("<br>")}`
+    : "선택된 파일 없음";
+}
+
+async function loadMyDocs() {
+  if (!state.member?.id) return;
+  const target = $("more-doc-list");
+  if (!target) return;
+  const { data, error } = await db
+    .from("attachments")
+    .select("*")
+    .eq("target_type", "library")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) {
+    target.innerHTML = `<div class="item">서류 로딩 오류: ${esc(error.message)}</div>`;
+    return;
+  }
+  const mine = (data || []).filter((f) =>
+    f.uploaded_by === state.member.id || String(f.target_id) === String(state.member.id)
+  );
+  if (!mine.length) {
+    target.innerHTML = `<div class="item"><div class="item-title">업로드한 서류가 없습니다</div></div>`;
+    return;
+  }
+  const rows = await Promise.all(mine.map(async (f) => {
+    const url = await signedUrl(f);
+    return `
+      <div class="item">
+        <div class="item-title">${esc(f.file_name || "-")}</div>
+        <div class="item-meta">${fileSize(f.file_size)} · ${fmtDate(f.created_at)}</div>
+        <a class="secondary small" href="${esc(url)}" target="_blank" rel="noopener">열기</a>
+      </div>
+    `;
+  }));
+  target.innerHTML = rows.join("");
+}
+
+async function uploadMyDocs() {
+  const files = selectedFiles();
+  if (!files.length) { toast("파일을 선택하세요"); return; }
+  if (!state.member?.id) { toast("회원 정보가 없습니다"); return; }
+  showLoader(true);
+  try {
+    await uploadFiles(files, {
+      targetType: "library",
+      targetId: state.member.id,
+      docType: $("my-doc-type")?.value || "기타",
+    });
+    toast("업로드 완료");
+    await loadMyDocs();
   } catch (e) {
     alert("업로드 오류: " + e.message);
   } finally {
