@@ -1,17 +1,17 @@
-import { APP_VERSION, state } from "./config.js";
-import { $, toast } from "./utils.js";
-import { bootAuth, bindAuthUI } from "./auth.js";
-import { loadMyPage } from "./my.js";
-import { loadVendorsPage } from "./vendors.js";
-import { loadNoticesPage } from "./notices.js";
-import { loadMorePage } from "./more.js";
-import { loadAdminPage } from "./admin.js";
+import { APP_VERSION, state } from "./config.js?v=20260512x";
+import { $, toast } from "./utils.js?v=20260512x";
+import { bootAuth, bindAuthUI } from "./auth.js?v=20260512x";
+import { loadHomePage } from "./home.js?v=20260512x";
+import { loadVendorsPage } from "./vendors.js?v=20260512x";
+import { loadNoticesPage } from "./notices.js?v=20260512x";
+import { loadSettingsPage } from "./settings.js?v=20260512x";
+import { loadAdminPage } from "./admin.js?v=20260512x";
 
 const loaders = {
-  my: loadMyPage,
+  my: loadHomePage,
   vendors: loadVendorsPage,
   notices: loadNoticesPage,
-  more: loadMorePage,
+  more: loadSettingsPage,
   admin: loadAdminPage,
 };
 
@@ -26,30 +26,23 @@ const titles = {
 export function allowedPages() {
   const role = state.role || "member";
   if (role === "admin") return ["my", "vendors", "notices", "more", "admin"];
-  // member / provider / county 모두 동일 메뉴 (콘텐츠는 role별로 자동 분기)
   return ["my", "vendors", "notices", "more"];
 }
 
-export function defaultPage() {
-  return "my";
-}
+export function defaultPage() { return "my"; }
 
 export function navigate(page, push = true) {
   const pages = allowedPages();
   if (!pages.includes(page)) page = defaultPage();
-
   state.page = page;
   document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
   document.querySelectorAll("#bottom-nav button").forEach((b) =>
     b.classList.toggle("active", b.dataset.page === page)
   );
-
   const pageEl = $(`page-${page}`);
   if (pageEl) pageEl.classList.add("active");
-
   if ($("top-title")) $("top-title").textContent = titles[page] || "괴산캠핑장협회";
   loaders[page]?.();
-
   if (push && location.hash !== "#" + page) {
     history.pushState({ page }, "", "#" + page);
   }
