@@ -1,16 +1,16 @@
-import { APP_VERSION, state } from "./config.js?v=20260512x";
-import { $, toast } from "./utils.js?v=20260512x";
-import { bootAuth, bindAuthUI } from "./auth.js?v=20260512x";
-import { loadHomePage } from "./home.js?v=20260512x";
-import { loadVendorsPage } from "./vendors.js?v=20260512x";
-import { loadNoticesPage } from "./notices.js?v=20260512x";
-import { loadSettingsPage } from "./settings.js?v=20260512x";
-import { loadAdminPage } from "./admin.js?v=20260512x";
+import { APP_VERSION, state } from "./config.js?v=20260513b";
+import { $, toast } from "./utils.js?v=20260513b";
+import { bootAuth, bindAuthUI } from "./auth.js?v=20260513b";
+import { loadHomePage } from "./home.js?v=20260513b";
+import { loadContactsPage } from "./contacts.js?v=20260513b";
+import { loadNewsPage } from "./news.js?v=20260513b";
+import { loadSettingsPage } from "./settings.js?v=20260513b";
+import { loadAdminPage } from "./admin.js?v=20260513b";
 
 const loaders = {
   my: loadHomePage,
-  vendors: loadVendorsPage,
-  notices: loadNoticesPage,
+  vendors: loadContactsPage,
+  notices: loadNewsPage,
   more: loadSettingsPage,
   admin: loadAdminPage,
 };

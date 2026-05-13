@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#185c42" />
+  <meta name="app-version" content="gca-v5.0.2-member-map-fix" />
+  <title>괴산캠핑장협회</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="./css/app.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="login-mode">
+  <div class="loader" id="loader"><div class="spin"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="version-mark" id="version-mark">GCA v5.0.2 · 회원수/지도 복구</div>
+
+  <section id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-mark">G</div>
+        <h1>괴산캠핑장협회</h1>
+        <p>협회 운영 · 보조사업 · 괴산여행 정보 허브</p>
+      </div>
+
+      <button class="kakao-btn" id="btn-kakao">카카오로 로그인</button>
+      <div class="divider">또는</div>
+
+      <label class="field">이메일<input id="login-email" type="email" autocomplete="email" /></label>
+      <label class="field">비밀번호<input id="login-password" type="password" autocomplete="current-password" /></label>
+      <button class="primary full" id="btn-login">로그인</button>
+
+      <div class="login-error" id="login-error"></div>
+
+      <details class="signup-box">
+        <summary>회원/업체 가입신청</summary>
+        <div class="signup-grid">
+          <label class="field">이름<input id="signup-name" /></label>
+          <label class="field">이메일<input id="signup-email" type="email" /></label>
+          <label class="field">연락처<input id="signup-phone" /></label>
+          <label class="field">신청구분
+            <select id="signup-role">
+              <option value="member">캠핑장 회원</option>
+              <option value="provider">업체/강사</option>
+              <option value="county">군청/확인 계정</option>
+            </select>
+          </label>
+          <label class="field">캠핑장명<input id="signup-camp" /></label>
+          <label class="field">업체/강사명<input id="signup-provider" /></label>
+          <label class="field wide">메모<textarea id="signup-memo"></textarea></label>
+          <button class="secondary full" id="btn-signup">가입신청 보내기</button>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="app" class="app">
+    <header class="topbar">
+      <div>
+        <div class="top-title" id="top-title">우리 캠핑장</div>
+        <div class="top-sub" id="top-sub">괴산캠핑장협회</div>
+      </div>
+      <div class="top-actions">
+        <span class="user-chip" id="user-chip">-</span>
+        <button class="ghost small" id="btn-logout">나가기</button>
+      </div>
+    </header>
+
+    <div class="member-strip" id="member-strip">
+      <div class="member-strip-main">
+        <strong id="member-count">-</strong>
+        <span>정회원</span>
+      </div>
+      <div class="member-strip-sub" id="member-breakdown">회원 현황 불러오는 중</div>
+    </div>
+
+    <main>
+      <section class="page active" id="page-my"></section>
+      <section class="page" id="page-notices"></section>
+      <section class="page" id="page-vendors"></section>
+      <section class="page" id="page-more"></section>
+      <section class="page" id="page-admin"></section>
+    </main>
+
+    <nav class="bottom-nav" id="bottom-nav">
+      <button data-page="my" class="active">🏕 일정</button>
+      <button data-page="vendors">👥 업체</button>
+      <button data-page="notices">📢 소식</button>
+      <button data-page="more">⋮ 더보기</button>
+      <button data-page="admin" data-admin-only>⚙️ 관리</button>
+    </nav>
+  </section>
+
+  <div class="modal-backdrop" id="modal-backdrop"></div>
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <strong id="modal-title"></strong>
+      <button id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="./js/router.js?v=20260513b"></script>
+</body>
+</html>
