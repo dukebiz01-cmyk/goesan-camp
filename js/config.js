@@ -1,5 +1,5 @@
-// js/config.js — v5.0.2 → v5.1.0 (events.html 통합)
-export const APP_VERSION = "GCA v5.1.0 · events 통합";
+// js/config.js — v5.1.1 (window-shared state — 캐시 인스턴스 분리 방지)
+export const APP_VERSION = "GCA v5.1.1 · shared state";
 
 export const SUPABASE_URL = "https://zzglzlbxslgojntcofez.supabase.co";
 export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6Z2x6bGJ4c2xnb2pudGNvZmV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2NzUzMTAsImV4cCI6MjA5MjI1MTMxMH0.7wd78MoLgN2QSCFDitr3ZcJN3PI7UG8x1OkUbqwW3WQ";
@@ -9,24 +9,27 @@ export const KAKAO_OPENCHAT_URL = "https://open.kakao.com/o/XXXXXX";
 export const KAKAO_CHANNEL_URL = "http://pf.kakao.com/_XXXXXX";
 
 // ============================================================
-// 글로벌 상태
+// 🌐 글로벌 상태 — window 공유
+// 모든 모듈 인스턴스가 동일한 객체 참조 (캐시버스터 영향 없음)
 // ============================================================
-export const state = {
-  user: null,
-  member: null,
-  role: null,
-  page: "my",
-  events: [],
-  camps: [],
-  travel: [],
-  providers: [],
-  files: [],
-  eventsError: null,
-  // events 통합 상태
-  selectedCamp: null,      // 관리자가 다른 캠프 보기용
-  announcements: [],
-  dismissedAnnIds: new Set(),
-};
+if (typeof window !== "undefined" && !window.__campState) {
+  window.__campState = {
+    user: null,
+    member: null,
+    role: null,
+    page: "my",
+    events: [],
+    camps: [],
+    travel: [],
+    providers: [],
+    files: [],
+    eventsError: null,
+    selectedCamp: null,
+    announcements: [],
+    dismissedAnnIds: new Set(),
+  };
+}
+export const state = window.__campState;
 
 export const ROLE_LABEL = {
   admin: "협회임원",
@@ -38,8 +41,7 @@ export const ROLE_LABEL = {
 };
 
 // ============================================================
-// 예산 산정 (events.html에서 흡수)
-// 총 1억 / 21곳 기준 + 포기 2곳 재분배 + 해밀턴 미사용 차액 재분배
+// 예산 산정
 // ============================================================
 export const PROJECT_TOTAL_BUDGET = 100000000;
 export const TOTAL_PROJECT_CAMPS = 21;
@@ -50,13 +52,13 @@ export const HAMILTON_CAMP_NAME = "해밀터";
 export const HAMILTON_USED_AMOUNT = 715000;
 export const FORFEITED_CAMP_NAMES = ["아빠의나무", "강변캠핑장", "강변"];
 
-const BASE_BUDGET = Math.round(PROJECT_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS);            // 4,761,905
-const FORFEITED_TOTAL = BASE_BUDGET * FORFEITED_CAMP_COUNT;                            // 9,523,810
-const FORFEIT_EXTRA = Math.round(FORFEITED_TOTAL / TOTAL_PROJECT_CAMPS);               // 453,515
-const FIRST_STAGE = BASE_BUDGET + FORFEIT_EXTRA;                                       // 5,215,420
-const HAMILTON_UNUSED = Math.max(0, FIRST_STAGE - HAMILTON_USED_AMOUNT);               // 4,500,420
-const HAMILTON_EXTRA = Math.round(HAMILTON_UNUSED / TOTAL_PROJECT_CAMPS);              // 214,306
-export const CAMP_BUDGET = BASE_BUDGET + FORFEIT_EXTRA + HAMILTON_EXTRA;               // 5,429,726
+const BASE_BUDGET = Math.round(PROJECT_TOTAL_BUDGET / TOTAL_PROJECT_CAMPS);
+const FORFEITED_TOTAL = BASE_BUDGET * FORFEITED_CAMP_COUNT;
+const FORFEIT_EXTRA = Math.round(FORFEITED_TOTAL / TOTAL_PROJECT_CAMPS);
+const FIRST_STAGE = BASE_BUDGET + FORFEIT_EXTRA;
+const HAMILTON_UNUSED = Math.max(0, FIRST_STAGE - HAMILTON_USED_AMOUNT);
+const HAMILTON_EXTRA = Math.round(HAMILTON_UNUSED / TOTAL_PROJECT_CAMPS);
+export const CAMP_BUDGET = BASE_BUDGET + FORFEIT_EXTRA + HAMILTON_EXTRA;
 
 export const BUDGET_BREAKDOWN = {
   base: BASE_BUDGET,
@@ -68,8 +70,7 @@ export const BUDGET_BREAKDOWN = {
 };
 
 // ============================================================
-// 카탈로그 — events.html의 programs를 그대로 흡수
-// EVENT_META는 호환성을 위해 cat·provider 그대로 유지 + pricing 추가
+// 카탈로그
 // ============================================================
 export const PROGRAMS = {
   A: [
@@ -120,7 +121,6 @@ export const PROGRAMS = {
 
 export const CATEGORY_LABEL = { A: "공연", B: "먹거리", C: "체험", D: "활동" };
 
-// 강사 ID → 표시명·소속업체 매핑
 export const INSTRUCTOR_INFO = {
   "A_백선일":       { name: "백선일",       company: "썬엔터테인먼트 문화공연팀" },
   "A_신태호":       { name: "신태호",       company: "링엔터테인먼트" },
@@ -140,10 +140,6 @@ export const INSTRUCTOR_INFO = {
   "D_자체":         { name: "캠프 자체행사", company: "캠프 자체" },
 };
 
-// ============================================================
-// EVENT_META — 기존 코드 호환용 (cat·provider) + 확장 (catKey·instructorId)
-// programs에서 자동 생성
-// ============================================================
 function buildEventMeta() {
   const meta = {};
   for (const catKey of ["A", "B", "C", "D"]) {
@@ -163,9 +159,6 @@ function buildEventMeta() {
 }
 export const EVENT_META = buildEventMeta();
 
-// ============================================================
-// 기본 캠프 (DB 비었을 때 폴백)
-// ============================================================
 export const ALL_CAMPS_DEFAULT = [
   { name: "가자우리집",      group_name: "1조 표준A" },
   { name: "솔베이",          group_name: "1조 표준A" },
@@ -187,7 +180,6 @@ export const ALL_CAMPS_DEFAULT = [
   { name: "그린비",          group_name: "6조 AC형" },
 ];
 
-// 캠프 위치 (지도용, events.html에서 흡수)
 export const CAMP_LOCATIONS = {
   "가자우리집":[36.681,127.830], "솔베이":[36.674,127.812], "도명산":[36.667,127.807],
   "아빠의나무":[36.719,127.795], "시냇가":[36.707,127.784], "후평숲":[36.730,127.808],
@@ -197,9 +189,6 @@ export const CAMP_LOCATIONS = {
   "운교랜드캠핑장":[36.653,127.755], "화양숲노리":[36.670,127.802], "그린비":[36.690,127.865],
 };
 
-// ============================================================
-// 괴산여행 기본 콘텐츠
-// ============================================================
 export const DEFAULT_TRAVEL = [
   { title: "산막이옛길",   category: "관광지",       region: "칠성", address: "칠성면 산막이옛길 일원", lat: 36.7565, lng: 127.8336, summary: "괴산 대표 걷기 관광지" },
   { title: "괴산호",       category: "계곡·자연",   region: "칠성", address: "칠성면 괴산호 일원",     lat: 36.7601, lng: 127.8352, summary: "수변 관광 연계 코스" },
