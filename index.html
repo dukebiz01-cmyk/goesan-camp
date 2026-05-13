@@ -46,6 +46,26 @@
       </label>
       <button class="primary full" id="btn-login-phone">로그인</button>
 
+      <!-- PWA 설치 버튼 (조건부 표시) -->
+      <button id="btn-install-pwa" style="display:none;width:100%;background:white;color:#0F4C3A;border:2px solid #0F4C3A;padding:13px;font-weight:700;border-radius:10px;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:14px;margin-top:10px">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        앱으로 설치하기
+      </button>
+
+      <!-- 새로고침 버튼 -->
+      <button id="btn-refresh-cache" onclick="location.href=location.pathname+'?t='+Date.now()" style="display:flex;width:100%;background:white;color:#6B7280;border:1.5px solid #D1D5DB;padding:11px;font-weight:700;border-radius:10px;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:13px;margin-top:8px">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        새로고침
+      </button>
+
       <div class="login-error" id="login-error"></div>
 
       <p class="login-help muted" style="margin-top:14px;font-size:13px;line-height:1.6">
@@ -154,36 +174,6 @@
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="./js/router.js?v=20260513m"></script>
 
-  <!-- 카톡 브라우저 안내 배너 -->
-  <div id="kakao-banner" style="display:none;position:fixed;left:0;right:0;bottom:64px;background:#FEF3C7;border-top:2px solid #FCD34D;color:#92400E;padding:12px 14px;font-size:13px;font-weight:700;align-items:center;gap:10px;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,0.08)">
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0">
-      <circle cx="12" cy="12" r="10"/>
-      <line x1="12" y1="16" x2="12" y2="12"/>
-      <line x1="12" y1="8" x2="12.01" y2="8"/>
-    </svg>
-    <span style="flex:1;line-height:1.5">우상단 <b>⋮</b> → <b>다른 브라우저로 열기</b></span>
-    <button onclick="location.href=location.pathname+'?t='+Date.now()" style="display:flex;align-items:center;gap:5px;background:white;border:1.5px solid #D97706;padding:7px 11px;border-radius:8px;font-weight:700;font-size:13px;color:#92400E;cursor:pointer">
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="23 4 23 10 17 10"/>
-        <polyline points="1 20 1 14 7 14"/>
-        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-      </svg>
-      새로고침
-    </button>
-    <button onclick="this.parentElement.style.display='none'" aria-label="닫기" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:none;color:#92400E;cursor:pointer;padding:0">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="18" y1="6" x2="6" y2="18"/>
-        <line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-  </div>
-  <script>
-    if (/KAKAOTALK/i.test(navigator.userAgent)) {
-      const banner = document.getElementById('kakao-banner');
-      if (banner) banner.style.display = 'flex';
-    }
-  </script>
-
   <!-- Service Worker 등록 -->
   <script>
     if ('serviceWorker' in navigator) {
@@ -193,6 +183,54 @@
           .catch(err => console.warn('⚠️ SW 등록 실패:', err));
       });
     }
+  </script>
+
+  <!-- PWA 설치 버튼 처리 -->
+  <script>
+    (function() {
+      let deferredPrompt = null;
+      const installBtn = document.getElementById('btn-install-pwa');
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                        || window.navigator.standalone === true;
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isKakao = /KAKAOTALK/i.test(navigator.userAgent);
+
+      function showBtn() {
+        if (installBtn && !isStandalone) installBtn.style.display = 'flex';
+      }
+      function hideBtn() {
+        if (installBtn) installBtn.style.display = 'none';
+      }
+
+      // iOS/카톡: prompt 미지원이지만 안내 위해 표시
+      if ((isIOS || isKakao) && !isStandalone) showBtn();
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        showBtn();
+      });
+
+      window.addEventListener('appinstalled', () => {
+        hideBtn();
+        console.log('✅ PWA 설치 완료');
+      });
+
+      installBtn?.addEventListener('click', async () => {
+        if (deferredPrompt) {
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          deferredPrompt = null;
+          if (outcome === 'accepted') hideBtn();
+        } else if (isKakao) {
+          alert('카카오톡 브라우저는 앱 설치를 지원하지 않습니다.\n\n우상단 ⋮ → "다른 브라우저로 열기" → Chrome 선택 후 다시 시도하세요.');
+        } else if (isIOS) {
+          alert('아이폰 설치 방법\n\n1. 화면 아래 공유 버튼 누르기\n2. "홈 화면에 추가" 선택\n3. 우상단 "추가" 누르기');
+        } else {
+          alert('크롬 설치 방법\n\n우상단 ⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"');
+        }
+      });
+    })();
   </script>
 </body>
 </html>
