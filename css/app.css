@@ -535,3 +535,6 @@ main { padding: 16px; }
   grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
 }
+/* admin 탭 제거 (더보기에서 진입) */
+.bottom-nav { grid-template-columns: repeat(4, 1fr) !important; }
+.bottom-nav button[data-page="admin"] { display: none !important; }
