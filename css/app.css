@@ -486,3 +486,25 @@ main { padding: 16px; }
 [style*="width:"][style*="background"] {
   border-radius: 999px !important;
 }
+/* ====== 바텀탭 v2: 컴팩트 column ====== */
+.bottom-nav { height: 64px; }
+.bottom-nav button {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 2px;
+}
+.bottom-nav button .ti {
+  font-size: 22px;
+  line-height: 1;
+}
+.bottom-nav button .tl {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
+}
+.bottom-nav button.active .ti,
+.bottom-nav button.active .tl { color: var(--primary); }
