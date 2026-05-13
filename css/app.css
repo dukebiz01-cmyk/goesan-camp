@@ -508,3 +508,30 @@ main { padding: 16px; }
 }
 .bottom-nav button.active .ti,
 .bottom-nav button.active .tl { color: var(--primary); }
+/* ====== SVG 아이콘 (바텀탭) ====== */
+.bottom-nav button .ti {
+  width: 22px;
+  height: 22px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.bottom-nav button.active .ti { color: var(--primary); }
+
+/* ====== 투표 버튼 글자 깨짐 픽스 ====== */
+#page-notices .card button.primary,
+#page-notices .card button.secondary,
+#page-notices .card button.danger,
+#page-notices .card button.small,
+#page-notices .chips button {
+  font-size: 14px !important;
+  font-weight: 700;
+  padding: 14px 4px !important;
+  white-space: nowrap;
+  letter-spacing: -0.5px;
+  min-height: 48px;
+}
+#page-notices .chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
