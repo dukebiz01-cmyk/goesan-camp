@@ -457,3 +457,32 @@ main { padding: 16px; }
 }
 
 ::-webkit-scrollbar { width: 0; }
+/* ====== 호환 변수 (옛 코드 지원) ====== */
+:root {
+  --green: #0F4C3A;
+  --green-dark: #0A3329;
+  --green-soft: #E8F0EC;
+  --ink-2: #1F2A24;
+  --line: #D1D5DB;
+  --line-strong: #B0BAB4;
+  --shadow: 0 4px 14px rgba(10,15,13,.08);
+  --r-lg: 18px;
+}
+
+/* ====== 버튼 글자 안 깨짐 ====== */
+.bottom-nav button,
+.chip { white-space: nowrap; }
+
+/* ====== 투표 버튼 (찬/반/기) 글자 줄바꿈 방지 ====== */
+[id="vote-list"] .chips button.small,
+[id="vote-list"] .row button {
+  font-size: 13px;
+  padding: 10px 6px;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+/* ====== 진행도 바 (안건/투표) 색 강제 ====== */
+[style*="width:"][style*="background"] {
+  border-radius: 999px !important;
+}
