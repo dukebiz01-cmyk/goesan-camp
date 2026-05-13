@@ -20,24 +20,53 @@
       <div class="login-logo">
         <div class="logo-mark">G</div>
         <h1>괴산캠핑장협회</h1>
-        <p>협회 운영 · 보조사업 · 괴산여행 정보 허브</p>
+        <p>협회 운영 시스템</p>
       </div>
 
-      <button class="kakao-btn" id="btn-kakao">카카오로 로그인</button>
-      <div class="divider">또는</div>
-
-      <label class="field">이메일<input id="login-email" type="email" autocomplete="email" /></label>
-      <label class="field">비밀번호<input id="login-password" type="password" autocomplete="current-password" /></label>
-      <button class="primary full" id="btn-login">로그인</button>
+      <label class="field">휴대폰 번호
+        <input id="login-phone" type="tel" inputmode="numeric"
+               placeholder="010-1234-5678" autocomplete="tel" />
+      </label>
+      <label class="field">캠핑장명
+        <select id="login-camp">
+          <option value="">캠프명 선택</option>
+        </select>
+      </label>
+      <label class="field">비밀번호 (숫자 6자리)
+        <input id="login-password" type="password" inputmode="numeric"
+               maxlength="6" pattern="\d{6}"
+               autocomplete="current-password" placeholder="• • • • • •" />
+      </label>
+      <button class="primary full" id="btn-login-phone">로그인</button>
 
       <div class="login-error" id="login-error"></div>
 
-      <details class="signup-box">
-        <summary>회원/업체 가입신청</summary>
+      <p class="login-help muted" style="margin-top:14px;font-size:13px;line-height:1.6">
+        처음 사용하시나요? 운영팀에 카톡으로 휴대폰 번호 알려주시면<br>
+        등록 후 안내해 드립니다.
+      </p>
+
+      <details class="admin-login" style="margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
+        <summary style="cursor:pointer;color:var(--muted);font-size:13px">관리자 로그인 (이메일)</summary>
+        <div style="margin-top:10px">
+          <label class="field">이메일
+            <input id="login-email" type="email" autocomplete="email" />
+          </label>
+          <label class="field">비밀번호
+            <input id="login-admin-password" type="password" autocomplete="current-password" />
+          </label>
+          <button class="secondary full" id="btn-login">관리자 로그인</button>
+        </div>
+      </details>
+
+      <button class="kakao-btn" id="btn-kakao" style="display:none">카카오로 로그인</button>
+
+      <details class="signup-box" style="margin-top:18px">
+        <summary style="cursor:pointer">회원/업체 가입신청</summary>
         <div class="signup-grid">
           <label class="field">이름<input id="signup-name" /></label>
-          <label class="field">이메일<input id="signup-email" type="email" /></label>
-          <label class="field">연락처<input id="signup-phone" /></label>
+          <label class="field">휴대폰<input id="signup-phone" type="tel" inputmode="numeric" placeholder="010-1234-5678" /></label>
+          <label class="field">캠핑장<input id="signup-camp" /></label>
           <label class="field">신청구분
             <select id="signup-role">
               <option value="member">캠핑장 회원</option>
@@ -45,7 +74,7 @@
               <option value="county">군청/확인 계정</option>
             </select>
           </label>
-          <label class="field">캠핑장명<input id="signup-camp" /></label>
+          <label class="field">이메일 (선택)<input id="signup-email" type="email" /></label>
           <label class="field">업체/강사명<input id="signup-provider" /></label>
           <label class="field wide">메모<textarea id="signup-memo"></textarea></label>
           <button class="secondary full" id="btn-signup">가입신청 보내기</button>
