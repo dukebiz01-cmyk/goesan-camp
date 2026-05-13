@@ -1,9 +1,9 @@
 // js/vendors.js — v5.1.0 vendors 테이블 직접 사용
-import { db } from "./supabase.js?v=20260513b";
-import { state } from "./config.js?v=20260513b";
-import { $, esc, toast, fmtWeekday } from "./utils.js?v=20260513b";
-import { loadEvents } from "./events.js?v=20260513b";
-import { openModal } from "./router.js?v=20260513b";
+import { db } from "./supabase.js?v=20260513c";
+import { state } from "./config.js?v=20260513c";
+import { $, esc, toast, fmtWeekday } from "./utils.js?v=20260513c";
+import { loadEvents } from "./events.js?v=20260513c";
+import { openModal } from "./router.js?v=20260513c";
 
 export async function loadContactsPage() {
   const box = $("page-vendors");

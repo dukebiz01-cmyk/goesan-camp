@@ -1,9 +1,9 @@
 // js/notices.js — v5.1.0 voting system
-import { db } from "./supabase.js?v=20260513a";
-import { state } from "./config.js?v=20260513a";
-import { $, esc, fmtDate, showLoader, toast, val } from "./utils.js?v=20260513a";
-import { openModal, closeModal } from "./router.js?v=20260513a";
-import { uploadFiles } from "./uploads.js?v=20260513a";
+import { db } from "./supabase.js?v=20260513c";
+import { state } from "./config.js?v=20260513c";
+import { $, esc, fmtDate, showLoader, toast, val } from "./utils.js?v=20260513c";
+import { openModal, closeModal } from "./router.js?v=20260513c";
+import { uploadFiles } from "./uploads.js?v=20260513c";
 
 export async function loadNewsPage() {
   const box = $("page-notices");
