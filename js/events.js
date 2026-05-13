@@ -312,8 +312,33 @@ export function getOpenBundles() {
 // ============================================================
 // DB I/O — events.html에서 흡수
 // ============================================================
+// vendors 캐시 + 프로그램→vendor 매핑
+async function ensureVendorsLoaded() {
+  if (state.vendors && state.programToVendor) return;
+  try {
+    const { data, error } = await db
+      .from("vendors")
+      .select("*")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+    if (error) throw error;
+    state.vendors = data || [];
+    state.programToVendor = {};
+    for (const v of state.vendors) {
+      for (const p of v.programs || []) {
+        state.programToVendor[p] = v;
+      }
+    }
+  } catch (e) {
+    console.warn("vendors load failed:", e);
+    state.vendors = state.vendors || [];
+    state.programToVendor = state.programToVendor || {};
+  }
+}
+
 export async function loadEvents() {
   state.eventsError = null;
+  await ensureVendorsLoaded();
   const { data, error } = await db
     .from("camp_events")
     .select("*")
@@ -327,19 +352,22 @@ export async function loadEvents() {
     return [];
   }
 
-  // 포기 캠프 제외 + 메타 보강
+  // 포기 캠프 제외 + vendors DB로 보강 (DB가 진실)
   state.events = (data || [])
     .filter((e) => !isForfeitedCampName(e.camp_name))
     .map((e) => {
       const program = e.program_name || e.title || "미지정";
+      const vendor = state.programToVendor[program];
       const meta = EVENT_META[program] || {};
       return {
         ...e,
         _program: program,
         _catName: meta.cat || CATEGORY_LABEL[e.category] || e.category || "기타",
-        _provider: meta.provider || "미지정",
-        _instructorId: meta.instructorId || null,
-        _company: meta.company || "",
+        _provider: vendor?.representative || meta.provider || "(미지정)",
+        _company: vendor?.name || meta.company || "",
+        _vendor: vendor || null,
+        _phone: vendor?.phone || null,
+        _instructorId: meta.instructorId || vendor?.id || null,
       };
     });
   return state.events;

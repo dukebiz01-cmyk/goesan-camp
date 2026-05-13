@@ -1,27 +1,21 @@
-import { APP_VERSION, state } from "./config.js?v=20260513b";
-import { $, toast } from "./utils.js?v=20260513b";
-import { bootAuth, bindAuthUI } from "./auth.js?v=20260513b";
-import { loadHomePage } from "./home.js?v=20260513b";
-import { loadContactsPage } from "./contacts.js?v=20260513b";
-import { loadNewsPage } from "./news.js?v=20260513b";
-import { loadSettingsPage } from "./settings.js?v=20260513b";
-import { loadAdminPage } from "./admin.js?v=20260513b";
+import { APP_VERSION, state } from "./config.js?v=20260513e";
+import { $, toast } from "./utils.js?v=20260513e";
+import { bootAuth, bindAuthUI } from "./auth.js?v=20260513e";
+import { loadMyPage } from "./home.js?v=20260513e";
+import { loadVendorsPage } from "./vendors.js?v=20260513e";
+import { loadNoticesPage } from "./notices.js?v=20260513e";
+import { loadMorePage } from "./more.js?v=20260513e";
+import { loadAdminPage } from "./admin.js?v=20260513e";
 
 const loaders = {
-  my: loadHomePage,
-  vendors: loadContactsPage,
-  notices: loadNewsPage,
-  more: loadSettingsPage,
+  my: loadMyPage,
+  vendors: loadVendorsPage,
+  notices: loadNoticesPage,
+  more: loadMorePage,
   admin: loadAdminPage,
 };
 
-const titles = {
-  my: "일정",
-  vendors: "행사업체",
-  notices: "소식",
-  more: "더보기",
-  admin: "관리",
-};
+const titles = { my: "일정", vendors: "행사업체", notices: "소식", more: "더보기", admin: "관리" };
 
 export function allowedPages() {
   const role = state.role || "member";

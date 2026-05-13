@@ -1,15 +1,19 @@
 // js/my.js — v5.1.0 minimal
-import { db } from "./supabase.js";
-import { state, EVENT_META, CATEGORY_LABEL } from "./config.js";
-import { $, esc, fmtDate, todayKey, normalizeKey, fmtWeekday } from "./utils.js";
-import { loadEvents, loadCamps, isForfeitedCampName } from "./events.js";
+import { db } from "./supabase.js?v=20260513e";
+import { state, EVENT_META, CATEGORY_LABEL } from "./config.js?v=20260513e";
+import { $, esc, fmtDate, todayKey, normalizeKey, fmtWeekday } from "./utils.js?v=20260513e";
+import { loadEvents, loadCamps, isForfeitedCampName } from "./events.js?v=20260513e";
 
 const myCampName = () => state.member?.camp_name || "";
 const myProviderName = () =>
   state.member?.provider_name || state.member?.provider || state.member?.name || "";
 
 function effectiveCamp() {
-  if (state.role === "admin") return state.selectedCamp || (state.camps[0]?.name) || null;
+  if (state.role === "admin") {
+    if (!state.selectedCamp) state.selectedCamp = "__all__";
+    if (state.selectedCamp === "__all__") return "__all__";
+    return state.selectedCamp;
+  }
   return myCampName();
 }
 
@@ -27,7 +31,7 @@ function providerMatches(rowProvider, memberProvider) {
   return a === b || a.includes(b) || b.includes(a);
 }
 
-export async function loadHomePage() {
+export async function loadMyPage() {
   const box = $("page-my");
   box.innerHTML = `
     <div class="page-head">
@@ -85,7 +89,11 @@ async function renderMy() {
 
   let visibleEvents = [];
   if (role === "admin") {
-    visibleEvents = state.events;
+    if (camp && camp !== "__all__") {
+      visibleEvents = state.events.filter((e) => campMatches(e.camp_name, camp));
+    } else {
+      visibleEvents = state.events;
+    }
   } else if (["provider", "vendor", "instructor"].includes(role)) {
     const provider = myProviderName();
     visibleEvents = state.events.filter((e) => providerMatches(e._provider, provider));
@@ -114,6 +122,7 @@ async function renderMy() {
       <div class="card">
         <h3>캠핑장 선택</h3>
         <select id="my-camp-picker" style="width:100%;padding:14px;border:2px solid var(--line-strong);border-radius:14px;font-size:17px;font-weight:700">
+          <option value="__all__" ${!camp || camp === "__all__" ? "selected" : ""}>📋 전체 캠핑장 (캠프별 보기)</option>
           ${camps.map((c) => `
             <option value="${esc(c.name)}" ${c.name === camp ? "selected" : ""}>${esc(c.name)}</option>
           `).join("")}
@@ -122,7 +131,16 @@ async function renderMy() {
     `;
   }
 
-  html += renderUpcomingSchedule(upcoming.length ? upcoming : visibleEvents, camp, role);
+  // 표시 모드 결정
+  const isAdminAll = role === "admin" && (!camp || camp === "__all__");
+  
+  if (isAdminAll || role === "county") {
+    // 캠프별 그룹 (전체 보기)
+    html += renderByCampGroups(visibleEvents, role);
+  } else {
+    // 시기별 그룹 (특정 캠프 / member / provider)
+    html += renderUpcomingSchedule(upcoming.length ? upcoming : visibleEvents, camp, role);
+  }
 
   content.innerHTML = html;
 
@@ -130,6 +148,56 @@ async function renderMy() {
     state.selectedCamp = e.target.value;
     await renderMy();
   });
+}
+
+// ============================================================
+// 캠프별 그룹 (전체 보기용)
+// ============================================================
+function renderByCampGroups(rows, role) {
+  if (!rows.length) {
+    return `<div class="card"><h3>전체 행사</h3><p class="muted">행사가 없습니다.</p></div>`;
+  }
+
+  // camp_name별 그룹
+  const byCamp = {};
+  for (const e of rows) {
+    const c = e.camp_name || "(미지정)";
+    if (!byCamp[c]) byCamp[c] = [];
+    byCamp[c].push(e);
+  }
+
+  // 캠프 순서 결정 (state.camps 순서 우선)
+  const campOrder = (state.camps || []).map((c) => c.name || c.camp_name);
+  const sortedCamps = Object.keys(byCamp).sort((a, b) => {
+    const ia = campOrder.indexOf(a);
+    const ib = campOrder.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let html = "";
+  for (const c of sortedCamps) {
+    // 각 캠프 내 일정: 다가오는 일정 먼저, 날짜순
+    const items = byCamp[c].sort((a, b) => {
+      const da = a.event_date || "zzz";
+      const db = b.event_date || "zzz";
+      return da.localeCompare(db);
+    });
+    const upcomingCount = items.filter((e) => !e.event_date || new Date(e.event_date) >= today).length;
+    
+    html += `
+      <div class="card">
+        <h3>🏕 ${esc(c)} <span style="font-size:14px;color:var(--muted);font-weight:700">· 행사 ${items.length}건${upcomingCount < items.length ? ` (다가오는 ${upcomingCount})` : ""}</span></h3>
+        <div class="list">${items.map((e) => renderEventCard(e, c, role)).join("")}</div>
+      </div>
+    `;
+  }
+  return html;
 }
 
 function renderUpcomingSchedule(rows, currentCamp, role) {
@@ -225,6 +293,9 @@ function renderEventCard(e, currentCamp, role) {
         <div style="font-size:13px;color:var(--muted);font-weight:700;margin-bottom:4px">담당 업체</div>
         <div style="font-size:16px;font-weight:800;color:var(--green-dark)">${esc(provider)}</div>
         ${company ? `<div style="font-size:14px;color:var(--ink-2);margin-top:2px">${esc(company)}</div>` : ""}
+        ${e._phone ? `
+          <a href="tel:${esc(e._phone.replace(/[^0-9+]/g, ""))}" style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;margin-top:10px;padding:10px 14px;background:var(--green);color:#fff;border-radius:12px;font-size:15px;font-weight:800">📞 ${esc(e._phone)}</a>
+        ` : ""}
       </div>
 
       ${ticketChip}

@@ -1,9 +1,9 @@
 // js/vendors.js — 행사업체 디렉토리
 // 업체별 카드 (이름·회사·담당 행사·다음 출장·전화)
-import { db } from "./supabase.js";
-import { state, EVENT_META, INSTRUCTOR_INFO } from "./config.js";
-import { $, esc, toast, won, fmtWeekday } from "./utils.js";
-import { loadEvents, getEventsByProvider } from "./events.js";
+import { db } from "./supabase.js?v=20260513e";
+import { state, EVENT_META, INSTRUCTOR_INFO } from "./config.js?v=20260513e";
+import { $, esc, toast, won, fmtWeekday } from "./utils.js?v=20260513e";
+import { loadEvents, getEventsByProvider } from "./events.js?v=20260513e";
 
 export async function loadVendorsPage() {
   const box = $("page-vendors");
