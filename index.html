@@ -46,7 +46,7 @@
       </label>
       <button class="primary full" id="btn-login-phone">로그인</button>
 
-      <!-- PWA 설치 버튼 (조건부 표시) -->
+      <!-- PWA 설치 버튼 (모든 환경 표시) -->
       <button id="btn-install-pwa" style="display:none;width:100%;background:white;color:#0F4C3A;border:2px solid #0F4C3A;padding:13px;font-weight:700;border-radius:10px;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-size:14px;margin-top:10px">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -194,6 +194,7 @@
                         || window.navigator.standalone === true;
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       const isKakao = /KAKAOTALK/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
 
       function showBtn() {
         if (installBtn && !isStandalone) installBtn.style.display = 'flex';
@@ -202,8 +203,8 @@
         if (installBtn) installBtn.style.display = 'none';
       }
 
-      // iOS/카톡: prompt 미지원이지만 안내 위해 표시
-      if ((isIOS || isKakao) && !isStandalone) showBtn();
+      // 모든 환경에서 표시 (PWA로 이미 실행 중일 때만 숨김)
+      if (!isStandalone) showBtn();
 
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -222,12 +223,16 @@
           const { outcome } = await deferredPrompt.userChoice;
           deferredPrompt = null;
           if (outcome === 'accepted') hideBtn();
-        } else if (isKakao) {
+          return;
+        }
+        if (isKakao) {
           alert('카카오톡 브라우저는 앱 설치를 지원하지 않습니다.\n\n우상단 ⋮ → "다른 브라우저로 열기" → Chrome 선택 후 다시 시도하세요.');
         } else if (isIOS) {
-          alert('아이폰 설치 방법\n\n1. 화면 아래 공유 버튼 누르기\n2. "홈 화면에 추가" 선택\n3. 우상단 "추가" 누르기');
+          alert('아이폰 설치 방법\n\n사파리 브라우저에서:\n1. 화면 아래 공유 버튼 누르기\n2. "홈 화면에 추가" 선택\n3. 우상단 "추가" 누르기');
+        } else if (isAndroid) {
+          alert('안드로이드 크롬 설치 방법\n\n1. 화면 우상단 점3개 (⋮) 메뉴 누르기\n2. "앱 설치" 또는 "홈 화면에 추가" 선택\n   (휴대폰 모양 아이콘과 함께 표시)\n3. 팝업에서 "설치" 또는 "추가" 누르기');
         } else {
-          alert('크롬 설치 방법\n\n우상단 ⋮ 메뉴 → "앱 설치" 또는 "홈 화면에 추가"');
+          alert('PC 크롬 설치 방법\n\n1. 주소창 오른쪽 끝의 설치 아이콘 (📱 모양) 누르기\n2. "설치" 누르기\n\n또는: 우상단 ⋮ 메뉴 → "Claude 설치"');
         }
       });
     })();
