@@ -1,11 +1,11 @@
-import { APP_VERSION, state } from "./config.js?v=20260513k";
-import { $, toast } from "./utils.js?v=20260513k";
-import { bootAuth, bindAuthUI } from "./auth.js?v=20260513k";
-import { loadMyPage } from "./home.js?v=20260513k";
-import { loadVendorsPage } from "./vendors.js?v=20260513k";
-import { loadNoticesPage } from "./notices.js?v=20260513k";
-import { loadMorePage } from "./more.js?v=20260513k";
-import { loadAdminPage } from "./admin.js?v=20260513k";
+import { APP_VERSION, state } from "./config.js?v=20260513m";
+import { $, toast } from "./utils.js?v=20260513m";
+import { bootAuth, bindAuthUI } from "./auth.js?v=20260513m";
+import { loadMyPage } from "./home.js?v=20260513m";
+import { loadVendorsPage } from "./vendors.js?v=20260513m";
+import { loadNoticesPage } from "./notices.js?v=20260513m";
+import { loadMorePage } from "./more.js?v=20260513m";
+import { loadAdminPage } from "./admin.js?v=20260513m";
 
 const loaders = {
   my: loadMyPage,
