@@ -1,6 +1,6 @@
 import { APP_VERSION, state } from "./config.js?v=20260513e";
 import { $, toast } from "./utils.js?v=20260513e";
-import { bootAuth, bindAuthUI } from "./auth.js?v=20260513e";
+import { bootAuth, bindAuthUI } from "./auth.js?v=20260513k";
 import { loadMyPage } from "./home.js?v=20260513e";
 import { loadVendorsPage } from "./vendors.js?v=20260513e";
 import { loadNoticesPage } from "./notices.js?v=20260513e";
