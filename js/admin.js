@@ -7,6 +7,10 @@ import { openModal, closeModal } from "./router.js";
 const BUSINESS_BUCKET = "business-docs";
 const DOC_TYPES = ["사업자등록증", "계좌사본", "명함"];
 
+// 모달 내부 공통 스타일
+const FIELD_STYLE = "display:block;margin-bottom:12px;font-size:13px;color:var(--muted);font-weight:600";
+const INPUT_STYLE = "display:block;width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:white;margin-top:5px;box-sizing:border-box";
+
 export async function loadAdminPage() {
   if (state.role !== "admin") { $("page-admin").innerHTML = `<div class="card">관리자만 접근할 수 있습니다.</div>`; return; }
   $("page-admin").innerHTML = `
@@ -119,63 +123,80 @@ async function addVendorPrompt() {
   toast("업체 등록 완료"); loadVendors(); loadAuditLogs();
 }
 
-// ★ v5.3: prompt → 모달로 업그레이드 + 파일 업로드 3종
+// ★ v5.3.1: 인라인 스타일로 input 표시 보장
 async function openVendorEditModal(id) {
   const { data: v, error } = await db.from("vendors").select("*").eq("id", id).single();
   if (error) { alert(error.message); return; }
 
-  // 기존 첨부파일 조회
   const attachments = await listAttachments({ targetType: "vendor", targetId: id });
+
+  // 첨부 파일 lookup 캐시
+  window.__vendorAttachments = {};
+  attachments.forEach((f) => { window.__vendorAttachments[f.id] = f; });
 
   const fileSection = (docType) => {
     const files = attachments.filter((f) => f.doc_type === docType);
     return `
-      <div class="field">
-        <label>${docType}</label>
-        <input type="file" id="vfile-${docType}" accept="image/*,.pdf">
+      <div style="margin-bottom:18px;padding:12px;background:#fafafa;border-radius:10px;border:1px solid #eee">
+        <label style="${FIELD_STYLE}">${docType}
+          <input type="file" id="vfile-${docType}" accept="image/*,.pdf" style="${INPUT_STYLE}">
+        </label>
         ${files.length ? `
-          <div class="list" style="margin-top:8px">
+          <div style="margin-top:10px">
             ${files.map((f) => `
-              <div class="item" style="padding:8px 10px">
-                <div class="item-title" style="font-size:13px">${esc(f.file_name?.replace(/^\[.*?\]\s*/, "") || "-")}</div>
-                <div class="chips" style="margin-top:4px">
+              <div style="padding:8px 10px;background:white;border-radius:8px;margin-top:6px;border:1px solid #eee">
+                <div style="font-size:13px;color:var(--ink);margin-bottom:6px">${esc(f.file_name?.replace(/^\[.*?\]\s*/, "") || "-")}</div>
+                <div style="display:flex;gap:6px">
                   <button class="secondary small" data-vfile-view="${f.id}">보기</button>
                   <button class="secondary small" data-vfile-delete="${f.id}" style="color:var(--red);border-color:#fca5a5">삭제</button>
                 </div>
               </div>
             `).join("")}
           </div>
-        ` : `<div class="muted" style="font-size:13px;margin-top:6px">업로드된 파일 없음</div>`}
+        ` : `<div style="margin-top:6px;color:var(--muted);font-size:13px">업로드된 파일 없음</div>`}
       </div>
     `;
   };
 
-  // 첨부 파일 lookup 캐시
-  window.__vendorAttachments = {};
-  attachments.forEach((f) => { window.__vendorAttachments[f.id] = f; });
-
   const html = `
     <input type="hidden" id="ve-id" value="${esc(v.id)}">
-    <div class="grid two">
-      <label class="field">회사명<input id="ve-name" value="${esc(v.name || "")}"></label>
-      <label class="field">대표/강사명<input id="ve-rep" value="${esc(v.representative || "")}"></label>
-      <label class="field">전화<input id="ve-phone" value="${esc(v.phone || "")}"></label>
-      <label class="field">사업자번호<input id="ve-bizno" value="${esc(v.business_number || "")}" placeholder="000-00-00000"></label>
-    </div>
-    <div class="grid two">
-      <label class="field">은행<input id="ve-bank" value="${esc(v.bank_name || "")}" placeholder="농협 등"></label>
-      <label class="field">계좌번호<input id="ve-acct" value="${esc(v.bank_account || "")}"></label>
-    </div>
-    <label class="field">예금주<input id="ve-holder" value="${esc(v.bank_holder || "")}"></label>
 
-    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border)">
-    <h4 style="margin:14px 0 10px">📎 첨부 서류</h4>
+    <label style="${FIELD_STYLE}">회사명
+      <input id="ve-name" value="${esc(v.name || "")}" style="${INPUT_STYLE}">
+    </label>
+    <label style="${FIELD_STYLE}">대표/강사명
+      <input id="ve-rep" value="${esc(v.representative || "")}" style="${INPUT_STYLE}">
+    </label>
+    <label style="${FIELD_STYLE}">전화번호
+      <input id="ve-phone" value="${esc(v.phone || "")}" style="${INPUT_STYLE}" placeholder="010-1234-5678">
+    </label>
+    <label style="${FIELD_STYLE}">사업자번호
+      <input id="ve-bizno" value="${esc(v.business_number || "")}" style="${INPUT_STYLE}" placeholder="000-00-00000">
+    </label>
+
+    <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
+    <h4 style="margin:14px 0 12px;font-size:15px">💳 정산 정보</h4>
+
+    <label style="${FIELD_STYLE}">은행
+      <input id="ve-bank" value="${esc(v.bank_name || "")}" style="${INPUT_STYLE}" placeholder="농협, 국민은행 등">
+    </label>
+    <label style="${FIELD_STYLE}">계좌번호
+      <input id="ve-acct" value="${esc(v.bank_account || "")}" style="${INPUT_STYLE}">
+    </label>
+    <label style="${FIELD_STYLE}">예금주
+      <input id="ve-holder" value="${esc(v.bank_holder || "")}" style="${INPUT_STYLE}">
+    </label>
+
+    <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
+    <h4 style="margin:14px 0 12px;font-size:15px">📎 첨부 서류</h4>
     ${DOC_TYPES.map(fileSection).join("")}
 
-    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border)">
-    <label class="field">변경 사유 (필수)<input id="ve-reason" placeholder="예: 강사 교체, 사업자번호 등록"></label>
+    <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
+    <label style="${FIELD_STYLE}">⚠️ 변경 사유 (필수)
+      <input id="ve-reason" placeholder="예: 강사 교체, 사업자번호 등록" style="${INPUT_STYLE}">
+    </label>
 
-    <button class="primary full" id="btn-vendor-save-modal">저장</button>
+    <button class="primary full" id="btn-vendor-save-modal" style="margin-top:14px">저장</button>
   `;
 
   openModal(`업체 수정: ${v.name}`, html);
@@ -188,7 +209,6 @@ async function saveVendorFromModal(id) {
 
   showLoader(true);
   try {
-    // 1. 텍스트 정보 update (RPC + audit)
     const res = await rpc("update_vendor", {
       p_id: id,
       p_name: val("ve-name") || null,
@@ -202,7 +222,6 @@ async function saveVendorFromModal(id) {
     }, "업체 수정");
     if (res.error) throw new Error(res.error.message);
 
-    // 2. 파일 업로드 (각 docType별)
     let uploadedCount = 0;
     for (const docType of DOC_TYPES) {
       const inp = document.getElementById(`vfile-${docType}`);
@@ -346,7 +365,6 @@ document.addEventListener("click", async (e) => {
     try {
       await deleteAttachment(f);
       toast("삭제 완료");
-      // 모달 다시 열어서 갱신
       const vendorId = $("ve-id")?.value;
       closeModal();
       if (vendorId) await openVendorEditModal(vendorId);
