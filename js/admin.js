@@ -1,6 +1,11 @@
 import { db, rpc } from "./supabase.js";
 import { state, ROLE_LABEL } from "./config.js";
 import { $, esc, showLoader, toast, val } from "./utils.js";
+import { uploadFiles, signedUrl, listAttachments, deleteAttachment } from "./uploads.js";
+import { openModal, closeModal } from "./router.js";
+
+const BUSINESS_BUCKET = "business-docs";
+const DOC_TYPES = ["사업자등록증", "계좌사본", "명함"];
 
 export async function loadAdminPage() {
   if (state.role !== "admin") { $("page-admin").innerHTML = `<div class="card">관리자만 접근할 수 있습니다.</div>`; return; }
@@ -66,7 +71,6 @@ async function loadVendors() {
   if (error) { box.innerHTML = `<div class="item">업체 오류: ${esc(error.message)}</div>`; return; }
   if (!vendors?.length) { box.innerHTML = `<div class="item">등록된 업체가 없습니다.</div>`; return; }
 
-  // 각 vendor의 활성 행사 수
   const { data: events } = await db.from("camp_events").select("vendor_id, status").not("vendor_id", "is", null);
   const countMap = {};
   (events || []).forEach((e) => {
@@ -115,44 +119,116 @@ async function addVendorPrompt() {
   toast("업체 등록 완료"); loadVendors(); loadAuditLogs();
 }
 
-async function editVendorPrompt(id) {
+// ★ v5.3: prompt → 모달로 업그레이드 + 파일 업로드 3종
+async function openVendorEditModal(id) {
   const { data: v, error } = await db.from("vendors").select("*").eq("id", id).single();
   if (error) { alert(error.message); return; }
 
-  const name = prompt("회사명", v.name || "");
-  if (name === null) return;
-  const representative = prompt("대표/강사명", v.representative || "");
-  if (representative === null) return;
-  const phone = prompt("전화번호", v.phone || "");
-  if (phone === null) return;
-  const business_number = prompt("사업자번호", v.business_number || "");
-  if (business_number === null) return;
-  const bank_name = prompt("입금 은행 (예: 농협)", v.bank_name || "");
-  if (bank_name === null) return;
-  const bank_account = prompt("계좌번호", v.bank_account || "");
-  if (bank_account === null) return;
-  const bank_holder = prompt("예금주", v.bank_holder || "");
-  if (bank_holder === null) return;
-  const reason = prompt("변경 사유 (예: 강사 교체, 정보 갱신)", "");
+  // 기존 첨부파일 조회
+  const attachments = await listAttachments({ targetType: "vendor", targetId: id });
+
+  const fileSection = (docType) => {
+    const files = attachments.filter((f) => f.doc_type === docType);
+    return `
+      <div class="field">
+        <label>${docType}</label>
+        <input type="file" id="vfile-${docType}" accept="image/*,.pdf">
+        ${files.length ? `
+          <div class="list" style="margin-top:8px">
+            ${files.map((f) => `
+              <div class="item" style="padding:8px 10px">
+                <div class="item-title" style="font-size:13px">${esc(f.file_name?.replace(/^\[.*?\]\s*/, "") || "-")}</div>
+                <div class="chips" style="margin-top:4px">
+                  <button class="secondary small" data-vfile-view="${f.id}">보기</button>
+                  <button class="secondary small" data-vfile-delete="${f.id}" style="color:var(--red);border-color:#fca5a5">삭제</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : `<div class="muted" style="font-size:13px;margin-top:6px">업로드된 파일 없음</div>`}
+      </div>
+    `;
+  };
+
+  // 첨부 파일 lookup 캐시
+  window.__vendorAttachments = {};
+  attachments.forEach((f) => { window.__vendorAttachments[f.id] = f; });
+
+  const html = `
+    <input type="hidden" id="ve-id" value="${esc(v.id)}">
+    <div class="grid two">
+      <label class="field">회사명<input id="ve-name" value="${esc(v.name || "")}"></label>
+      <label class="field">대표/강사명<input id="ve-rep" value="${esc(v.representative || "")}"></label>
+      <label class="field">전화<input id="ve-phone" value="${esc(v.phone || "")}"></label>
+      <label class="field">사업자번호<input id="ve-bizno" value="${esc(v.business_number || "")}" placeholder="000-00-00000"></label>
+    </div>
+    <div class="grid two">
+      <label class="field">은행<input id="ve-bank" value="${esc(v.bank_name || "")}" placeholder="농협 등"></label>
+      <label class="field">계좌번호<input id="ve-acct" value="${esc(v.bank_account || "")}"></label>
+    </div>
+    <label class="field">예금주<input id="ve-holder" value="${esc(v.bank_holder || "")}"></label>
+
+    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border)">
+    <h4 style="margin:14px 0 10px">📎 첨부 서류</h4>
+    ${DOC_TYPES.map(fileSection).join("")}
+
+    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border)">
+    <label class="field">변경 사유 (필수)<input id="ve-reason" placeholder="예: 강사 교체, 사업자번호 등록"></label>
+
+    <button class="primary full" id="btn-vendor-save-modal">저장</button>
+  `;
+
+  openModal(`업체 수정: ${v.name}`, html);
+  $("btn-vendor-save-modal")?.addEventListener("click", () => saveVendorFromModal(id));
+}
+
+async function saveVendorFromModal(id) {
+  const reason = val("ve-reason");
   if (!reason) { alert("변경 사유는 필수입니다."); return; }
 
   showLoader(true);
-  const res = await rpc("update_vendor", {
-    p_id: id,
-    p_name: name || null,
-    p_representative: representative || null,
-    p_phone: phone || null,
-    p_business_number: business_number || null,
-    p_bank_name: bank_name || null,
-    p_bank_account: bank_account || null,
-    p_bank_holder: bank_holder || null,
-    p_reason: reason,
-  }, "업체 수정");
-  showLoader(false);
-  if (res.error) { alert("수정 오류: " + res.error.message); return; }
-  const affected = res.data?.affected_events ?? 0;
-  toast(`변경 완료 · 영향 행사 ${affected}건`);
-  loadVendors(); loadAuditLogs();
+  try {
+    // 1. 텍스트 정보 update (RPC + audit)
+    const res = await rpc("update_vendor", {
+      p_id: id,
+      p_name: val("ve-name") || null,
+      p_representative: val("ve-rep") || null,
+      p_phone: val("ve-phone") || null,
+      p_business_number: val("ve-bizno") || null,
+      p_bank_name: val("ve-bank") || null,
+      p_bank_account: val("ve-acct") || null,
+      p_bank_holder: val("ve-holder") || null,
+      p_reason: reason,
+    }, "업체 수정");
+    if (res.error) throw new Error(res.error.message);
+
+    // 2. 파일 업로드 (각 docType별)
+    let uploadedCount = 0;
+    for (const docType of DOC_TYPES) {
+      const inp = document.getElementById(`vfile-${docType}`);
+      const files = inp?.files;
+      if (files && files.length > 0) {
+        await uploadFiles(files, {
+          targetType: "vendor",
+          targetId: id,
+          docType,
+          bucket: BUSINESS_BUCKET,
+          maxSizeMB: 5,
+        });
+        uploadedCount++;
+      }
+    }
+
+    const affected = res.data?.affected_events ?? 0;
+    const fileMsg = uploadedCount > 0 ? ` · 파일 ${uploadedCount}종` : "";
+    toast(`변경 완료 · 영향 ${affected}건${fileMsg}`);
+    closeModal();
+    loadVendors(); loadAuditLogs();
+  } catch (e) {
+    alert("저장 오류: " + e.message);
+  } finally {
+    showLoader(false);
+  }
 }
 
 async function toggleVendorActive(id, newActive) {
@@ -161,7 +237,6 @@ async function toggleVendorActive(id, newActive) {
   if (!reason) { alert("사유 필수"); return; }
 
   showLoader(true);
-  // is_active는 update_vendor RPC가 처리 안 함 → 직접 UPDATE + audit 수동
   const { error: upErr } = await db.from("vendors").update({ is_active: newActive, updated_at: new Date().toISOString() }).eq("id", id);
   if (!upErr) {
     await db.from("audit_logs").insert({
@@ -213,6 +288,8 @@ document.addEventListener("click", async (e) => {
   const del = e.target.closest("[data-delete-member]")?.dataset.deleteMember;
   const vendorEdit = e.target.closest("[data-vendor-edit]")?.dataset.vendorEdit;
   const vendorToggle = e.target.closest("[data-vendor-toggle]");
+  const vfileView = e.target.closest("[data-vfile-view]")?.dataset.vfileView;
+  const vfileDelete = e.target.closest("[data-vfile-delete]")?.dataset.vfileDelete;
 
   if (approve) {
     showLoader(true);
@@ -246,11 +323,37 @@ document.addEventListener("click", async (e) => {
     if (res.error) alert(res.error.message); else { toast("삭제 처리 완료"); loadMembers(); }
   }
 
-  if (vendorEdit) await editVendorPrompt(vendorEdit);
+  if (vendorEdit) await openVendorEditModal(vendorEdit);
 
   if (vendorToggle) {
     const id = vendorToggle.dataset.vendorToggle;
     const on = vendorToggle.dataset.on === "1";
     await toggleVendorActive(id, on);
+  }
+
+  if (vfileView) {
+    const f = window.__vendorAttachments?.[vfileView];
+    if (!f) return;
+    const url = await signedUrl(f);
+    window.open(url, "_blank");
+  }
+
+  if (vfileDelete) {
+    const f = window.__vendorAttachments?.[vfileDelete];
+    if (!f) return;
+    if (!confirm(`"${f.file_name}" 파일을 삭제할까요?`)) return;
+    showLoader(true);
+    try {
+      await deleteAttachment(f);
+      toast("삭제 완료");
+      // 모달 다시 열어서 갱신
+      const vendorId = $("ve-id")?.value;
+      closeModal();
+      if (vendorId) await openVendorEditModal(vendorId);
+    } catch (err) {
+      alert("삭제 오류: " + err.message);
+    } finally {
+      showLoader(false);
+    }
   }
 });
