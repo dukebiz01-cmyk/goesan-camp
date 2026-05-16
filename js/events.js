@@ -1,5 +1,5 @@
 // js/events.js — 행사 박제·예산·묶음 핵심 로직
-// events.html의 비즈니스 로직을 ES module로 흡수
+// v5.2: getEventsByProvider vendor DB 우선 + vendors 캐시 무효화
 import { db } from "./supabase.js";
 import {
   state,
@@ -338,6 +338,9 @@ async function ensureVendorsLoaded() {
 
 export async function loadEvents() {
   state.eventsError = null;
+  // ★ FIX: vendors 캐시 무효화 후 재로딩 — 관리자 vendor 수정 후 즉시 반영
+  state.vendors = null;
+  state.programToVendor = null;
   await ensureVendorsLoaded();
   const { data, error } = await db
     .from("camp_events")
@@ -592,24 +595,29 @@ export function getInstructorsFromEvents() {
   return Object.values(map).sort((a, b) => b.count - a.count);
 }
 
-// 업체별 일정 (info 페이지용)
+// 업체별 일정 (vendors 페이지용)
+// ★ FIX v5.2: vendor DB 우선 — _provider/_company/_phone 사용
 export function getEventsByProvider() {
   const map = {};
   for (const e of state.events) {
-    const meta = EVENT_META[e.program_name];
-    if (!meta) continue;
-    const provider = meta.provider || "미지정";
+    // _provider는 loadEvents에서 vendor.representative 우선으로 채워짐
+    const provider = e._provider || "(미지정)";
+    if (provider === "(미지정)") continue;
+    const program = e._program || e.program_name;
+    const meta = EVENT_META[program] || {};
     if (!map[provider]) {
       map[provider] = {
-        provider,
-        company: meta.company || "",
+        provider,                                       // vendor.representative (예: 이지윤)
+        company: e._company || meta.company || "",     // vendor.name (예: 체험아트)
+        phone: e._phone || "",                          // vendor.phone (예: 010-3118-2383)
+        vendorId: e._vendor?.id || null,
         instructorId: meta.instructorId,
-        cat: meta.cat,
+        cat: e._catName || meta.cat,
         programs: new Set(),
         events: [],
       };
     }
-    map[provider].programs.add(e.program_name);
+    map[provider].programs.add(program);
     map[provider].events.push(e);
   }
   return Object.values(map).map((v) => ({ ...v, programs: [...v.programs] }));
