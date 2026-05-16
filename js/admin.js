@@ -7,26 +7,72 @@ import { openModal, closeModal } from "./router.js";
 const BUSINESS_BUCKET = "business-docs";
 const DOC_TYPES = ["사업자등록증", "계좌사본", "명함"];
 
-// 모달 내부 공통 스타일
 const FIELD_STYLE = "display:block;margin-bottom:12px;font-size:13px;color:var(--muted);font-weight:600";
 const INPUT_STYLE = "display:block;width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:white;margin-top:5px;box-sizing:border-box";
+
+const TAB_LABELS = {
+  members: { name: "회원", target_tables: ["members", "signup_requests"] },
+  partners: { name: "파트너", target_tables: ["vendors", "camp_events"] },
+};
+
+let currentTab = "members";
 
 export async function loadAdminPage() {
   if (state.role !== "admin") { $("page-admin").innerHTML = `<div class="card">관리자만 접근할 수 있습니다.</div>`; return; }
   $("page-admin").innerHTML = `
-    <div class="page-head"><div><div class="page-title">관리</div><div class="page-sub">회원 · 가입 · 업체 · 이력</div></div></div>
+    <div class="page-head">
+      <div>
+        <div class="page-title">관리</div>
+        <div class="page-sub">회원 · 파트너 관리</div>
+      </div>
+    </div>
+    <div class="admin-tabs" style="display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid var(--border)">
+      ${Object.entries(TAB_LABELS).map(([key, t]) => `
+        <button class="admin-tab" data-tab="${key}" 
+                style="flex:1;padding:12px 0;background:transparent;border:none;border-bottom:3px solid transparent;font-size:15px;font-weight:700;color:var(--muted);cursor:pointer;margin-bottom:-2px">
+          ${esc(t.name)}
+        </button>
+      `).join("")}
+    </div>
+    <div id="admin-tab-content"></div>
+  `;
+  
+  document.querySelectorAll(".admin-tab").forEach((btn) => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+  
+  switchTab(currentTab);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  // 탭 활성 표시
+  document.querySelectorAll(".admin-tab").forEach((btn) => {
+    if (btn.dataset.tab === tab) {
+      btn.style.color = "var(--green-dark)";
+      btn.style.borderBottomColor = "var(--green)";
+    } else {
+      btn.style.color = "var(--muted)";
+      btn.style.borderBottomColor = "transparent";
+    }
+  });
+  
+  if (tab === "members") renderMembersTab();
+  else if (tab === "partners") renderPartnersTab();
+}
+
+/* ============================================================
+   회원 탭
+   ============================================================ */
+function renderMembersTab() {
+  $("admin-tab-content").innerHTML = `
     <div class="card"><h3>회원 등록</h3>${memberForm()}</div>
     <div class="card"><h3>가입신청</h3><div id="signup-list" class="list"></div></div>
     <div class="card"><h3>회원 목록</h3><div id="member-list" class="list"></div></div>
-    <div class="card">
-      <h3>업체 관리 <button class="primary small" id="btn-vendor-add" style="float:right;margin-top:-4px">+ 새 업체</button></h3>
-      <div id="vendor-list" class="list"></div>
-    </div>
-    <div class="card"><h3>변경 이력 (최근 20건)</h3><div id="audit-list" class="list"></div></div>
+    <div class="card"><h3>회원 변경 이력 (최근 20건)</h3><div id="audit-list-members" class="list"></div></div>
   `;
   $("btn-member-save")?.addEventListener("click", createMember);
-  $("btn-vendor-add")?.addEventListener("click", addVendorPrompt);
-  await Promise.all([loadSignupRequests(), loadMembers(), loadVendors(), loadAuditLogs()]);
+  Promise.all([loadSignupRequests(), loadMembers(), loadAuditLogs("members", "audit-list-members")]);
 }
 
 function memberForm() {
@@ -48,12 +94,14 @@ async function createMember() {
   });
   showLoader(false);
   if (res.error) { alert("회원 등록 오류: " + res.error.message); return; }
-  toast("회원 등록 완료"); loadAdminPage();
+  toast("회원 등록 완료"); 
+  renderMembersTab();
 }
 
 async function loadSignupRequests() {
   const { data, error } = await db.from("signup_requests").select("*").eq("status", "pending").order("created_at", { ascending: false });
   const box = $("signup-list");
+  if (!box) return;
   if (error) { box.innerHTML = `<div class="item">가입신청 오류: ${esc(error.message)}</div>`; return; }
   if (!data?.length) { box.innerHTML = `<div class="item">대기 중인 가입신청이 없습니다.</div>`; return; }
   box.innerHTML = data.map((r) => `<div class="item"><div class="item-title">${esc(r.name)} · ${esc(r.role_requested)}</div><div class="item-meta">${esc(r.email)} · ${esc(r.camp_name || r.provider_name || "")}</div><div class="chips"><button class="primary small" data-approve="${r.id}">승인</button><button class="secondary small" data-reject="${r.id}">거절</button></div></div>`).join("");
@@ -62,15 +110,29 @@ async function loadSignupRequests() {
 async function loadMembers() {
   const { data, error } = await db.from("members").select("*").is("deleted_at", null).order("created_at", { ascending: false }).limit(300);
   const box = $("member-list");
+  if (!box) return;
   if (error) { box.innerHTML = `<div class="item">회원 목록 오류: ${esc(error.message)}</div>`; return; }
   box.innerHTML = (data || []).map((m) => `<div class="item"><div class="item-title">${esc(m.name)} · ${esc(ROLE_LABEL[m.role] || m.role)}</div><div class="item-meta">${esc(m.email || "-")}<br>${esc(m.camp_name || m.provider_name || "")}</div><div class="chips"><span class="chip ${m.is_active ? "" : "red"}">${m.is_active ? "활성" : "정지"}</span><button class="secondary small" data-active="${m.id}" data-on="${m.is_active ? "0" : "1"}">${m.is_active ? "정지" : "해제"}</button><button class="secondary small" data-delete-member="${m.id}">삭제</button></div></div>`).join("");
 }
 
 /* ============================================================
-   업체 관리
+   파트너 탭
    ============================================================ */
+function renderPartnersTab() {
+  $("admin-tab-content").innerHTML = `
+    <div class="card">
+      <h3>업체 관리 <button class="primary small" id="btn-vendor-add" style="float:right;margin-top:-4px">+ 새 업체</button></h3>
+      <div id="vendor-list" class="list"></div>
+    </div>
+    <div class="card"><h3>파트너 변경 이력 (최근 20건)</h3><div id="audit-list-partners" class="list"></div></div>
+  `;
+  $("btn-vendor-add")?.addEventListener("click", addVendorPrompt);
+  Promise.all([loadVendors(), loadAuditLogs("partners", "audit-list-partners")]);
+}
+
 async function loadVendors() {
   const box = $("vendor-list");
+  if (!box) return;
   const { data: vendors, error } = await db.from("vendors").select("*").order("is_active", { ascending: false }).order("name", { ascending: true });
   if (error) { box.innerHTML = `<div class="item">업체 오류: ${esc(error.message)}</div>`; return; }
   if (!vendors?.length) { box.innerHTML = `<div class="item">등록된 업체가 없습니다.</div>`; return; }
@@ -120,17 +182,14 @@ async function addVendorPrompt() {
   }, "업체 추가");
   showLoader(false);
   if (res.error) { alert("등록 오류: " + res.error.message); return; }
-  toast("업체 등록 완료"); loadVendors(); loadAuditLogs();
+  toast("업체 등록 완료"); renderPartnersTab();
 }
 
-// ★ v5.3.1: 인라인 스타일로 input 표시 보장
 async function openVendorEditModal(id) {
   const { data: v, error } = await db.from("vendors").select("*").eq("id", id).single();
   if (error) { alert(error.message); return; }
 
   const attachments = await listAttachments({ targetType: "vendor", targetId: id });
-
-  // 첨부 파일 lookup 캐시
   window.__vendorAttachments = {};
   attachments.forEach((f) => { window.__vendorAttachments[f.id] = f; });
 
@@ -160,41 +219,23 @@ async function openVendorEditModal(id) {
 
   const html = `
     <input type="hidden" id="ve-id" value="${esc(v.id)}">
-
-    <label style="${FIELD_STYLE}">회사명
-      <input id="ve-name" value="${esc(v.name || "")}" style="${INPUT_STYLE}">
-    </label>
-    <label style="${FIELD_STYLE}">대표/강사명
-      <input id="ve-rep" value="${esc(v.representative || "")}" style="${INPUT_STYLE}">
-    </label>
-    <label style="${FIELD_STYLE}">전화번호
-      <input id="ve-phone" value="${esc(v.phone || "")}" style="${INPUT_STYLE}" placeholder="010-1234-5678">
-    </label>
-    <label style="${FIELD_STYLE}">사업자번호
-      <input id="ve-bizno" value="${esc(v.business_number || "")}" style="${INPUT_STYLE}" placeholder="000-00-00000">
-    </label>
+    <label style="${FIELD_STYLE}">회사명<input id="ve-name" value="${esc(v.name || "")}" style="${INPUT_STYLE}"></label>
+    <label style="${FIELD_STYLE}">대표/강사명<input id="ve-rep" value="${esc(v.representative || "")}" style="${INPUT_STYLE}"></label>
+    <label style="${FIELD_STYLE}">전화번호<input id="ve-phone" value="${esc(v.phone || "")}" style="${INPUT_STYLE}" placeholder="010-1234-5678"></label>
+    <label style="${FIELD_STYLE}">사업자번호<input id="ve-bizno" value="${esc(v.business_number || "")}" style="${INPUT_STYLE}" placeholder="000-00-00000"></label>
 
     <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
     <h4 style="margin:14px 0 12px;font-size:15px">💳 정산 정보</h4>
-
-    <label style="${FIELD_STYLE}">은행
-      <input id="ve-bank" value="${esc(v.bank_name || "")}" style="${INPUT_STYLE}" placeholder="농협, 국민은행 등">
-    </label>
-    <label style="${FIELD_STYLE}">계좌번호
-      <input id="ve-acct" value="${esc(v.bank_account || "")}" style="${INPUT_STYLE}">
-    </label>
-    <label style="${FIELD_STYLE}">예금주
-      <input id="ve-holder" value="${esc(v.bank_holder || "")}" style="${INPUT_STYLE}">
-    </label>
+    <label style="${FIELD_STYLE}">은행<input id="ve-bank" value="${esc(v.bank_name || "")}" style="${INPUT_STYLE}" placeholder="농협, 국민은행 등"></label>
+    <label style="${FIELD_STYLE}">계좌번호<input id="ve-acct" value="${esc(v.bank_account || "")}" style="${INPUT_STYLE}"></label>
+    <label style="${FIELD_STYLE}">예금주<input id="ve-holder" value="${esc(v.bank_holder || "")}" style="${INPUT_STYLE}"></label>
 
     <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
     <h4 style="margin:14px 0 12px;font-size:15px">📎 첨부 서류</h4>
     ${DOC_TYPES.map(fileSection).join("")}
 
     <hr style="margin:18px 0;border:none;border-top:1px solid #eee">
-    <label style="${FIELD_STYLE}">⚠️ 변경 사유 (필수)
-      <input id="ve-reason" placeholder="예: 강사 교체, 사업자번호 등록" style="${INPUT_STYLE}">
-    </label>
+    <label style="${FIELD_STYLE}">⚠️ 변경 사유 (필수)<input id="ve-reason" placeholder="예: 강사 교체, 사업자번호 등록" style="${INPUT_STYLE}"></label>
 
     <button class="primary full" id="btn-vendor-save-modal" style="margin-top:14px">저장</button>
   `;
@@ -242,7 +283,7 @@ async function saveVendorFromModal(id) {
     const fileMsg = uploadedCount > 0 ? ` · 파일 ${uploadedCount}종` : "";
     toast(`변경 완료 · 영향 ${affected}건${fileMsg}`);
     closeModal();
-    loadVendors(); loadAuditLogs();
+    renderPartnersTab();
   } catch (e) {
     alert("저장 오류: " + e.message);
   } finally {
@@ -268,17 +309,19 @@ async function toggleVendorActive(id, newActive) {
   }
   showLoader(false);
   if (upErr) { alert("상태 변경 오류: " + upErr.message); return; }
-  toast(`${action} 완료`); loadVendors(); loadAuditLogs();
+  toast(`${action} 완료`); renderPartnersTab();
 }
 
 /* ============================================================
-   변경 이력
+   카테고리별 이력 (회원/파트너 별)
    ============================================================ */
-async function loadAuditLogs() {
-  const box = $("audit-list");
+async function loadAuditLogs(tabKey, boxId) {
+  const box = $(boxId);
+  if (!box) return;
+  const tables = TAB_LABELS[tabKey]?.target_tables || [];
   const { data, error } = await db.from("audit_logs")
     .select("*")
-    .in("target_table", ["vendors", "camp_events"])
+    .in("target_table", tables)
     .order("created_at", { ascending: false })
     .limit(20);
   if (error) { box.innerHTML = `<div class="item">이력 오류: ${esc(error.message)}</div>`; return; }
@@ -314,7 +357,7 @@ document.addEventListener("click", async (e) => {
     showLoader(true);
     const res = await rpc("approve_signup_request_v5", { p_request_id: approve, p_role: null, p_is_voter: true }, "가입승인");
     showLoader(false);
-    if (res.error) alert(res.error.message); else { toast("승인 완료"); loadAdminPage(); }
+    if (res.error) alert(res.error.message); else { toast("승인 완료"); renderMembersTab(); }
   }
 
   if (reject) {
@@ -322,7 +365,7 @@ document.addEventListener("click", async (e) => {
     showLoader(true);
     const res = await rpc("reject_signup_request_v5", { p_request_id: reject, p_reason: reason }, "가입거절");
     showLoader(false);
-    if (res.error) alert(res.error.message); else { toast("거절 완료"); loadAdminPage(); }
+    if (res.error) alert(res.error.message); else { toast("거절 완료"); renderMembersTab(); }
   }
 
   if (active) {
